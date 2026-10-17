@@ -21,7 +21,7 @@ def ol(url):
 
 tick = ol(f"{API}/ticker/24hr")
 juft = [(float(t["quoteVolume"]), t["symbol"][:-4]) for t in tick if t["symbol"].endswith("USDT")]
-juft = [b for v, b in sorted(juft, reverse=True) if b not in STABIL and not b.endswith(("UP", "DOWN", "BULL", "BEAR"))]
+juft = [b for v, b in sorted(juft, reverse=True) if b.isascii() and b.isalnum() and b not in STABIL and not b.endswith(("UP", "DOWN", "BULL", "BEAR"))]
 belgilar = ASOSIY + [b for b in juft if b not in ASOSIY][:110]
 jami = 0
 with gzip.open("4h.csv.gz", "wt", newline="") as f:
@@ -30,7 +30,10 @@ with gzip.open("4h.csv.gz", "wt", newline="") as f:
     for b in belgilar:
         since, n = BOSH, 0
         while True:
-            s = ol(f"{API}/klines?symbol={b}USDT&interval=4h&limit=1000&startTime={since}")
+            try:
+                s = ol(f"{API}/klines?symbol={b}USDT&interval=4h&limit=1000&startTime={since}")
+            except RuntimeError:
+                break
             s = [k for k in s if k[6] < time.time() * 1000]
             for k in s:
                 w.writerow([b, k[0], *k[1:6]])
