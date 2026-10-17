@@ -2,14 +2,14 @@
 
 Doimiy ishlamaydi: har 15 daqiqada bir marta ishga tushadi va
   1. Telegramdagi yangi xabar va Ha/Yo'q bosishlarini qayta ishlaydi,
-  2. yangi 4 soatlik sham yopilgan bo'lsa, trend qoidasini tekshirib signal yuboradi.
+  2. yangi 4 soatlik sham yopilgan bo'lsa, qoida va miyani tekshirib, qog'oz portfelda o'zi savdo qiladi.
 Hamma holat holat.json da saqlanadi, workflow uni har safar repoga qaytarib yozadi.
 Faqat Python standart kutubxonasi ishlatiladi.
 
 Qoida (4 soatlik grafik): narx EMA150 dan yuqori, 60 shamda o'sgan VA EMA600 dan yuqori
 (katta trend ham o'sishda) -> LONG ushlab tur, aks holda naqd.
 Qog'oz futures portfel: 1000 USDT, har tangaga 100 USDT marja x LEVERAGE.
-Har signal ostida "miya" (miya.py, noldan o'qitilgan kichik transformer) fikri ham yoziladi.
+Avto rejim: qoida VA miya (miya.py, noldan o'qitilgan kichik transformer) rozi bo'lsa long, aks holda naqd.
 """
 
 import json
@@ -22,7 +22,8 @@ BELGILAR = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "L
 SIGNAL_BELGILAR = BELGILAR[:5]  # signal faqat 5 ta eng katta tanga bo'yicha
 TF, EMA_N, MOMENTUM_N, FILTR_N = "4h", 150, 60, 600
 BOSHLANG_ICH_PUL, ULUSH, LEVERAGE = 1000.0, 200.0, 2
-REJIM = f"{TF}-{len(SIGNAL_BELGILAR)}"
+REJIM = f"{TF}-{len(SIGNAL_BELGILAR)}-avto"
+KOMISSIYA, SINOV_KUN = 0.0005, 90  # har tomonga 0.05%; sinov muddati 3 oy
 HOLAT_FAYL = Path(__file__).with_name("holat.json")
 TOKEN = os.environ["TELEGRAM_TOKEN"]
 NARX_MANBALARI = ["https://data-api.binance.vision", "https://api.binance.com"]
@@ -93,43 +94,42 @@ def miya_fikri(natijalar):
         return {}
 
 
-def miya_qatori(p, long_och):
-    if p is None:
-        return ""
-    rozi = p > 0 if long_och else p <= 0
-    return f"\n🧠 Miya: {'✅ rozi' if rozi else '⚠️ rozi emas'} ({p:+.2f})"
-
-
 def signallarni_tekshir(h):
+    """Avto rejim: qoida ham, miya ham rozi bo'lsa long ushlab turadi, aks holda yopadi (qog'ozda)."""
     natijalar = {b: yopilishlar(b) for b in BELGILAR}
     sana = natijalar["BTC"][-1][0]
     if h.get("oxirgi_sana") == sana:
         return
-    birinchi = h.get("oxirgi_sana") is None or h.get("rejim") != REJIM
-    h["rejim"] = REJIM
-    h["holat"] = {b: v for b, v in h["holat"].items() if b in SIGNAL_BELGILAR}
+    birinchi = h.get("rejim") != REJIM
+    if birinchi:
+        h.update(rejim=REJIM, sinov_boshi=sana, oxirgi_hisobot=time.time(), portfel={}, jurnal=[],
+                 naqd=BOSHLANG_ICH_PUL, komissiya=0.0, btc_boshi=natijalar["BTC"][-1][4])
     h["miya"] = miya_fikri(natijalar)
+    h["holat"] = {}
     for b in SIGNAL_BELGILAR:
         yangi, narx, farq, mom = trend_holati(natijalar[b])
-        h["narx"][b] = narx
-        eski = h["holat"].get(b)
-        h["holat"][b] = yangi
-        if birinchi or eski is None or eski == yangi:
-            continue
-        tur = "LONG OCH" if yangi else "LONG YOP"
-        sid = str(len(h["signallar"]) + 1)
-        h["signallar"][sid] = {"sana": sana, "belgi": b, "tur": tur, "narx": narx, "qaror": None}
-        yubor(
-            h,
-            f"{'🟢' if yangi else '🔴'} {b}/USDT: {tur}\nNarx: {narx:g}\n"
-            f"EMA150 dan {farq:+.1%}, 10 kunda {mom:+.1%} (4 soatlik grafik)\n"
-            f"Qog'oz portfelda: {ULUSH:.0f} USDT marja x{LEVERAGE}" + miya_qatori(h["miya"].get(b), yangi),
-            [{"text": "✅ Ha", "callback_data": f"ha:{sid}"},
-             {"text": "❌ Yo'q", "callback_data": f"yoq:{sid}"}],
-        )
+        h["narx"][b], h["holat"][b] = narx, yangi
+        p = h["miya"].get(b)
+        kerak = bool(yangi) and (p is None or p > 0)
+        miya_matn = f"miya {'✅' if p is not None and p > 0 else '⚠️'} {p:+.2f}" if p is not None else "miya yo'q"
+        if kerak and b not in h["portfel"]:
+            och(h, b, narx, sana)
+            yubor(h, f"🤖🟢 {b}: long ochildi\nNarx: {narx:g}, {ULUSH:.0f} USDT x{LEVERAGE}\n"
+                     f"Sabab: trend ✅ (10 kunda {mom:+.1%}), {miya_matn}")
+        elif not kerak and b in h["portfel"]:
+            sabab = "trend tugadi" if not yangi else f"miya rozi emas ({p:+.2f})"
+            foyda = yop(h, b, narx, sana, sabab)
+            yubor(h, f"🤖🔴 {b}: yopildi\nNarx: {narx:g}, natija {foyda:+.2f} USDT\nSabab: {sabab}")
     h["oxirgi_sana"] = sana
     if birinchi:
-        yubor(h, f"Bot {TF} rejimida, {len(SIGNAL_BELGILAR)} ta tangada ishlayapti. Hozirgi holat:\n" + holat_matni(h))
+        tugash = time.strftime("%Y-%m-%d", time.gmtime(time.time() + SINOV_KUN * 86400))
+        yubor(h, f"🤖 Avto rejim boshlandi: bot {len(SIGNAL_BELGILAR)} ta tangada o'zi savdo qiladi (qog'ozda, "
+                 f"{BOSHLANG_ICH_PUL:.0f} USDT). Sinov muddati: {tugash} gacha.\n"
+                 f"Har bir savdo shu yerga yoziladi, har hafta hisobot keladi. /hisobot, /holat, /jurnal\n\n"
+                 + holat_matni(h))
+    if time.time() - h.get("oxirgi_hisobot", 0) >= 7 * 86400:
+        h["oxirgi_hisobot"] = time.time()
+        yubor(h, "📊 Haftalik hisobot\n" + hisobot_matni(h))
 
 
 # ---------- Qog'oz portfel ----------
@@ -138,64 +138,77 @@ def natija_usdt(p, narx):
     return max(p["miqdor"] * (narx - p["kirish_narx"]), -ULUSH)
 
 
+def och(h, b, narx, sana):
+    kom = ULUSH * LEVERAGE * KOMISSIYA
+    h["portfel"][b] = {"miqdor": ULUSH * LEVERAGE / narx, "kirish_narx": narx, "kirish_sana": sana}
+    h["naqd"] -= ULUSH + kom
+    h["komissiya"] = h.get("komissiya", 0) + kom
+
+
+def yop(h, b, narx, sana, sabab):
+    p = h["portfel"].pop(b)
+    kom = p["miqdor"] * narx * KOMISSIYA
+    foyda = natija_usdt(p, narx) - kom
+    h["naqd"] += ULUSH + foyda
+    h["komissiya"] = h.get("komissiya", 0) + kom
+    h["jurnal"].append({"belgi": b, "kirish_sana": p["kirish_sana"], "kirish_narx": p["kirish_narx"],
+                        "chiqish_sana": sana, "chiqish_narx": narx, "foyda": foyda, "sabab": sabab})
+    return foyda
+
+
+def jami_pul(h):
+    return h["naqd"] + sum(ULUSH + natija_usdt(p, h["narx"][b]) for b, p in h["portfel"].items())
+
+
 def holat_matni(h):
     m = h.get("miya", {})
-    qatorlar = [f"{b}/USDT: {'USHLAB TUR' if s else 'naqd'}" + (f", miya {m[b]:+.2f}" if b in m else "")
-                for b, s in sorted(h["holat"].items())]
-    jami = h["naqd"] + sum(ULUSH + natija_usdt(p, h["narx"][b]) for b, p in h["portfel"].items())
-    qatorlar.append(f"\nQog'oz portfel (x{LEVERAGE}): {jami:.2f} USDT (boshida {BOSHLANG_ICH_PUL:.0f})")
+    qatorlar = [f"{b}/USDT: {'LONG ochiq' if b in h['portfel'] else 'naqd'}, trend {'✅' if s else '❌'}"
+                + (f", miya {m[b]:+.2f}" if b in m else "") for b, s in sorted(h["holat"].items())]
+    qatorlar.append(f"\nQog'oz portfel (x{LEVERAGE}): {jami_pul(h):.2f} USDT (boshida {BOSHLANG_ICH_PUL:.0f})")
+    return "\n".join(qatorlar)
+
+
+def hisobot_matni(h):
+    j = h["jurnal"]
+    yutuq = [x for x in j if x["foyda"] > 0]
+    pul = jami_pul(h)
+    btc = h["narx"].get("BTC", 0) / h["btc_boshi"] - 1 if h.get("btc_boshi") else 0
+    qatorlar = [f"Sinov boshi: {h.get('sinov_boshi', '?')}",
+                f"Portfel: {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})",
+                f"Taqqoslash: shu davrda BTC {btc:+.1%}",
+                f"Yopilgan savdolar: {len(j)} (foydali {len(yutuq)}, zararli {len(j) - len(yutuq)})",
+                f"Ochiq: {', '.join(h['portfel']) or 'yo`q'}",
+                f"To'langan komissiya: {h.get('komissiya', 0):.2f} USDT"]
+    if j:
+        eng = max(j, key=lambda x: x["foyda"]), min(j, key=lambda x: x["foyda"])
+        qatorlar.append(f"Eng yaxshi: {eng[0]['belgi']} {eng[0]['foyda']:+.2f}, eng yomon: {eng[1]['belgi']} {eng[1]['foyda']:+.2f}")
     return "\n".join(qatorlar)
 
 
 def jurnal_matni(h):
-    ochiq = [f"{b}: {p['kirish_sana']} dan beri ochiq" for b, p in h["portfel"].items()]
-    yopiq = [f"{j['belgi']}: {j['kirish_sana']} -> {j['chiqish_sana']}, {j['foyda']:+.2f} USDT"
+    ochiq = [f"{b}: {p['kirish_sana']} dan beri ochiq ({p['kirish_narx']:g})" for b, p in h["portfel"].items()]
+    yopiq = [f"{j['belgi']}: {j['kirish_sana']} -> {j['chiqish_sana']}, {j['foyda']:+.2f} USDT ({j.get('sabab', '')})"
              for j in h["jurnal"][-10:][::-1]]
     return "\n".join(ochiq + yopiq) or "Hali savdo yo'q."
-
-
-def qaror(h, ha, sid):
-    s = h["signallar"].get(sid)
-    if not s or s["qaror"]:
-        return "Bu signal bo'yicha qaror allaqachon qabul qilingan."
-    s["qaror"] = "ha" if ha else "yoq"
-    b, narx = s["belgi"], s["narx"]
-    if not ha:
-        return f"{b} {s['tur']}: o'tkazib yuborildi."
-    if s["tur"] == "LONG OCH":
-        if b in h["portfel"]:
-            return f"{b} portfelda allaqachon bor."
-        if h["naqd"] < ULUSH:
-            return "Qog'oz portfelda naqd yetmaydi."
-        h["portfel"][b] = {"miqdor": ULUSH * LEVERAGE / narx, "kirish_narx": narx, "kirish_sana": s["sana"]}
-        h["naqd"] -= ULUSH
-        return f"{b}: {narx:g} narxda long ochildi, {ULUSH:.0f} USDT marja x{LEVERAGE} (qog'ozda)."
-    p = h["portfel"].pop(b, None)
-    if not p:
-        return f"{b} portfelda yo'q edi."
-    foyda = natija_usdt(p, narx)
-    h["naqd"] += ULUSH + foyda
-    h["jurnal"].append({"belgi": b, "kirish_sana": p["kirish_sana"], "chiqish_sana": s["sana"], "foyda": foyda})
-    return f"{b}: {narx:g} narxda yopildi, natija {foyda:+.2f} USDT (qog'ozda)."
 
 
 def yangilanishlar(h):
     for u in tg("getUpdates", offset=h["update_id"] + 1, timeout=0):
         h["update_id"] = u["update_id"]
         if "callback_query" in u:
-            cq = u["callback_query"]
-            tur, sid = cq["data"].split(":")
-            tg("answerCallbackQuery", callback_query_id=cq["id"])
-            yubor(h, qaror(h, tur == "ha", sid))
+            tg("answerCallbackQuery", callback_query_id=u["callback_query"]["id"])
+            yubor(h, "Bot endi avto rejimda: savdolarni o'zi qiladi, tugma kerak emas.")
         elif "message" in u:
             matn = u["message"].get("text", "")
             if not h.get("chat_id"):
                 h["chat_id"] = u["message"]["chat"]["id"]
-                yubor(h, "Salom! Endi signallar shu yerga keladi.")
+                yubor(h, "Salom! Endi savdolar shu yerga yoziladi.")
             if matn.startswith("/holat"):
                 yubor(h, holat_matni(h))
             elif matn.startswith("/jurnal"):
                 yubor(h, jurnal_matni(h))
+            elif matn.startswith("/hisobot"):
+                yubor(h, hisobot_matni(h) if h.get("sinov_boshi") else "Avto rejim keyingi 4 soatlik shamda boshlanadi.")
 
 
 def main():
