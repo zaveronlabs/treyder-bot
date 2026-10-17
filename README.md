@@ -4,7 +4,7 @@
 
 - Qoida (4h): narx EMA150 dan yuqori, 60 shamda o'sgan va EMA600 dan yuqori bo'lsa, LONG; aks holda naqd.
 - Signal 5 ta tanga bo'yicha: BTC, ETH, SOL, BNB, XRP (miya 10 tangani kuzatadi).
-- Avto sinov rejimi (3 oy): qoida va miya rozi bo'lsa bot qog'oz portfelda o'zi long ochadi, aks holda yopadi (1000 USDT, har tangaga 200 USDT, x2, 0.05% komissiya). Har savdo Telegramga yoziladi, har hafta hisobot; /hisobot, /holat, /jurnal.
+- Avto sinov rejimi (3 oy): 3 ta qog'oz portfel parallel (faqat qoida, faqat miya, qoida + miya). Asosiysi: qoida va miya rozi bo'lsa long, aks holda yopadi (1000 USDT, har tangaga 200 USDT, x2, 0.05% komissiya). Har savdo Telegramga yoziladi, har hafta hisobot; /hisobot, /holat, /jurnal.
 - Telegram tokeni repo sozlamasida `TELEGRAM_TOKEN` yashirin o'zgaruvchisida.
 - Holat `holat.json` da saqlanadi.
 - Miya (`miya.py`, `miya.npz`): noldan o'qitilgan kichik transformer, oxirgi 64 ta 4 soatlik shamni o'qib, keyingi 2 kun uchun bashorat beradi. Har signal ostida uning fikri ("rozi" / "rozi emas") yoziladi; qarorni foydalanuvchi qiladi.

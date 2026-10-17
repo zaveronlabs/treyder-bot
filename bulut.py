@@ -20,7 +20,7 @@ BELGILAR = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "L
 SIGNAL_BELGILAR = BELGILAR[:5]  # signal faqat 5 ta eng katta tanga bo'yicha
 TF, EMA_N, MOMENTUM_N, FILTR_N = "4h", 150, 60, 600
 BOSHLANG_ICH_PUL, ULUSH, LEVERAGE = 1000.0, 200.0, 2
-REJIM = f"{TF}-{len(SIGNAL_BELGILAR)}-avto"
+REJIM = f"{TF}-{len(SIGNAL_BELGILAR)}-avto3"
 KOMISSIYA, SINOV_KUN = 0.0005, 90  # har tomonga 0.05%; sinov muddati 3 oy
 HOLAT_FAYL = Path(__file__).with_name("holat.json")
 TOKEN = os.environ["TELEGRAM_TOKEN"]
@@ -92,39 +92,54 @@ def miya_fikri(natijalar):
         return {}
 
 
+YOLLAR = {"ikkalasi": "Qoida + miya (asosiy)", "qoida": "Faqat qoida", "miya": "Faqat miya"}
+
+
+def yangi_portfel():
+    return {"portfel": {}, "jurnal": [], "naqd": BOSHLANG_ICH_PUL, "komissiya": 0.0}
+
+
 def signallarni_tekshir(h):
-    """Avto rejim: qoida ham, miya ham rozi bo'lsa long ushlab turadi, aks holda yopadi (qog'ozda)."""
+    """Avto rejim: 3 ta qog'oz portfel parallel yuritiladi (faqat qoida, faqat miya, ikkalasi rozi bo'lsa).
+    Telegramga asosiy (ikkalasi) portfel savdolari yoziladi, hisobotda uchalasi solishtiriladi."""
     natijalar = {b: yopilishlar(b) for b in BELGILAR}
     sana = natijalar["BTC"][-1][0]
     if h.get("oxirgi_sana") == sana:
         return
     birinchi = h.get("rejim") != REJIM
     if birinchi:
-        h.update(rejim=REJIM, sinov_boshi=sana, oxirgi_hisobot=time.time(), portfel={}, jurnal=[],
-                 naqd=BOSHLANG_ICH_PUL, komissiya=0.0, btc_boshi=natijalar["BTC"][-1][4])
+        h.update(rejim=REJIM, sinov_boshi=sana, oxirgi_hisobot=time.time(), btc_boshi=natijalar["BTC"][-1][4],
+                 portfellar={y: yangi_portfel() for y in YOLLAR})
+        for k in ["portfel", "jurnal", "naqd", "komissiya", "signallar"]:
+            h.pop(k, None)
     h["miya"] = miya_fikri(natijalar)
     h["holat"] = {}
     for b in SIGNAL_BELGILAR:
         yangi, narx, farq, mom = trend_holati(natijalar[b])
         h["narx"][b], h["holat"][b] = narx, yangi
         p = h["miya"].get(b)
-        kerak = bool(yangi) and (p is None or p > 0)
-        miya_matn = f"miya {'✅' if p is not None and p > 0 else '⚠️'} {p:+.2f}" if p is not None else "miya yo'q"
-        if kerak and b not in h["portfel"]:
-            och(h, b, narx, sana)
-            yubor(h, f"🤖🟢 {b}: long ochildi\nNarx: {narx:g}, {ULUSH:.0f} USDT x{LEVERAGE}\n"
-                     f"Sabab: trend ✅ (10 kunda {mom:+.1%}), {miya_matn}")
-        elif not kerak and b in h["portfel"]:
-            sabab = "trend tugadi" if not yangi else f"miya rozi emas ({p:+.2f})"
-            foyda = yop(h, b, narx, sana, sabab)
-            yubor(h, f"🤖🔴 {b}: yopildi\nNarx: {narx:g}, natija {foyda:+.2f} USDT\nSabab: {sabab}")
+        miya_ha = p is not None and p > 0
+        kerak = {"qoida": bool(yangi), "miya": miya_ha, "ikkalasi": bool(yangi) and (miya_ha or p is None)}
+        for y, pf in h["portfellar"].items():
+            if kerak[y] and b not in pf["portfel"]:
+                och(pf, b, narx, sana)
+                if y == "ikkalasi":
+                    yubor(h, f"🤖🟢 {b}: long ochildi\nNarx: {narx:g}, {ULUSH:.0f} USDT x{LEVERAGE}\n"
+                             f"Sabab: trend ✅ (10 kunda {mom:+.1%}), miya ✅ {p:+.2f}" if p is not None else
+                             f"🤖🟢 {b}: long ochildi\nNarx: {narx:g}\nSabab: trend ✅ (miya ishlamadi)")
+            elif not kerak[y] and b in pf["portfel"]:
+                sabab = ("trend tugadi" if not yangi else f"miya rozi emas ({p:+.2f})") if y == "ikkalasi" else \
+                        ("trend tugadi" if y == "qoida" else f"miya salbiy ({p:+.2f})" if p is not None else "miya yo'q")
+                foyda = yop(pf, b, narx, sana, sabab)
+                if y == "ikkalasi":
+                    yubor(h, f"🤖🔴 {b}: yopildi\nNarx: {narx:g}, natija {foyda:+.2f} USDT\nSabab: {sabab}")
     h["oxirgi_sana"] = sana
     if birinchi:
         tugash = time.strftime("%Y-%m-%d", time.gmtime(time.time() + SINOV_KUN * 86400))
-        yubor(h, f"🤖 Avto rejim boshlandi: bot {len(SIGNAL_BELGILAR)} ta tangada o'zi savdo qiladi (qog'ozda, "
-                 f"{BOSHLANG_ICH_PUL:.0f} USDT). Sinov muddati: {tugash} gacha.\n"
-                 f"Har bir savdo shu yerga yoziladi, har hafta hisobot keladi. /hisobot, /holat, /jurnal\n\n"
-                 + holat_matni(h))
+        yubor(h, f"🤖 Avto rejim boshlandi: bot {len(SIGNAL_BELGILAR)} ta tangada o'zi savdo qiladi (qog'ozda). "
+                 f"Sinov muddati: {tugash} gacha.\n3 xil yo'l parallel yoziladi, har biriga {BOSHLANG_ICH_PUL:.0f} USDT: "
+                 f"faqat qoida, faqat miya, qoida + miya (asosiy). Bu yerga asosiy yo'l savdolari yoziladi, "
+                 f"har hafta uchalasi solishtirilgan hisobot keladi. /hisobot, /holat, /jurnal\n\n" + holat_matni(h))
     if time.time() - h.get("oxirgi_hisobot", 0) >= 7 * 86400:
         h["oxirgi_hisobot"] = time.time()
         yubor(h, "📊 Haftalik hisobot\n" + hisobot_matni(h))
@@ -136,58 +151,60 @@ def natija_usdt(p, narx):
     return max(p["miqdor"] * (narx - p["kirish_narx"]), -ULUSH)
 
 
-def och(h, b, narx, sana):
+def och(pf, b, narx, sana):
     kom = ULUSH * LEVERAGE * KOMISSIYA
-    h["portfel"][b] = {"miqdor": ULUSH * LEVERAGE / narx, "kirish_narx": narx, "kirish_sana": sana}
-    h["naqd"] -= ULUSH + kom
-    h["komissiya"] = h.get("komissiya", 0) + kom
+    pf["portfel"][b] = {"miqdor": ULUSH * LEVERAGE / narx, "kirish_narx": narx, "kirish_sana": sana}
+    pf["naqd"] -= ULUSH + kom
+    pf["komissiya"] += kom
 
 
-def yop(h, b, narx, sana, sabab):
-    p = h["portfel"].pop(b)
+def yop(pf, b, narx, sana, sabab):
+    p = pf["portfel"].pop(b)
     kom = p["miqdor"] * narx * KOMISSIYA
     foyda = natija_usdt(p, narx) - kom
-    h["naqd"] += ULUSH + foyda
-    h["komissiya"] = h.get("komissiya", 0) + kom
-    h["jurnal"].append({"belgi": b, "kirish_sana": p["kirish_sana"], "kirish_narx": p["kirish_narx"],
-                        "chiqish_sana": sana, "chiqish_narx": narx, "foyda": foyda, "sabab": sabab})
+    pf["naqd"] += ULUSH + foyda
+    pf["komissiya"] += kom
+    pf["jurnal"].append({"belgi": b, "kirish_sana": p["kirish_sana"], "kirish_narx": p["kirish_narx"],
+                         "chiqish_sana": sana, "chiqish_narx": narx, "foyda": foyda, "sabab": sabab})
     return foyda
 
 
-def jami_pul(h):
-    return h["naqd"] + sum(ULUSH + natija_usdt(p, h["narx"][b]) for b, p in h["portfel"].items())
+def jami_pul(h, pf):
+    return pf["naqd"] + sum(ULUSH + natija_usdt(p, h["narx"][b]) for b, p in pf["portfel"].items())
 
 
 def holat_matni(h):
     m = h.get("miya", {})
-    qatorlar = [f"{b}/USDT: {'LONG ochiq' if b in h['portfel'] else 'naqd'}, trend {'✅' if s else '❌'}"
+    asosiy = h.get("portfellar", {}).get("ikkalasi", {"portfel": {}})
+    qatorlar = [f"{b}/USDT: {'LONG ochiq' if b in asosiy['portfel'] else 'naqd'}, trend {'✅' if s else '❌'}"
                 + (f", miya {m[b]:+.2f}" if b in m else "") for b, s in sorted(h["holat"].items())]
-    qatorlar.append(f"\nQog'oz portfel (x{LEVERAGE}): {jami_pul(h):.2f} USDT (boshida {BOSHLANG_ICH_PUL:.0f})")
+    qatorlar.append("")
+    for y, nom in YOLLAR.items():
+        if y in h.get("portfellar", {}):
+            qatorlar.append(f"{nom}: {jami_pul(h, h['portfellar'][y]):.2f} USDT")
     return "\n".join(qatorlar)
 
 
 def hisobot_matni(h):
-    j = h["jurnal"]
-    yutuq = [x for x in j if x["foyda"] > 0]
-    pul = jami_pul(h)
     btc = h["narx"].get("BTC", 0) / h["btc_boshi"] - 1 if h.get("btc_boshi") else 0
-    qatorlar = [f"Sinov boshi: {h.get('sinov_boshi', '?')}",
-                f"Portfel: {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})",
-                f"Taqqoslash: shu davrda BTC {btc:+.1%}",
-                f"Yopilgan savdolar: {len(j)} (foydali {len(yutuq)}, zararli {len(j) - len(yutuq)})",
-                f"Ochiq: {', '.join(h['portfel']) or 'yo`q'}",
-                f"To'langan komissiya: {h.get('komissiya', 0):.2f} USDT"]
-    if j:
-        eng = max(j, key=lambda x: x["foyda"]), min(j, key=lambda x: x["foyda"])
-        qatorlar.append(f"Eng yaxshi: {eng[0]['belgi']} {eng[0]['foyda']:+.2f}, eng yomon: {eng[1]['belgi']} {eng[1]['foyda']:+.2f}")
+    qatorlar = [f"Sinov boshi: {h.get('sinov_boshi', '?')} (har yo'lga {BOSHLANG_ICH_PUL:.0f} USDT)",
+                f"Taqqoslash: shu davrda BTC {btc:+.1%}"]
+    for y, nom in YOLLAR.items():
+        pf = h["portfellar"][y]
+        j, pul = pf["jurnal"], jami_pul(h, pf)
+        yutuq = sum(x["foyda"] > 0 for x in j)
+        qatorlar += ["", f"{nom}: {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})",
+                     f"  savdolar {len(j)} (foydali {yutuq}, zararli {len(j) - yutuq}), komissiya {pf['komissiya']:.2f}",
+                     f"  ochiq: {', '.join(pf['portfel']) or 'yo`q'}"]
     return "\n".join(qatorlar)
 
 
 def jurnal_matni(h):
-    ochiq = [f"{b}: {p['kirish_sana']} dan beri ochiq ({p['kirish_narx']:g})" for b, p in h["portfel"].items()]
-    yopiq = [f"{j['belgi']}: {j['kirish_sana']} -> {j['chiqish_sana']}, {j['foyda']:+.2f} USDT ({j.get('sabab', '')})"
-             for j in h["jurnal"][-10:][::-1]]
-    return "\n".join(ochiq + yopiq) or "Hali savdo yo'q."
+    pf = h["portfellar"]["ikkalasi"]
+    ochiq = [f"{b}: {p['kirish_sana']} dan beri ochiq ({p['kirish_narx']:g})" for b, p in pf["portfel"].items()]
+    yopiq = [f"{j['belgi']}: {j['kirish_sana']} -> {j['chiqish_sana']}, {j['foyda']:+.2f} USDT ({j['sabab']})"
+             for j in pf["jurnal"][-10:][::-1]]
+    return "Asosiy yo'l (qoida + miya):\n" + ("\n".join(ochiq + yopiq) or "Hali savdo yo'q.")
 
 
 def yangilanishlar(h):
@@ -204,16 +221,15 @@ def yangilanishlar(h):
             if matn.startswith("/holat"):
                 yubor(h, holat_matni(h))
             elif matn.startswith("/jurnal"):
-                yubor(h, jurnal_matni(h))
+                yubor(h, jurnal_matni(h) if h.get("portfellar") else "Hali savdo yo'q.")
             elif matn.startswith("/hisobot"):
-                yubor(h, hisobot_matni(h) if h.get("sinov_boshi") else "Avto rejim keyingi 4 soatlik shamda boshlanadi.")
+                yubor(h, hisobot_matni(h) if h.get("portfellar") else "Avto rejim keyingi 4 soatlik shamda boshlanadi.")
 
 
 def main():
     h = json.loads(HOLAT_FAYL.read_text(encoding="utf-8")) if HOLAT_FAYL.exists() else {}
     for k, v in [("chat_id", None), ("update_id", 0), ("oxirgi_sana", None), ("holat", {}),
-                 ("narx", {}), ("signallar", {}), ("portfel", {}), ("jurnal", []),
-                 ("naqd", BOSHLANG_ICH_PUL)]:
+                 ("narx", {})]:
         h.setdefault(k, v)
     try:
         yangilanishlar(h)
