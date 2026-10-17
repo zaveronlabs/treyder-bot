@@ -8,3 +8,4 @@
 - Telegram tokeni repo sozlamasida `TELEGRAM_TOKEN` yashirin o'zgaruvchisida.
 - Holat `holat.json` da saqlanadi.
 - Miya (`miya.py`, `miya.npz`): noldan o'qitilgan kichik transformer, oxirgi 64 ta 4 soatlik shamni o'qib, keyingi 2 kun uchun bashorat beradi. Har signal ostida uning fikri ("rozi" / "rozi emas") yoziladi; qarorni foydalanuvchi qiladi.
+- Miya har oy yangi ma'lumotda o'zi qayta o'qiydi (`oqit.py`, `oqitish.yml`): bot oy almashganini `miya_sana.txt` dan bilib, o'qitishni ishga tushiradi.

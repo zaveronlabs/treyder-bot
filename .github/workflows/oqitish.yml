@@ -1,0 +1,32 @@
+name: Miyani qayta o'qitish
+
+# Bot oy almashganda (miya_sana.txt eski bo'lsa) buni o'zi chaqiradi.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: miya-oqitish
+  cancel-in-progress: false
+
+jobs:
+  oqit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: pip install --quiet numpy torch --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
+      - run: python oqit.py
+      - name: Yangi miyani saqlash
+        run: |
+          date -u +%Y-%m > miya_sana.txt
+          git config user.name "treyder-bot"
+          git config user.email "treyder-bot@users.noreply.github.com"
+          git add miya.npz miya_sana.txt
+          git commit -q -m "miya qayta o'qitildi ($(cat miya_sana.txt))"
+          for i in 1 2 3 4 5; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done

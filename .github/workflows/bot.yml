@@ -43,4 +43,8 @@ jobs:
         if: always()
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run bot.yml --ref main --repo ${{ github.repository }}
+        run: |
+          if [ "$(cat miya_sana.txt 2>/dev/null)" != "$(date -u +%Y-%m)" ]; then
+            gh workflow run oqitish.yml --ref main --repo ${{ github.repository }} || true
+          fi
+          gh workflow run bot.yml --ref main --repo ${{ github.repository }}
