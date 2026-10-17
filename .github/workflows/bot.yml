@@ -1,5 +1,7 @@
 name: Treyder AI bot
 
+# Bot ~5.5 soat davomida har daqiqada ishlaydi, keyin keyingi ishga tushishini o'zi chaqiradi.
+# Jadval (schedule) zaxira sifatida qoldirildi.
 on:
   schedule:
     - cron: "7,22,37,52 * * * *"
@@ -7,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: treyder-bot
@@ -15,7 +18,7 @@ concurrency:
 jobs:
   bot:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -25,11 +28,19 @@ jobs:
       - name: Botni ishga tushirish
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-        run: python bulut.py
-      - name: Holatni saqlash
-        if: always()
         run: |
           git config user.name "treyder-bot"
           git config user.email "treyder-bot@users.noreply.github.com"
-          git add holat.json
-          git diff --cached --quiet || (git commit -m "holat yangilandi" && git push)
+          tugash=$(( $(date +%s) + 330 * 60 ))
+          while [ "$(date +%s)" -lt "$tugash" ]; do
+            git pull -q --rebase origin main || true
+            python bulut.py || echo "xato, keyingi daqiqada qayta"
+            git add holat.json
+            git diff --cached --quiet || (git commit -q -m "holat yangilandi" && git push -q origin HEAD:main) || true
+            sleep 60
+          done
+      - name: Keyingi ishga tushirish
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run bot.yml --ref main --repo ${{ github.repository }}
