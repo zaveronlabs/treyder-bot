@@ -1,15 +1,13 @@
 """Treyder AI: bulut versiyasi (GitHub Actions).
 
-Doimiy ishlamaydi: har 15 daqiqada bir marta ishga tushadi va
-  1. Telegramdagi yangi xabar va Ha/Yo'q bosishlarini qayta ishlaydi,
+Workflow uni har daqiqada ishga tushiradi:
+  1. Telegramdagi yangi buyruqlarni (/holat, /jurnal, /hisobot) qayta ishlaydi,
   2. yangi 4 soatlik sham yopilgan bo'lsa, qoida va miyani tekshirib, qog'oz portfelda o'zi savdo qiladi.
 Hamma holat holat.json da saqlanadi, workflow uni har safar repoga qaytarib yozadi.
-Faqat Python standart kutubxonasi ishlatiladi.
 
-Qoida (4 soatlik grafik): narx EMA150 dan yuqori, 60 shamda o'sgan VA EMA600 dan yuqori
-(katta trend ham o'sishda) -> LONG ushlab tur, aks holda naqd.
-Qog'oz futures portfel: 1000 USDT, har tangaga 100 USDT marja x LEVERAGE.
+Qoida (4 soatlik grafik): narx EMA150 dan yuqori, 60 shamda o'sgan VA EMA600 dan yuqori.
 Avto rejim: qoida VA miya (miya.py, noldan o'qitilgan kichik transformer) rozi bo'lsa long, aks holda naqd.
+Qog'oz futures portfel: 1000 USDT, har tangaga ULUSH USDT marja x LEVERAGE.
 """
 
 import json
