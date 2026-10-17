@@ -9,6 +9,7 @@ Faqat Python standart kutubxonasi ishlatiladi.
 Qoida (4 soatlik grafik): narx EMA150 dan yuqori, 60 shamda o'sgan VA EMA600 dan yuqori
 (katta trend ham o'sishda) -> LONG ushlab tur, aks holda naqd.
 Qog'oz futures portfel: 1000 USDT, har tangaga 100 USDT marja x LEVERAGE.
+Har signal ostida "miya" (miya.py, noldan o'qitilgan kichik transformer) fikri ham yoziladi.
 """
 
 import json
@@ -50,14 +51,14 @@ def yubor(h, matn, tugmalar=None):
 # ---------- Narxlar va trend ----------
 
 def yopilishlar(belgi):
-    """Oxirgi ~2000 ta YOPILGAN 4 soatlik shamning (vaqt, close) ro'yxati."""
+    """Oxirgi ~2000 ta YOPILGAN 4 soatlik shamning (vaqt, open, high, low, close, hajm) ro'yxati."""
     hozir = time.time() * 1000
     for manba in NARX_MANBALARI:
         try:
             url = f"{manba}/api/v3/klines?symbol={belgi}USDT&interval={TF}&limit=1000"
             oxirgi = http_json(url)
             oldingi = http_json(f"{url}&endTime={oxirgi[0][0] - 1}")
-            return [(time.strftime("%Y-%m-%d %H:00", time.gmtime(s[0] / 1000)), float(s[4]))
+            return [(time.strftime("%Y-%m-%d %H:00", time.gmtime(s[0] / 1000)), *map(float, s[1:6]))
                     for s in oldingi + oxirgi if s[6] < hozir]
         except Exception as xato:
             print(f"{manba} {belgi}: {xato}")
@@ -72,11 +73,29 @@ def ema(narxlar, n):
 
 
 def trend_holati(yop):
-    narxlar = [c for _, c in yop]
+    narxlar = [s[4] for s in yop]
     oxirgi = narxlar[-1]
     e, filtr = ema(narxlar, EMA_N), ema(narxlar, FILTR_N)
     mom = oxirgi / narxlar[-1 - MOMENTUM_N] - 1
     return int(oxirgi > e and mom > 0 and oxirgi > filtr), oxirgi, oxirgi / e - 1, mom
+
+
+def miya_fikri(natijalar):
+    """{belgi: bashorat}; miya ishlamay qolsa bo'sh lug'at (bot baribir ishlayveradi)."""
+    try:
+        import miya
+        umumiy = set.intersection(*({s[0] for s in yop} for yop in natijalar.values()))
+        return miya.bashorat({b: [s[1:] for s in yop if s[0] in umumiy] for b, yop in natijalar.items()})
+    except Exception as xato:
+        print("miya xatosi:", xato)
+        return {}
+
+
+def miya_qatori(p, long_och):
+    if p is None:
+        return ""
+    rozi = p > 0 if long_och else p <= 0
+    return f"\n🧠 Miya: {'✅ rozi' if rozi else '⚠️ rozi emas'} ({p:+.2f})"
 
 
 def signallarni_tekshir(h):
@@ -86,6 +105,7 @@ def signallarni_tekshir(h):
         return
     birinchi = h.get("oxirgi_sana") is None or h.get("rejim") != TF
     h["rejim"] = TF
+    h["miya"] = miya_fikri(natijalar)
     for b, yop in natijalar.items():
         yangi, narx, farq, mom = trend_holati(yop)
         h["narx"][b] = narx
@@ -100,7 +120,7 @@ def signallarni_tekshir(h):
             h,
             f"{'🟢' if yangi else '🔴'} {b}/USDT: {tur}\nNarx: {narx:g}\n"
             f"EMA150 dan {farq:+.1%}, 10 kunda {mom:+.1%} (4 soatlik grafik)\n"
-            f"Qog'oz portfelda: {ULUSH:.0f} USDT marja x{LEVERAGE}",
+            f"Qog'oz portfelda: {ULUSH:.0f} USDT marja x{LEVERAGE}" + miya_qatori(h["miya"].get(b), yangi),
             [{"text": "✅ Ha", "callback_data": f"ha:{sid}"},
              {"text": "❌ Yo'q", "callback_data": f"yoq:{sid}"}],
         )
@@ -116,7 +136,9 @@ def natija_usdt(p, narx):
 
 
 def holat_matni(h):
-    qatorlar = [f"{b}/USDT: {'USHLAB TUR' if s else 'naqd'}" for b, s in sorted(h["holat"].items())]
+    m = h.get("miya", {})
+    qatorlar = [f"{b}/USDT: {'USHLAB TUR' if s else 'naqd'}" + (f", miya {m[b]:+.2f}" if b in m else "")
+                for b, s in sorted(h["holat"].items())]
     jami = h["naqd"] + sum(ULUSH + natija_usdt(p, h["narx"][b]) for b, p in h["portfel"].items())
     qatorlar.append(f"\nQog'oz portfel (x{LEVERAGE}): {jami:.2f} USDT (boshida {BOSHLANG_ICH_PUL:.0f})")
     return "\n".join(qatorlar)

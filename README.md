@@ -7,3 +7,4 @@
 - Har bir signal ostida Ha/Yo'q tugmalari; qog'oz futures portfel (1000 USDT, x2).
 - Telegram tokeni repo sozlamasida `TELEGRAM_TOKEN` yashirin o'zgaruvchisida.
 - Holat `holat.json` da saqlanadi.
+- Miya (`miya.py`, `miya.npz`): noldan o'qitilgan kichik transformer, oxirgi 64 ta 4 soatlik shamni o'qib, keyingi 2 kun uchun bashorat beradi. Har signal ostida uning fikri ("rozi" / "rozi emas") yoziladi; qarorni foydalanuvchi qiladi.
