@@ -18,9 +18,11 @@ import time
 import urllib.request
 from pathlib import Path
 
-BELGILAR = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "LTC"]
+BELGILAR = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "LTC"]  # miya 10 tangani o'qiydi
+SIGNAL_BELGILAR = BELGILAR[:5]  # signal faqat 5 ta eng katta tanga bo'yicha
 TF, EMA_N, MOMENTUM_N, FILTR_N = "4h", 150, 60, 600
-BOSHLANG_ICH_PUL, ULUSH, LEVERAGE = 1000.0, 100.0, 2
+BOSHLANG_ICH_PUL, ULUSH, LEVERAGE = 1000.0, 200.0, 2
+REJIM = f"{TF}-{len(SIGNAL_BELGILAR)}"
 HOLAT_FAYL = Path(__file__).with_name("holat.json")
 TOKEN = os.environ["TELEGRAM_TOKEN"]
 NARX_MANBALARI = ["https://data-api.binance.vision", "https://api.binance.com"]
@@ -103,11 +105,12 @@ def signallarni_tekshir(h):
     sana = natijalar["BTC"][-1][0]
     if h.get("oxirgi_sana") == sana:
         return
-    birinchi = h.get("oxirgi_sana") is None or h.get("rejim") != TF
-    h["rejim"] = TF
+    birinchi = h.get("oxirgi_sana") is None or h.get("rejim") != REJIM
+    h["rejim"] = REJIM
+    h["holat"] = {b: v for b, v in h["holat"].items() if b in SIGNAL_BELGILAR}
     h["miya"] = miya_fikri(natijalar)
-    for b, yop in natijalar.items():
-        yangi, narx, farq, mom = trend_holati(yop)
+    for b in SIGNAL_BELGILAR:
+        yangi, narx, farq, mom = trend_holati(natijalar[b])
         h["narx"][b] = narx
         eski = h["holat"].get(b)
         h["holat"][b] = yangi
@@ -126,7 +129,7 @@ def signallarni_tekshir(h):
         )
     h["oxirgi_sana"] = sana
     if birinchi:
-        yubor(h, f"Bot {TF} rejimida ishlayapti. Hozirgi holat:\n" + holat_matni(h))
+        yubor(h, f"Bot {TF} rejimida, {len(SIGNAL_BELGILAR)} ta tangada ishlayapti. Hozirgi holat:\n" + holat_matni(h))
 
 
 # ---------- Qog'oz portfel ----------
