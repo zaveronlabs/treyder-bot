@@ -2,11 +2,12 @@
 
 Doimiy ishlamaydi: har 15 daqiqada bir marta ishga tushadi va
   1. Telegramdagi yangi xabar va Ha/Yo'q bosishlarini qayta ishlaydi,
-  2. yangi kunlik sham yopilgan bo'lsa, trend qoidasini tekshirib signal yuboradi.
+  2. yangi 4 soatlik sham yopilgan bo'lsa, trend qoidasini tekshirib signal yuboradi.
 Hamma holat holat.json da saqlanadi, workflow uni har safar repoga qaytarib yozadi.
 Faqat Python standart kutubxonasi ishlatiladi.
 
-Qoida: narx 50 kunlik EMA dan yuqori VA 20 kunda o'sgan -> LONG ushlab tur, aks holda naqd.
+Qoida (4 soatlik grafik): narx EMA150 dan yuqori, 60 shamda o'sgan VA EMA600 dan yuqori
+(katta trend ham o'sishda) -> LONG ushlab tur, aks holda naqd.
 Qog'oz futures portfel: 1000 USDT, har tangaga 100 USDT marja x LEVERAGE.
 """
 
@@ -17,7 +18,7 @@ import urllib.request
 from pathlib import Path
 
 BELGILAR = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "LTC"]
-EMA_KUN, MOMENTUM_KUN = 50, 20
+TF, EMA_N, MOMENTUM_N, FILTR_N = "4h", 150, 60, 600
 BOSHLANG_ICH_PUL, ULUSH, LEVERAGE = 1000.0, 100.0, 2
 HOLAT_FAYL = Path(__file__).with_name("holat.json")
 TOKEN = os.environ["TELEGRAM_TOKEN"]
@@ -48,36 +49,43 @@ def yubor(h, matn, tugmalar=None):
 
 # ---------- Narxlar va trend ----------
 
-def kunlik_yopilishlar(belgi):
-    """Oxirgi 300 ta YOPILGAN kunlik shamning (sana, close) ro'yxati."""
+def yopilishlar(belgi):
+    """Oxirgi ~2000 ta YOPILGAN 4 soatlik shamning (vaqt, close) ro'yxati."""
     hozir = time.time() * 1000
     for manba in NARX_MANBALARI:
         try:
-            shamlar = http_json(f"{manba}/api/v3/klines?symbol={belgi}USDT&interval=1d&limit=300")
-            return [(time.strftime("%Y-%m-%d", time.gmtime(s[0] / 1000)), float(s[4]))
-                    for s in shamlar if s[6] < hozir]
+            url = f"{manba}/api/v3/klines?symbol={belgi}USDT&interval={TF}&limit=1000"
+            oxirgi = http_json(url)
+            oldingi = http_json(f"{url}&endTime={oxirgi[0][0] - 1}")
+            return [(time.strftime("%Y-%m-%d %H:00", time.gmtime(s[0] / 1000)), float(s[4]))
+                    for s in oldingi + oxirgi if s[6] < hozir]
         except Exception as xato:
             print(f"{manba} {belgi}: {xato}")
     raise RuntimeError(f"{belgi} narxini olib bo'lmadi")
 
 
-def trend_holati(yopilishlar):
-    narxlar = [c for _, c in yopilishlar]
-    k = 2 / (EMA_KUN + 1)
-    ema = narxlar[0]
+def ema(narxlar, n):
+    k, e = 2 / (n + 1), narxlar[0]
     for c in narxlar[1:]:
-        ema = c * k + ema * (1 - k)
+        e = c * k + e * (1 - k)
+    return e
+
+
+def trend_holati(yop):
+    narxlar = [c for _, c in yop]
     oxirgi = narxlar[-1]
-    mom = oxirgi / narxlar[-1 - MOMENTUM_KUN] - 1
-    return int(oxirgi > ema and mom > 0), oxirgi, oxirgi / ema - 1, mom
+    e, filtr = ema(narxlar, EMA_N), ema(narxlar, FILTR_N)
+    mom = oxirgi / narxlar[-1 - MOMENTUM_N] - 1
+    return int(oxirgi > e and mom > 0 and oxirgi > filtr), oxirgi, oxirgi / e - 1, mom
 
 
 def signallarni_tekshir(h):
-    natijalar = {b: kunlik_yopilishlar(b) for b in BELGILAR}
+    natijalar = {b: yopilishlar(b) for b in BELGILAR}
     sana = natijalar["BTC"][-1][0]
     if h.get("oxirgi_sana") == sana:
         return
-    birinchi = h.get("oxirgi_sana") is None
+    birinchi = h.get("oxirgi_sana") is None or h.get("rejim") != TF
+    h["rejim"] = TF
     for b, yop in natijalar.items():
         yangi, narx, farq, mom = trend_holati(yop)
         h["narx"][b] = narx
@@ -91,14 +99,14 @@ def signallarni_tekshir(h):
         yubor(
             h,
             f"{'🟢' if yangi else '🔴'} {b}/USDT: {tur}\nNarx: {narx:g}\n"
-            f"EMA50 dan {farq:+.1%}, 20 kunda {mom:+.1%}\n"
+            f"EMA150 dan {farq:+.1%}, 10 kunda {mom:+.1%} (4 soatlik grafik)\n"
             f"Qog'oz portfelda: {ULUSH:.0f} USDT marja x{LEVERAGE}",
             [{"text": "✅ Ha", "callback_data": f"ha:{sid}"},
              {"text": "❌ Yo'q", "callback_data": f"yoq:{sid}"}],
         )
     h["oxirgi_sana"] = sana
     if birinchi:
-        yubor(h, "Bot bulutda ishga tushdi. Hozirgi holat:\n" + holat_matni(h))
+        yubor(h, f"Bot {TF} rejimida ishlayapti. Hozirgi holat:\n" + holat_matni(h))
 
 
 # ---------- Qog'oz portfel ----------
