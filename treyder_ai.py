@@ -91,44 +91,57 @@ def malumotlar():
     return sham, tangalar, yangilik.get("bozor", {}).get("baho")
 
 
+QOIDALAR = (
+    "You are a professional crypto futures trader with 10+ years of experience and zero emotion. "
+    "You trade 4-hour candles, long only, 2x leverage, holding positions from a few candles to a few weeks. "
+    "Use classic price action and market structure: trend (EMA 50/150/600), higher highs/higher lows vs lower "
+    "highs/lower lows, support and resistance, breakouts, RSI extremes (above 70 overbought, below 30 oversold), "
+    "volume confirmation, daily timeframe alignment, the BTC/market context, plus the ML model forecast and news "
+    "score when given. Protect capital first: go long only when the setup is clearly favorable; otherwise wait "
+    "(stay in cash). Long-term backtests show the trend rule (trend_qoidasi=true) has a real edge, so do not "
+    "fight a clean trend without a strong reason.\n"
+    "Field names are Uzbek: narx=price, struktura=structure, cho'qqi=swing high, tub=swing low, "
+    "qarshilik=resistance, tayanch=support, sinish=breakout, hajm=volume, o'zgarish=change, kunlik=daily, "
+    "shamda=candles, miya_bashorati=ML forecast (positive = expects rise), yangiliklar_bahosi=news (-1..1)."
+)
+
+
 def qaror_ber(sham, tangalar, bozor_yangilik):
-    sxema_tanga = {
-        "type": "object", "required": ["qaror", "ishonch", "sabablar"],
+    """Har tanga uchun alohida so'rov: model avval qisqa tahlil yozadi, keyin qaror va sabablarni tanlaydi."""
+    sxema = {
+        "type": "object", "required": ["tahlil", "qaror", "ishonch", "sabablar"],
         "properties": {
+            "tahlil": {"type": "string"},
             "qaror": {"type": "string", "enum": ["long", "kutish"]},
             "ishonch": {"type": "integer", "minimum": 0, "maximum": 100},
             "sabablar": {"type": "array", "minItems": 1, "maxItems": 4,
                          "items": {"type": "string", "enum": list(SABABLAR)}},
         },
     }
-    sxema = {"type": "object", "required": list(tangalar),
-             "properties": {b: sxema_tanga for b in tangalar}}
-    sorov = (
-        "You are a professional crypto futures trader with 10+ years of experience and zero emotion. "
-        "You trade 4-hour candles, long only, 2x leverage, holding positions from a few candles to a few weeks. "
-        "Use classic price action and market structure: trend (EMA 50/150/600), higher highs/higher lows vs lower "
-        "highs/lower lows, support and resistance, breakouts, RSI extremes, volume confirmation, daily timeframe "
-        "alignment, the BTC/market context, plus the ML model forecast and news score when given. "
-        "Protect capital first: only go long when the setup is clearly favorable; otherwise wait (stay in cash). "
-        "Long-term backtests show the trend rule (trend_qoidasi=true) has a real edge, so do not fight a "
-        "clean trend without a strong reason.\n\n"
-        f"Last closed 4h candle: {sham} UTC. Market news score: {bozor_yangilik}.\n"
-        "Field names are Uzbek: narx=price, struktura=structure, cho'qqi=swing high, tub=swing low, "
-        "qarshilik=resistance, tayanch=support, sinish=breakout, hajm=volume, o'zgarish=change, kunlik=daily, "
-        "shamda=candles, miya_bashorati=ML forecast (positive = expects rise), yangiliklar_bahosi=news (-1..1).\n\n"
-        f"{json.dumps(tangalar, ensure_ascii=False, indent=1)}\n\n"
-        "For each coin decide: qaror \"long\" or \"kutish\" (wait), ishonch = confidence 0-100, and 1-4 main "
-        "reasons from the allowed codes. Answer only JSON."
-    )
-    t0 = time.time()
-    javob = http(f"{OLLAMA}/api/chat", {
-        "model": MODEL, "stream": False, "format": sxema,
-        "options": {"temperature": 0, "num_ctx": 8192},
-        "messages": [{"role": "user", "content": sorov}],
-    }, vaqt=1800)
-    print(f"model {MODEL}: {time.time() - t0:.0f}s", flush=True)
-    natija = json.loads(javob["message"]["content"])
-    return {b: natija[b] for b in tangalar if b in natija}
+    natija = {}
+    for b, f in tangalar.items():
+        bozor = "" if b == "BTC" else (
+            "Market context (BTC): " + json.dumps({k: tangalar["BTC"][k] for k in (
+                "trend_qoidasi", "struktura", "kunlik_struktura", "o'zgarish_6_shamda_%", "o'zgarish_42_shamda_%")},
+                ensure_ascii=False) + "\n")
+        sorov = (
+            f"{QOIDALAR}\n\nLast closed 4h candle: {sham} UTC. Market news score: {bozor_yangilik}.\n{bozor}"
+            f"{b}/USDT data:\n{json.dumps(f, ensure_ascii=False, indent=1)}\n\n"
+            "First write 'tahlil': 3-5 sentences reading this specific chart like a trader (trend, structure, "
+            "where price sits between support and resistance, momentum, risk). Then 'qaror': \"long\" or "
+            "\"kutish\" (wait), 'ishonch': confidence 0-100, and 'sabablar': 1-4 codes that match the data "
+            "and your tahlil. Answer only JSON."
+        )
+        t0 = time.time()
+        javob = http(f"{OLLAMA}/api/chat", {
+            "model": MODEL, "stream": False, "format": sxema,
+            "options": {"temperature": 0, "num_ctx": 4096},
+            "messages": [{"role": "user", "content": sorov}],
+        }, vaqt=1200)
+        natija[b] = json.loads(javob["message"]["content"])
+        print(f"{b}: {time.time() - t0:.0f}s, {natija[b]['qaror']} ({natija[b]['ishonch']}%): {natija[b]['tahlil']}",
+              flush=True)
+    return natija
 
 
 def main():
