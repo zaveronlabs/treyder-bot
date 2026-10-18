@@ -1,6 +1,6 @@
 """AI treyder: katta ochiq til modeli (Qwen 2.5 14B, Ollama orqali shu serverda) har 4 soatlik sham yopilganda
 5 ta tanganing grafik strukturalarini (struktura.py), trend qoidasi, miya fikri va yangiliklarni o'qib, tajribali
-futures treyder kabi qaror qiladi: long yoki kutish (shortlar sinovda zarar bergani uchun faqat long).
+futures treyder kabi qaror qiladi: long yoki kutish (short ixtiyoriy, hozircha faqat sinovda).
 
 Natija treyder_ai.json ga yoziladi: {"sham", "vaqt", "model", "tangalar": {belgi: {"qaror", "ishonch", "sabablar"}}}.
 Model o'z tahlilini (inglizcha) yozadi; Telegram uchun o'zbekcha sabablar kod tomonidan aniq raqamlardan olinadi.
@@ -137,7 +137,8 @@ def malumotlar():
 def pozitsiya_matni(p, narx):
     if not p:
         return "none (in cash)"
-    return {"holat": "long ochiq", "kirish_narxi": p["kirish_narx"], "ochilgan_vaqt": p["kirish_sana"],
+    return {"holat": "short ochiq" if p.get("yon") == -1 else "long ochiq",
+            "kirish_narxi": p["kirish_narx"], "ochilgan_vaqt": p["kirish_sana"],
             "kirishdan_beri_narx_o'zgarishi_%": round((narx / p["kirish_narx"] - 1) * 100, 2)}
 
 
@@ -190,13 +191,22 @@ def _chat(sorov, sxema=None, uzunlik=None):
     return http(f"{OLLAMA}/api/chat", so, vaqt=1200)["message"]["content"]
 
 
-def qaror_ber(sham, tangalar, bozor_yangilik, qorquv=None, faqat=None, bahs=False):
+SHORT_QOIDA = (
+    "\nShorts are allowed: 'short' means open or keep a short position (profit when price falls). Backtests show "
+    "naive shorting loses money in crypto (strong long-term up drift, short squeezes), so short only in a clear "
+    "downtrend: price below EMA 150 and 600, lower highs and lower lows, daily structure bearish, ML forecast "
+    "negative. Close shorts quickly when the downtrend structure breaks. If you hold a short, 'short' keeps it, "
+    "'long' flips to long and 'kutish' closes it."
+)
+
+
+def qaror_ber(sham, tangalar, bozor_yangilik, qorquv=None, faqat=None, bahs=False, short=False):
     """Har tanga uchun alohida so'rov: model avval qisqa tahlil yozadi, keyin qaror qiladi."""
     sxema = {
         "type": "object", "required": ["tahlil", "qaror", "ishonch"],
         "properties": {
             "tahlil": {"type": "string"},
-            "qaror": {"type": "string", "enum": ["long", "kutish"]},
+            "qaror": {"type": "string", "enum": ["long", "short", "kutish"] if short else ["long", "kutish"]},
             "ishonch": {"type": "integer", "minimum": 0, "maximum": 100},
         },
     }
@@ -223,11 +233,13 @@ def qaror_ber(sham, tangalar, bozor_yangilik, qorquv=None, faqat=None, bahs=Fals
                              f"argue {vazifa}, citing specific numbers from the data.", uzunlik=220)
                 dalillar += f"{nom} analyst: {matn.strip()}\n\n"
             dalillar = "Your analysts argued:\n\n" + dalillar + "Weigh both sides as the head trader.\n"
+        qoidalar = QOIDALAR + (SHORT_QOIDA if short else "")
         sorov = (
-            f"{QOIDALAR}\n\n{malumot}{dalillar}"
+            f"{qoidalar}\n\n{malumot}{dalillar}"
             "First write 'tahlil': 3-5 sentences reading this specific chart like a trader (trend, structure, "
-            "where price sits between support and resistance, momentum, risk). Then 'qaror': \"long\" or "
-            "\"kutish\" (wait) and 'ishonch': confidence 0-100. Answer only JSON."
+            "where price sits between support and resistance, momentum, risk). Then 'qaror': "
+            + ("\"long\", \"short\" or \"kutish\" (wait)" if short else "\"long\" or \"kutish\" (wait)")
+            + " and 'ishonch': confidence 0-100. Answer only JSON."
         )
         natija[b] = json.loads(_chat(sorov, sxema))
         natija[b]["sabablar"] = sabablar(f, natija[b]["qaror"])
