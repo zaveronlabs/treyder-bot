@@ -322,6 +322,9 @@ def hisobot_matni(h):
         qatorlar += ["", f"{nom}: {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})",
                      f"  savdolar {len(j)} (foydali {yutuq}, zararli {len(j) - yutuq}), komissiya {pf['komissiya']:.2f}",
                      f"  ochiq: {', '.join(pf['portfel']) or 'yo`q'}"]
+    if {"qoida", "short"} <= h["portfellar"].keys():  # teskari ishlaydigan ikki yo'lga pulni teng bo'lish
+        pul = (jami_pul(h, h["portfellar"]["qoida"]) + jami_pul(h, h["portfellar"]["short"])) / 2
+        qatorlar += ["", f"⚖️ Yarmi faqat qoida + yarmi miya short: {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})"]
     return "\n".join(qatorlar)
 
 
