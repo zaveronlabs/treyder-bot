@@ -21,7 +21,8 @@ LENTALAR = [
     "https://bitcoinmagazine.com/feed",
 ]
 BELGILAR = ("BTC", "ETH", "SOL", "BNB", "XRP")
-MODEL_URL = "https://models.github.ai/inference/chat/completions"
+MODEL_URLLAR = ["https://models.github.ai/inference/chat/completions",
+               "https://models.inference.ai.azure.com/chat/completions"]
 MODELLAR = ["openai/gpt-4.1-mini", "openai/gpt-4o-mini", "meta/Llama-3.3-70B-Instruct"]
 OYNA_SOAT = 24
 
@@ -73,19 +74,28 @@ def tahlil(belgilar=BELGILAR):
         f"Yangiliklar:\n{royxat}"
     )
     javob = None
-    for model in MODELLAR:
-        try:
-            xom = _ol(MODEL_URL, {
-                "model": model, "temperature": 0.2,
-                "messages": [{"role": "user", "content": sorov}],
-            }, {"Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}", "Content-Type": "application/json",
-                "Accept": "application/json"})
-            javob = json.loads(xom)
+    for url in MODEL_URLLAR:
+        for model in MODELLAR:
+            nom = model if "github.ai" in url else model.split("/")[-1]
+            try:
+                so = urllib.request.Request(url, json.dumps({
+                    "model": nom, "temperature": 0.2, "messages": [{"role": "user", "content": sorov}],
+                }).encode(), {"Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
+                              "Content-Type": "application/json", "Accept": "application/json",
+                              "User-Agent": "treyder-ai"}, method="POST")
+                with urllib.request.urlopen(so, timeout=60) as j:
+                    xom = j.read()
+                    if not xom.strip():
+                        print("bo'sh javob:", url, nom, j.status, j.geturl(), dict(j.headers))
+                        continue
+                javob = json.loads(xom)
+                break
+            except urllib.error.HTTPError as xato:
+                print("model xatosi:", url, nom, xato.code, xato.read()[:300])
+            except Exception as xato:
+                print("model xatosi:", url, nom, repr(xato)[:300])
+        if javob:
             break
-        except urllib.error.HTTPError as xato:
-            print("model xatosi:", model, xato.code, xato.read()[:300])
-        except Exception as xato:
-            print("model xatosi:", model, repr(xato)[:300])
     if javob is None:
         return {}
     matn = javob["choices"][0]["message"]["content"]
