@@ -13,6 +13,7 @@ import time
 import urllib.request
 
 import struktura
+import tajriba
 
 BELGILAR = ("BTC", "ETH", "SOL", "BNB", "XRP")
 NARX_MANBALARI = ["https://data-api.binance.vision", "https://api.binance.com"]
@@ -123,16 +124,39 @@ def malumotlar():
     sham = shamlar["BTC"][-1][0]
     holat, yangilik = _oqi("holat.json"), _oqi("yangilik.json")
     miya = holat.get("miya", {}) if holat.get("oxirgi_sana") == sham else {}
+    try:
+        xotira = tajriba.Xotira({b: tajriba.tarix(b) for b in tajriba.BELGILAR})
+    except Exception as xato:
+        print("tajriba xotirasi ishlamadi:", xato)
+        xotira = None
+    pozitsiyalar = holat.get("portfellar", {}).get("ai", {}).get("portfel", {})
+    tangalar = tangalar_tuz(shamlar, miya, yangilik, xotira, pozitsiyalar, sham)
+    return sham, tangalar, yangilik.get("bozor", {}).get("baho"), tajriba.qorquv(tajriba.qorquv_tarixi(), sham)
+
+
+def pozitsiya_matni(p, narx):
+    if not p:
+        return "none (in cash)"
+    return {"holat": "long ochiq", "kirish_narxi": p["kirish_narx"], "ochilgan_vaqt": p["kirish_sana"],
+            "kirishdan_beri_narx_o'zgarishi_%": round((narx / p["kirish_narx"] - 1) * 100, 2)}
+
+
+def tangalar_tuz(shamlar, miya, yangilik, xotira=None, pozitsiyalar=None, sham=None):
     tangalar = {}
     for b, s in shamlar.items():
         f = struktura.tahlil(s) | struktura.kunlik_tahlil(s)
+        if pozitsiyalar is not None:
+            f["pozitsiya"] = pozitsiya_matni(pozitsiyalar.get(b), f["narx"])
+        t = xotira.soraq(b, sham) if xotira else None
+        if t:
+            f["tajriba"] = t
         if b in miya:
             f["miya_bashorati"] = round(miya[b], 3)  # musbat: keyingi 2 kunda o'sish kutadi
         y = yangilik.get("tangalar", {}).get(b)
         if y:
             f["yangiliklar_bahosi"] = y["baho"]  # -1 .. +1
         tangalar[b] = f
-    return sham, tangalar, yangilik.get("bozor", {}).get("baho")
+    return tangalar
 
 
 QOIDALAR = (
@@ -146,11 +170,17 @@ QOIDALAR = (
     "fight a clean trend without a strong reason.\n"
     "Field names are Uzbek: narx=price, struktura=structure, cho'qqi=swing high, tub=swing low, "
     "qarshilik=resistance, tayanch=support, sinish=breakout, hajm=volume, o'zgarish=change, kunlik=daily, "
-    "shamda=candles, miya_bashorati=ML forecast (positive = expects rise), yangiliklar_bahosi=news (-1..1)."
+    "shamda=candles, miya_bashorati=ML forecast (positive = expects rise), yangiliklar_bahosi=news (-1..1).\n"
+    "pozitsiya = your current position in this coin. If you already hold it, 'long' means keep holding and "
+    "'kutish' means close it: keep a position while its trend and structure are intact and exit when the setup "
+    "breaks; do not flip in and out on small noise (every trade costs fees). "
+    "tajriba = your experience: statistics of the 50 most similar past situations (10 coins since 2022) and "
+    "what happened next (o'sganlar_% = share that rose, o'rtacha_o'zgarish = average change). "
+    "Fear & Greed index: 0 = extreme fear, 100 = extreme greed."
 )
 
 
-def qaror_ber(sham, tangalar, bozor_yangilik):
+def qaror_ber(sham, tangalar, bozor_yangilik, qorquv=None, faqat=None):
     """Har tanga uchun alohida so'rov: model avval qisqa tahlil yozadi, keyin qaror qiladi."""
     sxema = {
         "type": "object", "required": ["tahlil", "qaror", "ishonch"],
@@ -162,12 +192,15 @@ def qaror_ber(sham, tangalar, bozor_yangilik):
     }
     natija = {}
     for b, f in tangalar.items():
+        if faqat and b not in faqat:
+            continue
         bozor = "" if b == "BTC" else (
             "Market context (BTC): " + json.dumps({k: tangalar["BTC"][k] for k in (
                 "trend_qoidasi", "struktura", "kunlik_struktura", "o'zgarish_6_shamda_%", "o'zgarish_42_shamda_%")},
                 ensure_ascii=False) + "\n")
         sorov = (
-            f"{QOIDALAR}\n\nLast closed 4h candle: {sham} UTC. Market news score: {bozor_yangilik}.\n{bozor}"
+            f"{QOIDALAR}\n\nLast closed 4h candle: {sham} UTC. Market news score: {bozor_yangilik}. "
+            f"Fear & Greed: {qorquv}.\n{bozor}"
             f"{b}/USDT data:\n{json.dumps(f, ensure_ascii=False, indent=1)}\n\n"
             "First write 'tahlil': 3-5 sentences reading this specific chart like a trader (trend, structure, "
             "where price sits between support and resistance, momentum, risk). Then 'qaror': \"long\" or "
@@ -187,8 +220,8 @@ def qaror_ber(sham, tangalar, bozor_yangilik):
 
 
 def main():
-    sham, tangalar, bozor_yangilik = malumotlar()
-    qarorlar = qaror_ber(sham, tangalar, bozor_yangilik)
+    sham, tangalar, bozor_yangilik, qorquv = malumotlar()
+    qarorlar = qaror_ber(sham, tangalar, bozor_yangilik, qorquv)
     natija = {"sham": sham, "vaqt": time.strftime("%Y-%m-%d %H:%M", time.gmtime()), "model": MODEL,
               "tangalar": {b: q | {"narx": tangalar[b]["narx"]} for b, q in qarorlar.items()}}
     print(json.dumps(natija, ensure_ascii=False, indent=1))

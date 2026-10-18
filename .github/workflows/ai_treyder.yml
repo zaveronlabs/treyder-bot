@@ -28,6 +28,7 @@ jobs:
           curl -sf http://localhost:11434/api/version || (nohup ollama serve > /tmp/ollama.log 2>&1 &)
           for i in $(seq 60); do curl -sf http://localhost:11434/api/version && break; sleep 2; done
           for i in 1 2 3; do ollama pull "$TREYDER_MODEL" && break; sleep 10; done
+          pip install -q numpy
           python3 treyder_ai.py
       - name: Saqlash
         run: |
