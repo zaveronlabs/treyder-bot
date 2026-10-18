@@ -25,8 +25,51 @@ def _rolling(x, n, fn, min_n):
     return chiq
 
 
+K = 5  # swing: chap va o'ngda K shamdan baland/past bo'lgan nuqta (K sham keyin tasdiqlanadi)
+
+
+def _swing(x, eng):
+    """Oxirgi tasdiqlangan pivot (s1) va undan oldingisi (s2), har vaqt uchun."""
+    s1, s2 = np.full_like(x, np.nan), np.full_like(x, np.nan)
+    a = b = np.nan
+    for t in range(2 * K, len(x)):
+        w = x[t - 2 * K:t + 1]
+        if x[t - K] == (w.max() if eng == "max" else w.min()):
+            a, b = x[t - K], a
+        s1[t], s2[t] = a, b
+    return s1, s2
+
+
+def _ewm(x, alfa):
+    chiq, e = np.full_like(x, np.nan), np.nan
+    for t, q in enumerate(x):
+        if not np.isnan(q):
+            e = q if np.isnan(e) else alfa * q + (1 - alfa) * e
+        chiq[t] = e
+    return chiq
+
+
+def _struktura(h, l, c, vol):
+    """Treyder strukturalari (bitta tanga): swing, tayanch/qarshilikka masofa, sinish, RSI, EMA, diapazon."""
+    sh1, sh2 = _swing(h, "max")
+    sl1, sl2 = _swing(l, "min")
+    dlt = np.concatenate([[np.nan], np.diff(c)])
+    rs = _ewm(np.clip(dlt, 0, None), 1 / 14) / _ewm(-np.clip(dlt, None, 0), 1 / 14)
+    mx = np.array([h[t - 19:t + 1].max() if t >= 19 else np.nan for t in range(len(h))])
+    mn = np.array([l[t - 19:t + 1].min() if t >= 19 else np.nan for t in range(len(l))])
+    c24 = np.concatenate([np.full(24, np.nan), c[:-24]])
+    f = [(np.sign(sh1 - sh2) + np.sign(sl1 - sl2)) / 2,
+         np.log(c / sh1) / vol / 5, np.log(c / sl1) / vol / 5,
+         (c > sh1).astype(float) - (c < sl1).astype(float),
+         ((100 - 100 / (1 + rs)) - 50) / 20]
+    f += [np.log(c / _ewm(c, 2 / (n + 1))) / vol / 10 for n in (50, 150, 600)]
+    f += [(c - mn) / (mx - mn) * 2 - 1, np.log(c / c24) / (vol * math.sqrt(24))]
+    return np.stack(f, -1)
+
+
 def belgilar_jadvali(shamlar, kerak):
-    """shamlar: {belgi: [(o, h, l, c, v), ...]} bir xil vaqtlarda. Oxirgi `kerak` qator uchun [T, C, 7] belgilar."""
+    """shamlar: {belgi: [(o, h, l, c, v), ...]} bir xil vaqtlarda. Oxirgi `kerak` qator uchun [T, C, 17] belgilar
+    (7 ta asosiy + 10 ta treyder strukturasi)."""
     belgilar = list(shamlar)
     o, h, l, c, v = (np.array([[s[i] for s in shamlar[b]] for b in belgilar], float).T for i in range(5))
     r = np.vstack([np.full((1, c.shape[1]), np.nan), np.log(c[1:] / c[:-1])])
@@ -41,7 +84,8 @@ def belgilar_jadvali(shamlar, kerak):
         btc = rn[:, belgilar.index("BTC")]
         f = [rn, np.log(h / l) / vol, np.log(c / o) / vol, np.log(v / vm), np.log(vol / volm),
              np.repeat(btc[:, None], len(belgilar), 1), np.repeat(bozor[:, None], len(belgilar), 1)]
-    x = np.stack(f, -1)[-kerak:]
+        st = np.stack([_struktura(h[:, j], l[:, j], c[:, j], vol[:, j]) for j in range(len(belgilar))], 1)
+    x = np.concatenate([np.stack(f, -1), st], -1)[-kerak:]
     return np.nan_to_num(np.clip(x, -6, 6)), belgilar
 
 
@@ -81,6 +125,7 @@ def bashorat(shamlar, silliq=3):
     w = dict(np.load(OGIRLIK_FAYL))
     nusxalar = sorted({k.split(".")[0] for k in w})
     x, belgilar = belgilar_jadvali(shamlar, L + silliq - 1)
+    x = x[..., :w[nusxalar[0] + ".kir.weight"].shape[1]]  # eski (7 belgili) og'irliklar ham ishlayveradi
     natija = {}
     for j, b in enumerate(belgilar):
         qiymatlar = [_model(w, s + ".", x[t - L:t, j]) for t in range(L, L + silliq) for s in nusxalar]
