@@ -1,7 +1,7 @@
 {
  "chat_id": 8859413416,
  "update_id": 74030483,
- "oxirgi_sana": "2026-10-18 00:00",
+ "oxirgi_sana": "2026-10-18 04:00",
  "holat": {
   "BTC": 0,
   "ETH": 0,
@@ -10,11 +10,11 @@
   "XRP": 0
  },
  "narx": {
-  "BTC": 81960.0,
-  "ETH": 2425.53,
-  "SOL": 104.52,
-  "BNB": 722.51,
-  "XRP": 1.3037,
+  "BTC": 81681.14,
+  "ETH": 2408.62,
+  "SOL": 103.31,
+  "BNB": 720.87,
+  "XRP": 1.2929,
   "DOGE": 0.08007,
   "ADA": 0.2228,
   "AVAX": 9.897,
@@ -23,16 +23,16 @@
  },
  "rejim": "4h-5-avto3",
  "miya": {
-  "BTC": 0.17941521692030135,
-  "ETH": 0.17123223633563564,
-  "SOL": 0.15054037450072866,
-  "BNB": 0.10991027613571853,
-  "XRP": 0.14592733125196955,
-  "DOGE": 0.09537923125787794,
-  "ADA": -0.07160346021128476,
-  "AVAX": 0.050626403305448014,
-  "LINK": -0.10487976975098995,
-  "LTC": -0.14365071464764334
+  "BTC": 0.0715979147083224,
+  "ETH": 0.10048855289616204,
+  "SOL": 0.12081831162234145,
+  "BNB": 0.0227329156535699,
+  "XRP": 0.12603924131449457,
+  "DOGE": 0.03146350880776393,
+  "ADA": -0.13981366128810013,
+  "AVAX": -0.055644937146765674,
+  "LINK": -0.13615619560719316,
+  "LTC": -0.1692729060004782
  },
  "sinov_boshi": "2026-10-17 20:00",
  "oxirgi_hisobot": 1792281662.0175865,
@@ -83,6 +83,12 @@
    "komissiya": 1.0
   },
   "ai": {
+   "portfel": {},
+   "jurnal": [],
+   "naqd": 1000.0,
+   "komissiya": 0.0
+  },
+  "yangilik": {
    "portfel": {},
    "jurnal": [],
    "naqd": 1000.0,
@@ -152,5 +158,36 @@
    }
   }
  },
- "ai_vaqt": "2026-10-18 07:11"
+ "ai_vaqt": "2026-10-18 07:11",
+ "yangilik": {
+  "vaqt": "2026-10-18 06:16",
+  "soni": 35,
+  "model": "qwen2.5:7b",
+  "bozor": {
+   "baho": -0.04,
+   "izoh": "Umumiy bozor: 35 ta yangilik (7 yaxshi, 10 yomon). Kayfiyat betaraf."
+  },
+  "tangalar": {
+   "BTC": {
+    "baho": -0.06,
+    "izoh": "Bitcoin haqida 7 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat betaraf."
+   },
+   "ETH": {
+    "baho": 0.23,
+    "izoh": "Ethereum haqida 1 ta yangilik (1 yaxshi, 0 yomon). Kayfiyat ijobiy."
+   },
+   "SOL": {
+    "baho": 0.23,
+    "izoh": "Solana haqida 2 ta yangilik (2 yaxshi, 0 yomon). Kayfiyat ijobiy."
+   },
+   "BNB": {
+    "baho": -0.27,
+    "izoh": "BNB haqida 1 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat salbiy."
+   },
+   "XRP": {
+    "baho": -0.02,
+    "izoh": "XRP haqida 1 ta yangilik (0 yaxshi, 0 yomon). Kayfiyat betaraf."
+   }
+  }
+ }
 }
