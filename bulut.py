@@ -94,7 +94,8 @@ def miya_fikri(natijalar):
 
 
 YOLLAR = {"ikkalasi": "Qoida + miya (asosiy)", "qoida": "Faqat qoida", "miya": "Faqat miya",
-          "yangilik": "Qoida + miya + yangiliklar", "ai": "AI treyder (Qwen 14B)"}
+          "yangilik": "Qoida + miya + yangiliklar", "ai": "AI treyder (Qwen 14B)", "short": "Miya short (sinov)"}
+SHORT_CHEGARA = -0.1  # miya bundan pastroq bashorat bersa short yo'li short ochadi
 YANGILIK_CHEGARA = -0.2  # yangiliklar bundan salbiyroq bo'lsa 4-yo'l kirmaydi
 
 
@@ -209,11 +210,12 @@ def signallarni_tekshir(h):
         kerak = {"qoida": bool(yangi), "miya": miya_ha, "ikkalasi": bool(yangi) and (miya_ha or p is None)}
         yb = h["yangilik"].get("tangalar", {}).get(b, {}).get("baho")
         kerak["yangilik"] = kerak["ikkalasi"] and (yb is None or yb >= YANGILIK_CHEGARA)
+        kerak["short"] = p is not None and p < SHORT_CHEGARA
         for y, pf in h["portfellar"].items():
             if y not in kerak:  # AI treyder o'z qarorlari bilan alohida (ai_tekshir)
                 continue
             if kerak[y] and b not in pf["portfel"]:
-                och(pf, b, narx, sana)
+                och(pf, b, narx, sana, -1 if y == "short" else 1)
                 if y == "ikkalasi":
                     miya_matn = f"miya ✅ {p:+.2f}" if p is not None else "miya ishlamadi"
                     yubor(h, f"🤖🟢 {b}: long ochildi\nNarx: {narx:g}, {ULUSH:.0f} USDT x{LEVERAGE}\n"
@@ -222,6 +224,8 @@ def signallarni_tekshir(h):
                 if y in ("ikkalasi", "yangilik"):
                     sabab = "trend tugadi" if not yangi else f"miya rozi emas ({p:+.2f})" if not miya_ha else \
                             f"yangiliklar salbiy ({yb:+.1f})"
+                elif y == "short":
+                    sabab = f"miya endi tushish kutmayapti ({p:+.2f})" if p is not None else "miya yo'q"
                 else:
                     sabab = "trend tugadi" if y == "qoida" else f"miya salbiy ({p:+.2f})" if p is not None else "miya yo'q"
                 foyda = yop(pf, b, narx, sana, sabab)
@@ -243,12 +247,15 @@ def signallarni_tekshir(h):
 # ---------- Qog'oz portfel ----------
 
 def natija_usdt(p, narx):
-    return max(p["miqdor"] * (narx - p["kirish_narx"]), -ULUSH)
+    return max(p.get("yon", 1) * p["miqdor"] * (narx - p["kirish_narx"]), -ULUSH)
 
 
-def och(pf, b, narx, sana):
+def och(pf, b, narx, sana, yon=1):
+    """yon: 1 = long, -1 = short."""
     kom = ULUSH * LEVERAGE * KOMISSIYA
     pf["portfel"][b] = {"miqdor": ULUSH * LEVERAGE / narx, "kirish_narx": narx, "kirish_sana": sana}
+    if yon == -1:
+        pf["portfel"][b]["yon"] = -1
     pf["naqd"] -= ULUSH + kom
     pf["komissiya"] += kom
 
