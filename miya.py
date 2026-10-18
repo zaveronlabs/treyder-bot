@@ -12,6 +12,7 @@ import numpy as np
 
 L, D, QAT, BOSH = 64, 64, 4, 4
 OGIRLIK_FAYL = Path(__file__).with_name("miya.npz")
+SHORT_FAYL = Path(__file__).with_name("miya_short.npz")  # short miyasi: sezilarli tushish ehtimoli (logit)
 
 
 def _rolling(x, n, fn, min_n):
@@ -120,9 +121,10 @@ def _model(w, p, x):  # x: [L, F] -> son
     return float(_rms(x[-1], w[p + "n.w"]) @ w[p + "chiq.weight"][0] + w[p + "chiq.bias"][0])
 
 
-def bashorat(shamlar, silliq=3):
-    """{belgi: bashorat}: oxirgi `silliq` ta shamdagi bashoratlar o'rtachasi (sinovda shunday ishlatilgan)."""
-    w = dict(np.load(OGIRLIK_FAYL))
+def bashorat(shamlar, silliq=3, fayl=OGIRLIK_FAYL):
+    """{belgi: bashorat}: oxirgi `silliq` ta shamdagi bashoratlar o'rtachasi (sinovda shunday ishlatilgan).
+    Short miyasi (fayl=SHORT_FAYL) uchun natija tushish ehtimoli (0..1)."""
+    w = dict(np.load(fayl))
     nusxalar = sorted({k.split(".")[0] for k in w})
     x, belgilar = belgilar_jadvali(shamlar, L + silliq - 1)
     x = x[..., :w[nusxalar[0] + ".kir.weight"].shape[1]]  # eski (7 belgili) og'irliklar ham ishlayveradi
@@ -130,4 +132,6 @@ def bashorat(shamlar, silliq=3):
     for j, b in enumerate(belgilar):
         qiymatlar = [_model(w, s + ".", x[t - L:t, j]) for t in range(L, L + silliq) for s in nusxalar]
         natija[b] = float(np.mean(qiymatlar))
+        if fayl == SHORT_FAYL:
+            natija[b] = 1 / (1 + math.exp(-natija[b]))
     return natija

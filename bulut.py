@@ -94,9 +94,25 @@ def miya_fikri(natijalar):
 
 
 YOLLAR = {"ikkalasi": "Qoida + miya (asosiy)", "qoida": "Faqat qoida", "miya": "Faqat miya",
-          "yangilik": "Qoida + miya + yangiliklar", "ai": "AI treyder (Qwen 14B)", "short": "Miya short (sinov)"}
+          "yangilik": "Qoida + miya + yangiliklar", "ai": "AI treyder (Qwen 14B)", "short": "Miya short (sinov)",
+          "longshort": "Asosiy + short miyasi (sinov)"}
 SHORT_CHEGARA = -0.1  # miya bundan pastroq bashorat bersa short yo'li short ochadi
+SHORT_EHTIMOL = 0.45  # short miyasi tushish ehtimolini bundan yuqori desa (asosiy yo'l naqdda bo'lsa) short
 YANGILIK_CHEGARA = -0.2  # yangiliklar bundan salbiyroq bo'lsa 4-yo'l kirmaydi
+
+
+def short_miya_fikri(natijalar):
+    """{belgi: tushish ehtimoli 0..1}; short miyasi bo'lmasa yoki ishlamasa bo'sh."""
+    try:
+        import miya
+        if not miya.SHORT_FAYL.exists():
+            return {}
+        umumiy = set.intersection(*({s[0] for s in yop} for yop in natijalar.values()))
+        return miya.bashorat({b: [s[1:] for s in yop if s[0] in umumiy] for b, yop in natijalar.items()},
+                             fayl=miya.SHORT_FAYL)
+    except Exception as xato:
+        print("short miya xatosi:", xato)
+        return {}
 
 
 def yangi_portfel():
@@ -200,6 +216,7 @@ def signallarni_tekshir(h):
     for y in YOLLAR:  # keyin qo'shilgan yo'l boshqalarini nolga tushirmasdan qo'shiladi
         h["portfellar"].setdefault(y, yangi_portfel())
     h["miya"] = miya_fikri(natijalar)
+    h["short_miya"] = short_miya_fikri(natijalar)
     h["yangilik"] = yangilik_fikri(h)
     h["holat"] = {}
     for b in SIGNAL_BELGILAR:
@@ -211,11 +228,16 @@ def signallarni_tekshir(h):
         yb = h["yangilik"].get("tangalar", {}).get(b, {}).get("baho")
         kerak["yangilik"] = kerak["ikkalasi"] and (yb is None or yb >= YANGILIK_CHEGARA)
         kerak["short"] = p is not None and p < SHORT_CHEGARA
+        ps = h["short_miya"].get(b)
+        kerak["longshort"] = kerak["ikkalasi"] or (ps is not None and ps > SHORT_EHTIMOL)
+        yon_ls = 1 if kerak["ikkalasi"] else -1
         for y, pf in h["portfellar"].items():
             if y not in kerak:  # AI treyder o'z qarorlari bilan alohida (ai_tekshir)
                 continue
+            if y == "longshort" and b in pf["portfel"] and kerak[y] and pf["portfel"][b].get("yon", 1) != yon_ls:
+                yop(pf, b, narx, sana, "yo'nalish o'zgardi")  # long <-> short almashadi
             if kerak[y] and b not in pf["portfel"]:
-                och(pf, b, narx, sana, -1 if y == "short" else 1)
+                och(pf, b, narx, sana, -1 if y == "short" or (y == "longshort" and yon_ls == -1) else 1)
                 if y == "ikkalasi":
                     miya_matn = f"miya ✅ {p:+.2f}" if p is not None else "miya ishlamadi"
                     yubor(h, f"🤖🟢 {b}: long ochildi\nNarx: {narx:g}, {ULUSH:.0f} USDT x{LEVERAGE}\n"
@@ -224,6 +246,8 @@ def signallarni_tekshir(h):
                 if y in ("ikkalasi", "yangilik"):
                     sabab = "trend tugadi" if not yangi else f"miya rozi emas ({p:+.2f})" if not miya_ha else \
                             f"yangiliklar salbiy ({yb:+.1f})"
+                elif y == "longshort":
+                    sabab = "signal tugadi"
                 elif y == "short":
                     sabab = f"miya endi tushish kutmayapti ({p:+.2f})" if p is not None else "miya yo'q"
                 else:
