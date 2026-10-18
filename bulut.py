@@ -10,6 +10,7 @@ Avto rejim: qoida VA miya (miya.py, noldan o'qitilgan kichik transformer) rozi b
 Qog'oz futures portfel: 1000 USDT, har tangaga ULUSH USDT marja x LEVERAGE.
 """
 
+import calendar
 import json
 import os
 import time
@@ -92,16 +93,46 @@ def miya_fikri(natijalar):
         return {}
 
 
-YOLLAR = {"ikkalasi": "Qoida + miya (asosiy)", "qoida": "Faqat qoida", "miya": "Faqat miya"}
+YOLLAR = {"ikkalasi": "Qoida + miya (asosiy)", "qoida": "Faqat qoida", "miya": "Faqat miya",
+          "yangilik": "Qoida + miya + yangiliklar"}
+YANGILIK_CHEGARA = -0.2  # yangiliklar bundan salbiyroq bo'lsa 4-yo'l kirmaydi
 
 
 def yangi_portfel():
     return {"portfel": {}, "jurnal": [], "naqd": BOSHLANG_ICH_PUL, "komissiya": 0.0}
 
 
+def yangilik_fikri(h):
+    """Yangilik AI tahlili (yangilik.json, alohida ish har 4 soatda yangilaydi); 12 soatdan eski bo'lsa ishlatilmaydi."""
+    try:
+        with open(HOLAT_FAYL.with_name("yangilik.json")) as f:
+            natija = json.load(f)
+        t = calendar.timegm(time.strptime(natija["vaqt"], "%Y-%m-%d %H:%M"))
+        if time.time() - t < 12 * 3600:
+            return natija
+    except Exception as xato:
+        print("yangilik xatosi:", xato)
+    return {}
+
+
+def yangilik_qatori(h, b):
+    t = h.get("yangilik", {}).get("tangalar", {}).get(b)
+    return f"\n📰 Yangiliklar ({t['baho']:+.1f}): {t.get('izoh', '')}" if t else ""
+
+
+def yangilik_matni(h):
+    y = h.get("yangilik")
+    if not y:
+        return "Hali yangilik tahlili yo'q (har 4 soatda yangilanadi)."
+    q = [f"📰 Yangiliklar tahlili ({y.get('vaqt', '')} UTC, {y.get('soni', 0)} ta sarlavha)",
+         f"Bozor ({y.get('bozor', {}).get('baho', 0):+.1f}): {y.get('bozor', {}).get('izoh', '')}"]
+    q += [f"{b} ({t['baho']:+.1f}): {t.get('izoh', '')}" for b, t in y.get("tangalar", {}).items()]
+    return "\n".join(q)
+
+
 def signallarni_tekshir(h):
-    """Avto rejim: 3 ta qog'oz portfel parallel yuritiladi (faqat qoida, faqat miya, ikkalasi rozi bo'lsa).
-    Telegramga asosiy (ikkalasi) portfel savdolari yoziladi, hisobotda uchalasi solishtiriladi."""
+    """Avto rejim: 4 ta qog'oz portfel parallel yuritiladi (faqat qoida, faqat miya, ikkalasi rozi bo'lsa,
+    ikkalasi + yangiliklar salbiy emas). Telegramga asosiy (ikkalasi) portfel savdolari yoziladi."""
     natijalar = {b: yopilishlar(b) for b in BELGILAR}
     sana = natijalar["BTC"][-1][0]
     if h.get("oxirgi_sana") == sana:
@@ -112,7 +143,10 @@ def signallarni_tekshir(h):
                  portfellar={y: yangi_portfel() for y in YOLLAR})
         for k in ["portfel", "jurnal", "naqd", "komissiya", "signallar"]:
             h.pop(k, None)
+    for y in YOLLAR:  # keyin qo'shilgan yo'l boshqalarini nolga tushirmasdan qo'shiladi
+        h["portfellar"].setdefault(y, yangi_portfel())
     h["miya"] = miya_fikri(natijalar)
+    h["yangilik"] = yangilik_fikri(h)
     h["holat"] = {}
     for b in SIGNAL_BELGILAR:
         yangi, narx, farq, mom = trend_holati(natijalar[b])
@@ -120,26 +154,32 @@ def signallarni_tekshir(h):
         p = h["miya"].get(b)
         miya_ha = p is not None and p > 0
         kerak = {"qoida": bool(yangi), "miya": miya_ha, "ikkalasi": bool(yangi) and (miya_ha or p is None)}
+        yb = h["yangilik"].get("tangalar", {}).get(b, {}).get("baho")
+        kerak["yangilik"] = kerak["ikkalasi"] and (yb is None or yb >= YANGILIK_CHEGARA)
         for y, pf in h["portfellar"].items():
             if kerak[y] and b not in pf["portfel"]:
                 och(pf, b, narx, sana)
                 if y == "ikkalasi":
+                    miya_matn = f"miya ✅ {p:+.2f}" if p is not None else "miya ishlamadi"
                     yubor(h, f"🤖🟢 {b}: long ochildi\nNarx: {narx:g}, {ULUSH:.0f} USDT x{LEVERAGE}\n"
-                             f"Sabab: trend ✅ (10 kunda {mom:+.1%}), miya ✅ {p:+.2f}" if p is not None else
-                             f"🤖🟢 {b}: long ochildi\nNarx: {narx:g}\nSabab: trend ✅ (miya ishlamadi)")
+                             f"Sabab: trend ✅ (10 kunda {mom:+.1%}), {miya_matn}" + yangilik_qatori(h, b))
             elif not kerak[y] and b in pf["portfel"]:
-                sabab = ("trend tugadi" if not yangi else f"miya rozi emas ({p:+.2f})") if y == "ikkalasi" else \
-                        ("trend tugadi" if y == "qoida" else f"miya salbiy ({p:+.2f})" if p is not None else "miya yo'q")
+                if y in ("ikkalasi", "yangilik"):
+                    sabab = "trend tugadi" if not yangi else f"miya rozi emas ({p:+.2f})" if not miya_ha else \
+                            f"yangiliklar salbiy ({yb:+.1f})"
+                else:
+                    sabab = "trend tugadi" if y == "qoida" else f"miya salbiy ({p:+.2f})" if p is not None else "miya yo'q"
                 foyda = yop(pf, b, narx, sana, sabab)
                 if y == "ikkalasi":
-                    yubor(h, f"🤖🔴 {b}: yopildi\nNarx: {narx:g}, natija {foyda:+.2f} USDT\nSabab: {sabab}")
+                    yubor(h, f"🤖🔴 {b}: yopildi\nNarx: {narx:g}, natija {foyda:+.2f} USDT\nSabab: {sabab}"
+                             + yangilik_qatori(h, b))
     h["oxirgi_sana"] = sana
     if birinchi:
         tugash = time.strftime("%Y-%m-%d", time.gmtime(time.time() + SINOV_KUN * 86400))
         yubor(h, f"🤖 Avto rejim boshlandi: bot {len(SIGNAL_BELGILAR)} ta tangada o'zi savdo qiladi (qog'ozda). "
                  f"Sinov muddati: {tugash} gacha.\n3 xil yo'l parallel yoziladi, har biriga {BOSHLANG_ICH_PUL:.0f} USDT: "
                  f"faqat qoida, faqat miya, qoida + miya (asosiy). Bu yerga asosiy yo'l savdolari yoziladi, "
-                 f"har hafta uchalasi solishtirilgan hisobot keladi. /hisobot, /holat, /jurnal\n\n" + holat_matni(h))
+                 f"har hafta uchalasi solishtirilgan hisobot keladi. /hisobot, /holat, /jurnal, /yangilik\n\n" + holat_matni(h))
     if time.time() - h.get("oxirgi_hisobot", 0) >= 7 * 86400:
         h["oxirgi_hisobot"] = time.time()
         yubor(h, "📊 Haftalik hisobot\n" + hisobot_matni(h))
@@ -222,6 +262,8 @@ def yangilanishlar(h):
                 yubor(h, holat_matni(h))
             elif matn.startswith("/jurnal"):
                 yubor(h, jurnal_matni(h) if h.get("portfellar") else "Hali savdo yo'q.")
+            elif matn.startswith("/yangilik"):
+                yubor(h, yangilik_matni(h))
             elif matn.startswith("/hisobot"):
                 yubor(h, hisobot_matni(h) if h.get("portfellar") else "Avto rejim keyingi 4 soatlik shamda boshlanadi.")
 

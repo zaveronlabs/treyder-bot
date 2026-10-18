@@ -28,15 +28,22 @@ jobs:
       - name: Botni ishga tushirish
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "treyder-bot"
           git config user.email "treyder-bot@users.noreply.github.com"
           tugash=$(( $(date +%s) + 330 * 60 ))
+          oxirgi_yangilik=0
           while [ "$(date +%s)" -lt "$tugash" ]; do
             git pull -q --rebase origin main || true
             python bulut.py || echo "xato, keyingi daqiqada qayta"
             git add holat.json
             git diff --cached --quiet || (git commit -q -m "holat yangilandi" && git push -q origin HEAD:main) || true
+            # yangiliklar tahlili: har 4 soatlik sham yopilishidan ~40 daqiqa oldin
+            if [ $(( 10#$(date -u +%H) % 4 )) -eq 3 ] && [ "$(date -u +%-M)" -ge 20 ] \
+               && [ $(( $(date +%s) - oxirgi_yangilik )) -gt 7200 ]; then
+              gh workflow run yangilik.yml --ref main --repo ${{ github.repository }} && oxirgi_yangilik=$(date +%s) || true
+            fi
             sleep 60
           done
       - name: Keyingi ishga tushirish

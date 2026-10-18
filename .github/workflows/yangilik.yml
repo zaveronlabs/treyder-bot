@@ -1,0 +1,39 @@
+name: Yangiliklar tahlili
+
+# Bot har 4 soatlik sham yopilishidan oldin (UTC 03:20, 07:20, ...) shu ishni chaqiradi.
+# Ochiq til modeli shu serverning o'zida Ollama orqali ishlaydi, natija yangilik.json ga yoziladi.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: yangilik
+  cancel-in-progress: false
+
+jobs:
+  tahlil:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ollama va model
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          ollama pull qwen2.5:7b
+      - name: Tahlil
+        env:
+          YANGILIK_MODEL: qwen2.5:7b
+        run: python3 yangilik.py
+      - name: Saqlash
+        run: |
+          git config user.name "treyder-bot"
+          git config user.email "treyder-bot@users.noreply.github.com"
+          git add yangilik.json
+          git commit -q -m "yangiliklar tahlili" || exit 0
+          for i in 1 2 3 4 5; do
+            git pull -q --rebase origin main && git push -q origin HEAD:main && exit 0
+            sleep $((i * 5))
+          done
+          exit 1
