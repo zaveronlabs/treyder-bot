@@ -21,7 +21,8 @@ jobs:
       - name: Ollama va model
         run: |
           curl -fsSL https://ollama.com/install.sh | sh
-          ollama pull qwen2.5:7b
+          for i in $(seq 30); do curl -sf http://localhost:11434/api/version && break; sleep 2; done
+          for i in 1 2 3; do ollama pull qwen2.5:7b && break; sleep 10; done
       - name: Tahlil
         env:
           YANGILIK_MODEL: qwen2.5:7b
