@@ -4,13 +4,25 @@ on:
     branches: [yangilik-sinov]
 permissions:
   contents: read
-  models: read
 jobs:
   sinov:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        model: ["qwen2.5:7b", "qwen2.5:3b"]
     steps:
       - uses: actions/checkout@v4
+      - name: Ollama
+        run: |
+          nproc; free -g
+          t0=$(date +%s)
+          curl -fsSL https://ollama.com/install.sh | sh
+          echo "o'rnatish: $(( $(date +%s) - t0 ))s"
+          t0=$(date +%s)
+          ollama pull ${{ matrix.model }}
+          echo "yuklash: $(( $(date +%s) - t0 ))s"
       - run: python3 yangilik.py
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          YANGILIK_MODEL: ${{ matrix.model }}

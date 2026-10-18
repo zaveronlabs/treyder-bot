@@ -1,17 +1,18 @@
 """Yangilik o'qiydigan AI: kripto yangiliklar saytlarining RSS lentalaridan so'nggi sarlavhalarni yig'adi va
-GitHub Models'dagi til modeliga (GitHub Actions ichida bepul, kalit kerak emas) tahlil qildiradi.
+o'sha GitHub serverining o'zida ishlaydigan ochiq til modeliga (Ollama orqali, bepul, kalit kerak emas)
+har bir sarlavhaning narxga ta'sirini baholatadi. Tangalarga tegishli sarlavhalar kalit so'zlar bilan topiladi.
 
-Natija: {"vaqt": ..., "bozor": {"baho", "izoh"}, "tangalar": {belgi: {"baho", "izoh"}}}, baho -1 (yomon) .. +1 (yaxshi).
+Natija yangilik.json ga yoziladi:
+{"vaqt", "soni", "bozor": {"baho", "izoh"}, "tangalar": {belgi: {"baho", "izoh"}}}, baho -1 (yomon) .. +1 (yaxshi).
 Faqat standart kutubxona.
 """
 
 import email.utils
-import gzip
 import json
 import os
 import re
+import sys
 import time
-import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 
@@ -20,18 +21,29 @@ LENTALAR = [
     "https://cointelegraph.com/rss",
     "https://decrypt.co/feed",
     "https://bitcoinmagazine.com/feed",
+    "https://cryptoslate.com/feed/",
+    "https://www.theblock.co/rss.xml",
+    "https://news.bitcoin.com/feed/",
 ]
 BELGILAR = ("BTC", "ETH", "SOL", "BNB", "XRP")
-MODEL_URLLAR = ["https://models.github.ai/inference/chat/completions",
-               "https://models.github.ai/orgs/zaveronlabs/inference/chat/completions"]
-MODELLAR = ["openai/gpt-4.1-mini", "openai/gpt-4o-mini", "meta/Llama-3.3-70B-Instruct"]
+KALIT_SOZLAR = {
+    "BTC": ["bitcoin", "btc"],
+    "ETH": ["ethereum", "ether", "eth"],
+    "SOL": ["solana", "sol"],
+    "BNB": ["bnb", "binance"],
+    "XRP": ["xrp", "ripple"],
+}
+NOMLAR = {"BTC": "Bitcoin", "ETH": "Ethereum", "SOL": "Solana", "BNB": "BNB", "XRP": "XRP"}
+OLLAMA = os.environ.get("OLLAMA_URL", "http://localhost:11434")
+MODEL = os.environ.get("YANGILIK_MODEL", "qwen2.5:7b")
 OYNA_SOAT = 24
+FAYL = "yangilik.json"
 
 
-def _ol(url, malumot=None, sarlavha=None):
+def _ol(url, malumot=None, vaqt=40):
     so = urllib.request.Request(url, json.dumps(malumot).encode() if malumot else None,
-                                {"User-Agent": "Mozilla/5.0 treyder-ai", **(sarlavha or {})})
-    with urllib.request.urlopen(so, timeout=40) as j:
+                                {"User-Agent": "Mozilla/5.0 treyder-ai", "Content-Type": "application/json"})
+    with urllib.request.urlopen(so, timeout=vaqt) as j:
         return j.read()
 
 
@@ -46,7 +58,7 @@ def sarlavhalar():
             print("lenta ochilmadi:", url, xato)
             continue
         for item in ildiz.iter("item"):
-            nom = (item.findtext("title") or "").strip()
+            nom = " ".join((item.findtext("title") or "").split())
             sana = item.findtext("pubDate")
             try:
                 t = email.utils.parsedate_to_datetime(sana).timestamp()
@@ -56,66 +68,82 @@ def sarlavhalar():
                 continue
             korilgan.add(nom.lower())
             matn = re.sub(r"<[^>]+>", " ", item.findtext("description") or "")
-            natija.append((t, nom, " ".join(matn.split())[:200]))
+            natija.append((t, nom, " ".join(matn.split())[:160]))
     return sorted(natija, reverse=True)
 
 
+def baholat(yangiliklar):
+    """Har bir sarlavha uchun -2..+2 baho (model). Qaytaradi: [int]."""
+    royxat = "\n".join(f"{i + 1}. {nom}" for i, (_, nom, _) in enumerate(yangiliklar))
+    sorov = (
+        "You are an experienced crypto futures trader. For each news headline below, rate its likely effect on "
+        "crypto prices over the next 1-2 days: -2 very bearish, -1 bearish, 0 neutral or unrelated, "
+        "1 bullish, 2 very bullish. Be strict: most headlines are 0. "
+        f'Answer only JSON like {{"scores": [0, 1, -1, ...]}} with exactly {len(yangiliklar)} integers in order.\n\n'
+        f"{royxat}"
+    )
+    for urinish in range(3):
+        javob = json.loads(_ol(f"{OLLAMA}/api/chat", {
+            "model": MODEL, "stream": False, "format": "json",
+            "options": {"temperature": 0, "num_ctx": 8192},
+            "messages": [{"role": "user", "content": sorov}],
+        }, vaqt=900))
+        try:
+            baholar = json.loads(javob["message"]["content"])["scores"]
+            baholar = [max(-2, min(2, int(round(float(x))))) for x in baholar]
+        except Exception as xato:
+            print("model javobi tushunarsiz:", xato, javob.get("message", {}).get("content", "")[:300])
+            continue
+        if len(baholar) == len(yangiliklar):
+            return baholar
+        print(f"baholar soni mos emas: {len(baholar)} != {len(yangiliklar)}")
+    raise RuntimeError("model baho bermadi")
+
+
+def _tegishli(matn, belgi):
+    matn = matn.lower()
+    return any(re.search(rf"\b{s}\b", matn) for s in KALIT_SOZLAR[belgi])
+
+
+def _izoh(baholar, kimga):
+    yaxshi = sum(x > 0 for x in baholar)
+    yomon = sum(x < 0 for x in baholar)
+    qism = f"{kimga} {len(baholar)} ta yangilik: {yaxshi} tasi yaxshi, {yomon} tasi yomon, qolgani betaraf."
+    if yaxshi > yomon * 2 and yaxshi:
+        return qism + " Kayfiyat ijobiy."
+    if yomon > yaxshi * 2 and yomon:
+        return qism + " Kayfiyat salbiy."
+    return qism + " Kayfiyat aralash."
+
+
 def tahlil(belgilar=BELGILAR):
-    yangiliklar = sarlavhalar()[:60]
-    print(len(yangiliklar), "ta yangilik")
+    yangiliklar = sarlavhalar()[:50]
+    print(len(yangiliklar), "ta yangilik", flush=True)
     if not yangiliklar:
         return {}
-    royxat = "\n".join(f"- {nom} | {matn}" for _, nom, matn in yangiliklar)
-    sorov = (
-        "Sen kripto bozor tahlilchisisan. Quyida so'nggi 24 soatdagi yangiliklar sarlavhalari bor. "
-        f"Har bir tanga ({', '.join(belgilar)}) va umumiy bozor uchun keyingi 1-2 kunda narxga ta'siri qanday "
-        "bo'lishini baholab ber: baho -1 (juda salbiy) dan +1 (juda ijobiy) gacha, yangilik bo'lmasa 0. "
-        "izoh: o'zbek tilida (lotin), oddiy so'zlar bilan, bitta qisqa gap. Faqat JSON qaytar, shu ko'rinishda: "
-        '{"bozor": {"baho": 0.0, "izoh": "..."}, "tangalar": {"BTC": {"baho": 0.0, "izoh": "..."}}}\n\n'
-        f"Yangiliklar:\n{royxat}"
-    )
-    javob = None
-    for url in MODEL_URLLAR:
-        for model in MODELLAR:
-            nom = model
-            try:
-                so = urllib.request.Request(url, json.dumps({
-                    "model": nom, "temperature": 0.2, "messages": [{"role": "user", "content": sorov}],
-                }).encode(), {"Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
-                              "Content-Type": "application/json", "Accept": "application/json",
-                              "User-Agent": "treyder-ai", "X-GitHub-Api-Version": "2022-11-28"}, method="POST")
-                with urllib.request.urlopen(so, timeout=60) as j:
-                    xom = j.read()
-                    if not xom.strip():
-                        print("bo'sh javob:", url, nom, j.status, j.geturl(), dict(j.headers))
-                        continue
-                    kodlash = j.headers.get("Content-Encoding", "")
-                if kodlash == "gzip" or xom[:2] == b"\x1f\x8b":
-                    xom = gzip.decompress(xom)
-                try:
-                    javob = json.loads(xom)
-                except ValueError:
-                    print("JSON emas:", url, nom, kodlash, xom[:300])
-                    continue
-                break
-            except urllib.error.HTTPError as xato:
-                print("model xatosi:", url, nom, xato.code, xato.read()[:300])
-            except Exception as xato:
-                print("model xatosi:", url, nom, repr(xato)[:300])
-        if javob:
-            break
-    if javob is None:
-        return {}
-    matn = javob["choices"][0]["message"]["content"]
-    javob["choices"][0]["message"]["content"] = matn[matn.find("{"):matn.rfind("}") + 1]
-    natija = json.loads(javob["choices"][0]["message"]["content"])
-    natija["vaqt"] = time.strftime("%Y-%m-%d %H:%M", time.gmtime())
-    natija["soni"] = len(yangiliklar)
+    t0 = time.time()
+    baholar = baholat(yangiliklar)
+    print(f"model {MODEL}: {time.time() - t0:.0f}s", flush=True)
+    for b, (_, nom, _) in zip(baholar, yangiliklar):
+        print(f"{b:+d}  {nom}")
+    bozor = sum(baholar) / len(baholar) / 2
+    natija = {"vaqt": time.strftime("%Y-%m-%d %H:%M", time.gmtime()), "soni": len(yangiliklar), "model": MODEL,
+              "bozor": {"baho": round(bozor, 2), "izoh": _izoh(baholar, "Umumiy bozor bo'yicha")}, "tangalar": {}}
     for b in belgilar:
-        t = natija.setdefault("tangalar", {}).setdefault(b, {"baho": 0.0, "izoh": "Muhim yangilik yo'q."})
-        t["baho"] = max(-1.0, min(1.0, float(t.get("baho", 0))))
+        oz = [x for x, (_, nom, matn) in zip(baholar, yangiliklar) if _tegishli(f"{nom} {matn}", b)]
+        if oz:
+            baho = 0.5 * bozor + 0.5 * sum(oz) / len(oz) / 2
+            izoh = _izoh(oz, f"{NOMLAR[b]} haqida")
+        else:
+            baho, izoh = bozor, "Alohida yangilik yo'q, umumiy bozor kayfiyatiga qaraldi."
+        natija["tangalar"][b] = {"baho": round(max(-1.0, min(1.0, baho)), 2), "izoh": izoh}
     return natija
 
 
 if __name__ == "__main__":
-    print(json.dumps(tahlil(), ensure_ascii=False, indent=1))
+    natija = tahlil()
+    print(json.dumps(natija, ensure_ascii=False, indent=1))
+    if not natija:
+        sys.exit(1)
+    with open(FAYL, "w") as f:
+        json.dump(natija, f, ensure_ascii=False, indent=1)
