@@ -1,0 +1,28 @@
+name: AI treyder orqaga sinov (bir martalik)
+on:
+  push:
+    branches: [orqaga-sinov]
+permissions:
+  contents: read
+jobs:
+  sinov:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        bolak: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ollama va sinov
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          curl -sf http://localhost:11434/api/version || (nohup ollama serve > /tmp/ollama.log 2>&1 &)
+          for i in $(seq 60); do curl -sf http://localhost:11434/api/version && break; sleep 2; done
+          for i in 1 2 3; do ollama pull qwen2.5:14b && break; sleep 10; done
+          python3 orqaga.py ${{ matrix.bolak }} 20 84 "2026-10-17 08:00"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: orqaga-${{ matrix.bolak }}
+          path: orqaga_${{ matrix.bolak }}.json
