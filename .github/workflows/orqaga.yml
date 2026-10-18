@@ -1,7 +1,6 @@
 name: AI treyder orqaga sinov (bir martalik)
 on:
-  push:
-    branches: [orqaga-sinov]
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
