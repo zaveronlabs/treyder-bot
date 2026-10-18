@@ -137,9 +137,10 @@ def ai_tekshir(h):
             ai = json.load(f)
     except Exception:
         return
-    if "portfellar" not in h or ai.get("sham") in (None, h.get("ai_sham")) or ai["sham"] != h.get("oxirgi_sana"):
+    # faqat shu shamga tegishli yangi qaror (qayta ishlash xavfsiz: faqat portfeldan farq qilsa savdo qiladi)
+    if "portfellar" not in h or ai.get("vaqt") in (None, h.get("ai_vaqt")) or ai.get("sham") != h.get("oxirgi_sana"):
         return
-    h["ai_sham"], h["ai"] = ai["sham"], ai
+    h["ai_vaqt"], h["ai"] = ai["vaqt"], ai
     pf = h["portfellar"].setdefault("ai", yangi_portfel())
     sana = time.strftime("%Y-%m-%d %H:%M", time.gmtime())
     for b, q in ai.get("tangalar", {}).items():
