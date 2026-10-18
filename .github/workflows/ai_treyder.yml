@@ -1,0 +1,42 @@
+name: AI treyder
+
+# Bot har 4 soatlik sham yopilgandan keyin (UTC 00:03, 04:03, ...) shu ishni chaqiradi.
+# Katta ochiq til modeli shu serverning o'zida Ollama orqali grafik strukturalarini o'qib qaror qiladi,
+# natija treyder_ai.json ga yoziladi.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ai-treyder
+  cancel-in-progress: false
+
+jobs:
+  tahlil:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ollama va AI treyder
+        env:
+          TREYDER_MODEL: qwen2.5:14b
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          # xizmat o'zi ishga tushmasa, o'zimiz ishga tushiramiz
+          curl -sf http://localhost:11434/api/version || (nohup ollama serve > /tmp/ollama.log 2>&1 &)
+          for i in $(seq 60); do curl -sf http://localhost:11434/api/version && break; sleep 2; done
+          for i in 1 2 3; do ollama pull "$TREYDER_MODEL" && break; sleep 10; done
+          python3 treyder_ai.py
+      - name: Saqlash
+        run: |
+          git config user.name "treyder-bot"
+          git config user.email "treyder-bot@users.noreply.github.com"
+          git add treyder_ai.json
+          git commit -q -m "AI treyder qarori" || exit 0
+          for i in 1 2 3 4 5; do
+            git pull -q --rebase origin main && git push -q origin HEAD:main && exit 0
+            sleep $((i * 5))
+          done
+          exit 1

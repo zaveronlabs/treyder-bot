@@ -94,7 +94,7 @@ def miya_fikri(natijalar):
 
 
 YOLLAR = {"ikkalasi": "Qoida + miya (asosiy)", "qoida": "Faqat qoida", "miya": "Faqat miya",
-          "yangilik": "Qoida + miya + yangiliklar"}
+          "yangilik": "Qoida + miya + yangiliklar", "ai": "AI treyder (Qwen 14B)"}
 YANGILIK_CHEGARA = -0.2  # yangiliklar bundan salbiyroq bo'lsa 4-yo'l kirmaydi
 
 
@@ -113,6 +113,58 @@ def yangilik_fikri(h):
     except Exception as xato:
         print("yangilik xatosi:", xato)
     return {}
+
+
+def joriy_narx(belgi):
+    for manba in NARX_MANBALARI:
+        try:
+            return float(http_json(f"{manba}/api/v3/ticker/price?symbol={belgi}USDT")["price"])
+        except Exception as xato:
+            print(f"{manba} {belgi}: {xato}")
+    raise RuntimeError(f"{belgi} narxini olib bo'lmadi")
+
+
+def ai_sabab(q):
+    import treyder_ai
+    return ", ".join(treyder_ai.SABABLAR.get(x, x) for x in q.get("sabablar", []))
+
+
+def ai_tekshir(h):
+    """AI treyder (treyder_ai.json, sham yopilgandan keyin alohida ishda tayyorlanadi): yangi qarorlar kelganda
+    5-yo'l portfelida joriy narxda ochadi/yopadi."""
+    try:
+        with open(HOLAT_FAYL.with_name("treyder_ai.json")) as f:
+            ai = json.load(f)
+    except Exception:
+        return
+    if "portfellar" not in h or ai.get("sham") in (None, h.get("ai_sham")) or ai["sham"] != h.get("oxirgi_sana"):
+        return
+    h["ai_sham"], h["ai"] = ai["sham"], ai
+    pf = h["portfellar"].setdefault("ai", yangi_portfel())
+    sana = time.strftime("%Y-%m-%d %H:%M", time.gmtime())
+    for b, q in ai.get("tangalar", {}).items():
+        kerak = q.get("qaror") == "long"
+        if kerak == (b in pf["portfel"]):
+            continue
+        narx = joriy_narx(b)
+        h["narx"][b] = narx
+        if kerak:
+            och(pf, b, narx, sana)
+            yubor(h, f"🧠🟢 AI treyder: {b} long ochdi\nNarx: {narx:g}, ishonch {q.get('ishonch', 0)}%\n"
+                     f"Sabab: {ai_sabab(q)}")
+        else:
+            foyda = yop(pf, b, narx, sana, "AI: " + ai_sabab(q))
+            yubor(h, f"🧠🔴 AI treyder: {b} yopdi\nNarx: {narx:g}, natija {foyda:+.2f} USDT\nSabab: {ai_sabab(q)}")
+
+
+def ai_matni(h):
+    ai = h.get("ai")
+    if not ai:
+        return "AI treyder hali qaror bermadi (har 4 soatlik sham yopilgandan keyin keladi)."
+    q = [f"🧠 AI treyder fikri ({ai['sham']} shami, {ai.get('model', '')})"]
+    q += [f"{b}: {'LONG' if t['qaror'] == 'long' else 'kutish'} ({t.get('ishonch', 0)}%), {ai_sabab(t)}"
+          for b, t in ai.get("tangalar", {}).items()]
+    return "\n".join(q)
 
 
 def yangilik_qatori(h, b):
@@ -157,6 +209,8 @@ def signallarni_tekshir(h):
         yb = h["yangilik"].get("tangalar", {}).get(b, {}).get("baho")
         kerak["yangilik"] = kerak["ikkalasi"] and (yb is None or yb >= YANGILIK_CHEGARA)
         for y, pf in h["portfellar"].items():
+            if y not in kerak:  # AI treyder o'z qarorlari bilan alohida (ai_tekshir)
+                continue
             if kerak[y] and b not in pf["portfel"]:
                 och(pf, b, narx, sana)
                 if y == "ikkalasi":
@@ -262,6 +316,8 @@ def yangilanishlar(h):
                 yubor(h, holat_matni(h))
             elif matn.startswith("/jurnal"):
                 yubor(h, jurnal_matni(h) if h.get("portfellar") else "Hali savdo yo'q.")
+            elif matn.startswith("/ai"):
+                yubor(h, ai_matni(h))
             elif matn.startswith("/yangilik"):
                 yubor(h, yangilik_matni(h))
             elif matn.startswith("/hisobot"):
@@ -277,6 +333,7 @@ def main():
         yangilanishlar(h)
         if h.get("chat_id"):
             signallarni_tekshir(h)
+            ai_tekshir(h)
     finally:
         HOLAT_FAYL.write_text(json.dumps(h, ensure_ascii=False, indent=1), encoding="utf-8")
 

@@ -4,9 +4,10 @@
 
 - Qoida (4h): narx EMA150 dan yuqori, 60 shamda o'sgan va EMA600 dan yuqori bo'lsa, LONG; aks holda naqd.
 - Signal 5 ta tanga bo'yicha: BTC, ETH, SOL, BNB, XRP (miya 10 tangani kuzatadi).
-- Avto sinov rejimi (3 oy): 4 ta qog'oz portfel parallel (faqat qoida, faqat miya, qoida + miya, qoida + miya + yangiliklar). Asosiysi: qoida va miya rozi bo'lsa long, aks holda yopadi (1000 USDT, har tangaga 200 USDT, x2, 0.05% komissiya). Har savdo Telegramga yoziladi, har hafta hisobot; /hisobot, /holat, /jurnal, /yangilik.
+- Avto sinov rejimi (3 oy): 5 ta qog'oz portfel parallel (faqat qoida, faqat miya, qoida + miya, qoida + miya + yangiliklar, AI treyder). Asosiysi: qoida va miya rozi bo'lsa long, aks holda yopadi (1000 USDT, har tangaga 200 USDT, x2, 0.05% komissiya). Har savdo Telegramga yoziladi, har hafta hisobot; /hisobot, /holat, /jurnal, /yangilik, /ai.
 - Telegram tokeni repo sozlamasida `TELEGRAM_TOKEN` yashirin o'zgaruvchisida.
 - Holat `holat.json` da saqlanadi.
 - Miya (`miya.py`, `miya.npz`): noldan o'qitilgan kichik transformer, oxirgi 64 ta 4 soatlik shamni o'qib, keyingi 2 kun uchun bashorat beradi. Har signal ostida uning fikri ("rozi" / "rozi emas") yoziladi; qarorni foydalanuvchi qiladi.
 - Miya har oy yangi ma'lumotda o'zi qayta o'qiydi (`oqit.py`, `oqitish.yml`): bot oy almashganini `miya_sana.txt` dan bilib, o'qitishni ishga tushiradi.
 - Yangilik AI (`yangilik.py`, `yangilik.yml`): har 4 soatlik sham yopilishidan oldin kripto saytlarining so'nggi 24 soatlik sarlavhalarini o'qiydi, ochiq til modeli (Qwen 2.5 7B, Ollama orqali shu serverda) har biriga -2..+2 baho beradi, natija `yangilik.json` ga yoziladi. 4-yo'l yangiliklar salbiy bo'lsa (-0.2 dan past) kirmaydi.
+- AI treyder (`treyder_ai.py`, `struktura.py`, `ai_treyder.yml`): har 4 soatlik sham yopilgandan keyin kod har tanga uchun treyder strukturalarini hisoblaydi (cho'qqi/tublar, tayanch va qarshilik, sinishlar, RSI, hajm, EMA, kunlik grafik), Qwen 2.5 14B ularni trend qoidasi, miya va yangiliklar bilan birga o'qib, long yoki kutish qarorini sabablari bilan beradi (`treyder_ai.json`). Bot bu qarorlarni 5-yo'lda joriy narxda bajaradi.

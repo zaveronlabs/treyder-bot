@@ -34,6 +34,7 @@ jobs:
           git config user.email "treyder-bot@users.noreply.github.com"
           tugash=$(( $(date +%s) + 330 * 60 ))
           oxirgi_yangilik=0
+          oxirgi_ai=0
           while [ "$(date +%s)" -lt "$tugash" ]; do
             git pull -q --rebase origin main || true
             python bulut.py || echo "xato, keyingi daqiqada qayta"
@@ -43,6 +44,11 @@ jobs:
             if [ $(( 10#$(date -u +%H) % 4 )) -eq 3 ] && [ "$(date -u +%-M)" -ge 20 ] \
                && [ $(( $(date +%s) - oxirgi_yangilik )) -gt 7200 ]; then
               gh workflow run yangilik.yml --ref main --repo ${{ github.repository }} && oxirgi_yangilik=$(date +%s) || true
+            fi
+            # AI treyder: har 4 soatlik sham yopilgandan keyin (bot shamni qayta ishlab bo'lgach)
+            if [ $(( 10#$(date -u +%H) % 4 )) -eq 0 ] && [ "$(date -u +%-M)" -ge 3 ] \
+               && [ $(( $(date +%s) - oxirgi_ai )) -gt 7200 ]; then
+              gh workflow run ai_treyder.yml --ref main --repo ${{ github.repository }} && oxirgi_ai=$(date +%s) || true
             fi
             sleep 60
           done
