@@ -23,7 +23,7 @@ LENTALAR = [
 ]
 BELGILAR = ("BTC", "ETH", "SOL", "BNB", "XRP")
 MODEL_URLLAR = ["https://models.github.ai/inference/chat/completions",
-               "https://models.inference.ai.azure.com/chat/completions"]
+               "https://models.github.ai/orgs/zaveronlabs/inference/chat/completions"]
 MODELLAR = ["openai/gpt-4.1-mini", "openai/gpt-4o-mini", "meta/Llama-3.3-70B-Instruct"]
 OYNA_SOAT = 24
 
@@ -77,13 +77,13 @@ def tahlil(belgilar=BELGILAR):
     javob = None
     for url in MODEL_URLLAR:
         for model in MODELLAR:
-            nom = model if "github.ai" in url else model.split("/")[-1]
+            nom = model
             try:
                 so = urllib.request.Request(url, json.dumps({
                     "model": nom, "temperature": 0.2, "messages": [{"role": "user", "content": sorov}],
                 }).encode(), {"Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}",
                               "Content-Type": "application/json", "Accept": "application/json",
-                              "User-Agent": "treyder-ai"}, method="POST")
+                              "User-Agent": "treyder-ai", "X-GitHub-Api-Version": "2022-11-28"}, method="POST")
                 with urllib.request.urlopen(so, timeout=60) as j:
                     xom = j.read()
                     if not xom.strip():
