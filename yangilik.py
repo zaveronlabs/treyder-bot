@@ -10,6 +10,7 @@ import json
 import os
 import re
 import time
+import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 
@@ -21,7 +22,7 @@ LENTALAR = [
 ]
 BELGILAR = ("BTC", "ETH", "SOL", "BNB", "XRP")
 MODEL_URL = "https://models.github.ai/inference/chat/completions"
-MODEL = "openai/gpt-4.1-mini"
+MODELLAR = ["openai/gpt-4.1-mini", "openai/gpt-4o-mini", "meta/Llama-3.3-70B-Instruct"]
 OYNA_SOAT = 24
 
 
@@ -59,6 +60,7 @@ def sarlavhalar():
 
 def tahlil(belgilar=BELGILAR):
     yangiliklar = sarlavhalar()[:60]
+    print(len(yangiliklar), "ta yangilik")
     if not yangiliklar:
         return {}
     royxat = "\n".join(f"- {nom} | {matn}" for _, nom, matn in yangiliklar)
@@ -70,10 +72,24 @@ def tahlil(belgilar=BELGILAR):
         '{"bozor": {"baho": 0.0, "izoh": "..."}, "tangalar": {"BTC": {"baho": 0.0, "izoh": "..."}}}\n\n'
         f"Yangiliklar:\n{royxat}"
     )
-    javob = json.loads(_ol(MODEL_URL, {
-        "model": MODEL, "temperature": 0.2, "response_format": {"type": "json_object"},
-        "messages": [{"role": "user", "content": sorov}],
-    }, {"Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}", "Content-Type": "application/json"}))
+    javob = None
+    for model in MODELLAR:
+        try:
+            xom = _ol(MODEL_URL, {
+                "model": model, "temperature": 0.2,
+                "messages": [{"role": "user", "content": sorov}],
+            }, {"Authorization": f"Bearer {os.environ['GITHUB_TOKEN']}", "Content-Type": "application/json",
+                "Accept": "application/json"})
+            javob = json.loads(xom)
+            break
+        except urllib.error.HTTPError as xato:
+            print("model xatosi:", model, xato.code, xato.read()[:300])
+        except Exception as xato:
+            print("model xatosi:", model, repr(xato)[:300])
+    if javob is None:
+        return {}
+    matn = javob["choices"][0]["message"]["content"]
+    javob["choices"][0]["message"]["content"] = matn[matn.find("{"):matn.rfind("}") + 1]
     natija = json.loads(javob["choices"][0]["message"]["content"])
     natija["vaqt"] = time.strftime("%Y-%m-%d %H:%M", time.gmtime())
     natija["soni"] = len(yangiliklar)
