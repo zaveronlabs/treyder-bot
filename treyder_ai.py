@@ -3,7 +3,7 @@
 futures treyder kabi qaror qiladi: long yoki kutish (shortlar sinovda zarar bergani uchun faqat long).
 
 Natija treyder_ai.json ga yoziladi: {"sham", "vaqt", "model", "tangalar": {belgi: {"qaror", "ishonch", "sabablar"}}}.
-Sabablar tayyor ro'yxatdan tanlanadi, shuning uchun o'zbekcha matn doim to'g'ri chiqadi.
+Model o'z tahlilini (inglizcha) yozadi; Telegram uchun o'zbekcha sabablar kod tomonidan aniq raqamlardan olinadi.
 """
 
 import json
@@ -43,6 +43,50 @@ SABABLAR = {
     "juda_tez_osgan": "narx juda tez o'sib ketgan, orqaga qaytishi mumkin",
     "noaniq": "aniq signal yo'q",
 }
+
+
+def faktlar(f):
+    """Raqamlardan aniq faktlar: [(kod, +1 ijobiy / -1 salbiy)]."""
+    natija = [("trend_yuqori", 1) if f["trend_qoidasi"] else ("trend_past", -1)]
+    if f["struktura"].startswith("ko'tariluvchi"):
+        natija.append(("struktura_ijobiy", 1))
+    elif f["struktura"].startswith("tushuvchi"):
+        natija.append(("struktura_salbiy", -1))
+    if f["sinish"].startswith("oxirgi cho'qqi"):
+        natija.append(("sinish_yuqori", 1))
+    elif f["sinish"].startswith("oxirgi tub"):
+        natija.append(("sinish_past", -1))
+    if f["qarshilikkacha_%"] < 1.5:
+        natija.append(("qarshilik_yaqin", -1))
+    if f["tayanchgacha_%"] > -1.5:
+        natija.append(("tayanch_yaqin", 1))
+    if f["rsi14"] > 70:
+        natija.append(("rsi_juda_baland", -1))
+    elif f["rsi14"] < 30:
+        natija.append(("rsi_juda_past", 1))
+    if f["hajm_oxirgi6_ga_o'rtacha50_nisbati"] > 1.3:
+        natija.append(("hajm_oshmoqda", 1))
+    elif f["hajm_oxirgi6_ga_o'rtacha50_nisbati"] < 0.7:
+        natija.append(("hajm_kam", -1))
+    if f["kunlik_struktura"] == "ko'tariluvchi":
+        natija.append(("kunlik_ijobiy", 1))
+    elif f["kunlik_struktura"] == "tushuvchi":
+        natija.append(("kunlik_salbiy", -1))
+    if f.get("miya_bashorati") is not None:
+        natija.append(("miya_rozi", 1) if f["miya_bashorati"] > 0 else ("miya_qarshi", -1))
+    if (f.get("yangiliklar_bahosi") or 0) >= 0.2:
+        natija.append(("yangilik_ijobiy", 1))
+    elif (f.get("yangiliklar_bahosi") or 0) <= -0.2:
+        natija.append(("yangilik_salbiy", -1))
+    if f["o'zgarish_42_shamda_%"] > 25:
+        natija.append(("juda_tez_osgan", -1))
+    return natija
+
+
+def sabablar(f, qaror):
+    """Qarorni qo'llab-quvvatlovchi faktlar (eng ko'pi 4 ta)."""
+    ishora = 1 if qaror == "long" else -1
+    return [k for k, x in faktlar(f) if x == ishora][:4] or ["noaniq"]
 
 
 def http(url, malumot=None, vaqt=30):
@@ -107,15 +151,13 @@ QOIDALAR = (
 
 
 def qaror_ber(sham, tangalar, bozor_yangilik):
-    """Har tanga uchun alohida so'rov: model avval qisqa tahlil yozadi, keyin qaror va sabablarni tanlaydi."""
+    """Har tanga uchun alohida so'rov: model avval qisqa tahlil yozadi, keyin qaror qiladi."""
     sxema = {
-        "type": "object", "required": ["tahlil", "qaror", "ishonch", "sabablar"],
+        "type": "object", "required": ["tahlil", "qaror", "ishonch"],
         "properties": {
             "tahlil": {"type": "string"},
             "qaror": {"type": "string", "enum": ["long", "kutish"]},
             "ishonch": {"type": "integer", "minimum": 0, "maximum": 100},
-            "sabablar": {"type": "array", "minItems": 1, "maxItems": 4,
-                         "items": {"type": "string", "enum": list(SABABLAR)}},
         },
     }
     natija = {}
@@ -129,8 +171,7 @@ def qaror_ber(sham, tangalar, bozor_yangilik):
             f"{b}/USDT data:\n{json.dumps(f, ensure_ascii=False, indent=1)}\n\n"
             "First write 'tahlil': 3-5 sentences reading this specific chart like a trader (trend, structure, "
             "where price sits between support and resistance, momentum, risk). Then 'qaror': \"long\" or "
-            "\"kutish\" (wait), 'ishonch': confidence 0-100, and 'sabablar': 1-4 codes that match the data "
-            "and your tahlil. Answer only JSON."
+            "\"kutish\" (wait) and 'ishonch': confidence 0-100. Answer only JSON."
         )
         t0 = time.time()
         javob = http(f"{OLLAMA}/api/chat", {
@@ -139,6 +180,7 @@ def qaror_ber(sham, tangalar, bozor_yangilik):
             "messages": [{"role": "user", "content": sorov}],
         }, vaqt=1200)
         natija[b] = json.loads(javob["message"]["content"])
+        natija[b]["sabablar"] = sabablar(f, natija[b]["qaror"])
         print(f"{b}: {time.time() - t0:.0f}s, {natija[b]['qaror']} ({natija[b]['ishonch']}%): {natija[b]['tahlil']}",
               flush=True)
     return natija
