@@ -75,29 +75,26 @@ def sarlavhalar():
 def baholat(yangiliklar):
     """Har bir sarlavha uchun -2..+2 baho (model). Qaytaradi: [int]."""
     royxat = "\n".join(f"{i + 1}. {nom}" for i, (_, nom, _) in enumerate(yangiliklar))
+    kalitlar = [str(i + 1) for i in range(len(yangiliklar))]
+    sxema = {"type": "object", "required": kalitlar,
+             "properties": {k: {"type": "integer", "minimum": -2, "maximum": 2} for k in kalitlar}}
     sorov = (
-        "You are an experienced crypto futures trader. For each news headline below, rate its likely effect on "
-        "crypto prices over the next 1-2 days: -2 very bearish, -1 bearish, 0 neutral or unrelated, "
+        "You are an experienced crypto futures trader. For each numbered news headline below, rate its likely "
+        "effect on crypto prices over the next 1-2 days: -2 very bearish, -1 bearish, 0 neutral or unrelated, "
         "1 bullish, 2 very bullish. Be strict: most headlines are 0. "
-        f'Answer only JSON like {{"scores": [0, 1, -1, ...]}} with exactly {len(yangiliklar)} integers in order.\n\n'
+        'Answer only JSON mapping each headline number to its score, like {"1": 0, "2": 1, "3": -1}.\n\n'
         f"{royxat}"
     )
-    for urinish in range(3):
-        javob = json.loads(_ol(f"{OLLAMA}/api/chat", {
-            "model": MODEL, "stream": False, "format": "json",
-            "options": {"temperature": 0, "num_ctx": 8192},
-            "messages": [{"role": "user", "content": sorov}],
-        }, vaqt=900))
-        try:
-            baholar = json.loads(javob["message"]["content"])["scores"]
-            baholar = [max(-2, min(2, int(round(float(x))))) for x in baholar]
-        except Exception as xato:
-            print("model javobi tushunarsiz:", xato, javob.get("message", {}).get("content", "")[:300])
-            continue
-        if len(baholar) == len(yangiliklar):
-            return baholar
-        print(f"baholar soni mos emas: {len(baholar)} != {len(yangiliklar)}")
-    raise RuntimeError("model baho bermadi")
+    javob = json.loads(_ol(f"{OLLAMA}/api/chat", {
+        "model": MODEL, "stream": False, "format": sxema,
+        "options": {"temperature": 0, "num_ctx": 8192},
+        "messages": [{"role": "user", "content": sorov}],
+    }, vaqt=900))
+    baholar = json.loads(javob["message"]["content"])
+    yoq = [k for k in kalitlar if k not in baholar]
+    if len(yoq) > len(kalitlar) // 4:
+        raise RuntimeError(f"model ko'p sarlavhaga baho bermadi: {len(yoq)} ta")
+    return [max(-2, min(2, int(round(float(baholar.get(k, 0)))))) for k in kalitlar]
 
 
 def _tegishli(matn, belgi):
