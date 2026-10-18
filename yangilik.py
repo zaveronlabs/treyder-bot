@@ -6,6 +6,7 @@ Faqat standart kutubxona.
 """
 
 import email.utils
+import gzip
 import json
 import os
 import re
@@ -88,7 +89,14 @@ def tahlil(belgilar=BELGILAR):
                     if not xom.strip():
                         print("bo'sh javob:", url, nom, j.status, j.geturl(), dict(j.headers))
                         continue
-                javob = json.loads(xom)
+                    kodlash = j.headers.get("Content-Encoding", "")
+                if kodlash == "gzip" or xom[:2] == b"\x1f\x8b":
+                    xom = gzip.decompress(xom)
+                try:
+                    javob = json.loads(xom)
+                except ValueError:
+                    print("JSON emas:", url, nom, kodlash, xom[:300])
+                    continue
                 break
             except urllib.error.HTTPError as xato:
                 print("model xatosi:", url, nom, xato.code, xato.read()[:300])
