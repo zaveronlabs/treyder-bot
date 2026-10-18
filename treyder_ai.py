@@ -180,7 +180,17 @@ QOIDALAR = (
 )
 
 
-def qaror_ber(sham, tangalar, bozor_yangilik, qorquv=None, faqat=None):
+def _chat(sorov, sxema=None, uzunlik=None):
+    so = {"model": MODEL, "stream": False, "options": {"temperature": 0, "num_ctx": 6144},
+          "messages": [{"role": "user", "content": sorov}]}
+    if sxema:
+        so["format"] = sxema
+    if uzunlik:
+        so["options"]["num_predict"] = uzunlik
+    return http(f"{OLLAMA}/api/chat", so, vaqt=1200)["message"]["content"]
+
+
+def qaror_ber(sham, tangalar, bozor_yangilik, qorquv=None, faqat=None, bahs=False):
     """Har tanga uchun alohida so'rov: model avval qisqa tahlil yozadi, keyin qaror qiladi."""
     sxema = {
         "type": "object", "required": ["tahlil", "qaror", "ishonch"],
@@ -198,21 +208,28 @@ def qaror_ber(sham, tangalar, bozor_yangilik, qorquv=None, faqat=None):
             "Market context (BTC): " + json.dumps({k: tangalar["BTC"][k] for k in (
                 "trend_qoidasi", "struktura", "kunlik_struktura", "o'zgarish_6_shamda_%", "o'zgarish_42_shamda_%")},
                 ensure_ascii=False) + "\n")
-        sorov = (
-            f"{QOIDALAR}\n\nLast closed 4h candle: {sham} UTC. Market news score: {bozor_yangilik}. "
+        malumot = (
+            f"Last closed 4h candle: {sham} UTC. Market news score: {bozor_yangilik}. "
             f"Fear & Greed: {qorquv}.\n{bozor}"
             f"{b}/USDT data:\n{json.dumps(f, ensure_ascii=False, indent=1)}\n\n"
+        )
+        t0 = time.time()
+        dalillar = ""
+        if bahs:  # bahs: bir tahlilchi o'sish, ikkinchisi tushish tarafini himoya qiladi, bosh treyder hal qiladi
+            tomonlar = {"BULL": "the strongest honest case for being long this coin now",
+                        "BEAR": "the strongest honest case against being long now (why it may fall or chop)"}
+            for nom, vazifa in tomonlar.items():
+                matn = _chat(f"{QOIDALAR}\n\n{malumot}You are the {nom} analyst on the desk. In 3-4 sentences, "
+                             f"argue {vazifa}, citing specific numbers from the data.", uzunlik=220)
+                dalillar += f"{nom} analyst: {matn.strip()}\n\n"
+            dalillar = "Your analysts argued:\n\n" + dalillar + "Weigh both sides as the head trader.\n"
+        sorov = (
+            f"{QOIDALAR}\n\n{malumot}{dalillar}"
             "First write 'tahlil': 3-5 sentences reading this specific chart like a trader (trend, structure, "
             "where price sits between support and resistance, momentum, risk). Then 'qaror': \"long\" or "
             "\"kutish\" (wait) and 'ishonch': confidence 0-100. Answer only JSON."
         )
-        t0 = time.time()
-        javob = http(f"{OLLAMA}/api/chat", {
-            "model": MODEL, "stream": False, "format": sxema,
-            "options": {"temperature": 0, "num_ctx": 4096},
-            "messages": [{"role": "user", "content": sorov}],
-        }, vaqt=1200)
-        natija[b] = json.loads(javob["message"]["content"])
+        natija[b] = json.loads(_chat(sorov, sxema))
         natija[b]["sabablar"] = sabablar(f, natija[b]["qaror"])
         print(f"{b}: {time.time() - t0:.0f}s, {natija[b]['qaror']} ({natija[b]['ishonch']}%): {natija[b]['tahlil']}",
               flush=True)
