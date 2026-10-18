@@ -1,0 +1,16 @@
+name: Yangilik sinovi (bir martalik)
+on:
+  push:
+    branches: [yangilik-sinov]
+permissions:
+  contents: read
+  models: read
+jobs:
+  sinov:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 yangilik.py
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
