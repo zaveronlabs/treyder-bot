@@ -121,7 +121,7 @@ def yangilik_qatori(h, b):
 
 
 def yangilik_matni(h):
-    y = h.get("yangilik")
+    y = yangilik_fikri(h)
     if not y:
         return "Hali yangilik tahlili yo'q (har 4 soatda yangilanadi)."
     q = [f"📰 Yangiliklar tahlili ({y.get('vaqt', '')} UTC, {y.get('soni', 0)} ta sarlavha)",
