@@ -384,6 +384,10 @@ def yangilanishlar(h):
                 yubor(h, ai_matni(h))
             elif matn.startswith("/yangilik"):
                 yubor(h, yangilik_matni(h))
+            elif matn.startswith(("/toxtat", "/davom")) and u["message"]["chat"]["id"] == h["chat_id"]:
+                h["ijro_toxtat"] = matn.startswith("/toxtat")  # real pul ijrochisi (ijro.py) shuni o'qiydi
+                yubor(h, "⏸ Real savdo to'xtatilmoqda: ijrochi hammasini yopadi." if h["ijro_toxtat"] else
+                         "▶️ Real savdo qayta yoqilmoqda.")
             elif matn.startswith("/hisobot"):
                 yubor(h, hisobot_matni(h) if h.get("portfellar") else "Avto rejim keyingi 4 soatlik shamda boshlanadi.")
 
