@@ -95,10 +95,30 @@ def miya_fikri(natijalar):
 
 YOLLAR = {"ikkalasi": "Qoida + miya (asosiy)", "qoida": "Faqat qoida", "miya": "Faqat miya",
           "yangilik": "Qoida + miya + yangiliklar", "ai": "AI treyder (Qwen 14B)", "short": "Miya short (sinov)",
-          "longshort": "Asosiy + short miyasi (sinov)"}
+          "longshort": "Asosiy + short miyasi (sinov)", "qoida_iz": "Faqat qoida + iz chiqish (sinov)"}
 SHORT_CHEGARA = -0.1  # miya bundan pastroq bashorat bersa short yo'li short ochadi
 SHORT_EHTIMOL = 0.45  # short miyasi tushish ehtimolini bundan yuqori desa (asosiy yo'l naqdda bo'lsa) short
 YANGILIK_CHEGARA = -0.2  # yangiliklar bundan salbiyroq bo'lsa 4-yo'l kirmaydi
+IZ_ATR = 5  # iz chiqish: foydadagi pozitsiya eng yuqori nuqtasidan 5 ATR qaytsa yopiladi (qolgan foydani himoyalash)
+
+
+def iz_tekshir(h, b, sham, sana):
+    """qoida_iz yo'li: pozitsiya foydada bo'lib, narx eng yuqori nuqtadan IZ_ATR * ATR qaytsa yopadi.
+    True qaytarsa shu shamda yopildi (trend qayta yangilanmaguncha kirilmaydi)."""
+    pf = h["portfellar"]["qoida_iz"]
+    p = pf["portfel"].get(b)
+    if not p:
+        return False
+    atr = sum((s[2] - s[3]) / s[4] for s in sham[-15:-1]) / 14  # oldingi 14 sham, joriy shamsiz
+    eng = p.get("eng", p["kirish_narx"])
+    chegara = eng * (1 - IZ_ATR * atr)
+    _, o, hi, lo, c, _ = sham[-1]
+    if lo <= chegara and chegara > p["kirish_narx"]:
+        yop(pf, b, min(chegara, o), sana, f"iz chiqish: eng yuqori {eng:g} dan {IZ_ATR} ATR qaytdi")
+        pf.setdefault("blok", {})[b] = True
+        return True
+    p["eng"] = max(eng, hi)
+    return False
 
 
 def short_miya_fikri(natijalar):
@@ -230,6 +250,11 @@ def signallarni_tekshir(h):
         kerak["short"] = p is not None and p < SHORT_CHEGARA
         ps = h["short_miya"].get(b)
         kerak["longshort"] = kerak["ikkalasi"] or (ps is not None and ps > SHORT_EHTIMOL)
+        blok = h["portfellar"]["qoida_iz"].setdefault("blok", {})
+        if not yangi:
+            blok.pop(b, None)  # trend tugadi: keyingi trendda yana kirish mumkin
+        iz_tekshir(h, b, natijalar[b], sana)
+        kerak["qoida_iz"] = bool(yangi) and not blok.get(b)
         yon_ls = 1 if kerak["ikkalasi"] else -1
         for y, pf in h["portfellar"].items():
             if y not in kerak:  # AI treyder o'z qarorlari bilan alohida (ai_tekshir)
@@ -251,7 +276,7 @@ def signallarni_tekshir(h):
                 elif y == "short":
                     sabab = f"miya endi tushish kutmayapti ({p:+.2f})" if p is not None else "miya yo'q"
                 else:
-                    sabab = "trend tugadi" if y == "qoida" else f"miya salbiy ({p:+.2f})" if p is not None else "miya yo'q"
+                    sabab = "trend tugadi" if y in ("qoida", "qoida_iz") else f"miya salbiy ({p:+.2f})" if p is not None else "miya yo'q"
                 foyda = yop(pf, b, narx, sana, sabab)
                 if y == "ikkalasi":
                     yubor(h, f"🤖🔴 {b}: yopildi\nNarx: {narx:g}, natija {foyda:+.2f} USDT\nSabab: {sabab}"

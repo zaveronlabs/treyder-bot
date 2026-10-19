@@ -1,0 +1,30 @@
+name: Futures ma'lumotini yig'ish
+
+# Oyda bir marta (Gate 4 soatlik tarixni ~330 kun saqlaydi, shuning uchun hech narsa yo'qolmaydi).
+on:
+  schedule:
+    - cron: "17 3 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  yigish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: futures-malumot shoxobchasini olish
+        run: |
+          git fetch origin futures-malumot && git worktree add malumot origin/futures-malumot \
+            || { git worktree add --detach malumot && git -C malumot checkout --orphan futures-malumot && git -C malumot rm -rqf .; }
+      - run: cp futures_yig.py malumot/ && cd malumot && python3 futures_yig.py && rm futures_yig.py
+      - name: Saqlash
+        run: |
+          cd malumot
+          git config user.name "treyder-bot"
+          git config user.email "treyder-bot@users.noreply.github.com"
+          git add futures_malumot
+          git commit -qm "futures ma'lumoti $(date -u +%Y-%m-%d)" || exit 0
+          git push -q origin HEAD:refs/heads/futures-malumot
