@@ -456,10 +456,19 @@ def main():
     s, token = sozlamani_oqi()
     x = Xabarchi(token, s["sinov"])
     st = json.loads(HOLAT_FAYL.read_text(encoding="utf-8")) if HOLAT_FAYL.exists() else yangi_holat()
-    birja = Binance(s.get("baza") or BAZA[s["sinov"]], s["api_key"], s["api_secret"])
-    rejim = birja.sorov("GET", "/fapi/v1/positionSide/dual", True)
-    if rejim.get("dualSidePosition"):
-        birja.sorov("POST", "/fapi/v1/positionSide/dual", True, dualSidePosition=False)  # bir tomonlama rejim
+    try:
+        birja = Binance(s.get("baza") or BAZA[s["sinov"]], s["api_key"], s["api_secret"])
+        rejim = birja.sorov("GET", "/fapi/v1/positionSide/dual", True)
+        if rejim.get("dualSidePosition"):
+            birja.sorov("POST", "/fapi/v1/positionSide/dual", True, dualSidePosition=False)  # bir tomonlama rejim
+    except BinanceXato as e:
+        maslahat = {-1109: "Futures hisobi ochilmagan yoki kalit futures hisobidan oldin yaratilgan. Futures (USDⓈ-M) "
+                           "hisobini och, yangi API kalit yarat (Futures belgisi bilan), ijro_sozlama.json ni o'chir.",
+                    -2015: "Kalit, IP cheklovi yoki Futures ruxsati noto'g'ri. Kalitni tekshir, ijro_sozlama.json ni o'chir.",
+                    -2014: "Kalit noto'g'ri nusxalangan. ijro_sozlama.json ni o'chirib, qayta kirit."}
+        print(f"\nBinance rad etdi: {e}\n{maslahat.get(e.kod, '')}")
+        input("Tuzatgach Enter bos...")
+        return
     ij = Ijrochi(birja, x, s, st)
     while True:
         try:
