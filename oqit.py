@@ -1,5 +1,5 @@
-"""Miyani qayta o'qitish (oyda bir marta, GitHub Actions'da): 10 tanganing 2022-10 dan hozirgacha 4 soatlik
-tarixini yuklaydi, 3 ta transformer nusxasini noldan o'qitadi va og'irliklarni miya.npz ga yozadi.
+"""Miyani qayta o'qitish (oyda bir marta, GitHub Actions'da): 10 tanganing 2019 dan hozirgacha 4 soatlik
+tarixini yuklaydi (hamma tanga bor bo'lgan davr, amalda 2020-09 dan: 2021 o'sishi va 2022 qulashi ham kiradi), 3 ta transformer nusxasini noldan o'qitadi va og'irliklarni miya.npz ga yozadi.
 
 Belgilar (features) miya.py dagi funksiya bilan hisoblanadi, shuning uchun bot ko'radigan narsa bilan bir xil.
 """
@@ -22,12 +22,13 @@ TF = "4h"
 NARX_MANBALARI = ["https://data-api.binance.vision", "https://api.binance.com"]
 
 H, BATCH, EPOX, SEEDS = 12, 256, 4, [0, 1, 2]
-BOSH_MS = 1666051200000  # 2022-10-18
+BOSH_MS = 1546300800000  # 2019-01-01 (asosiy miya ko'proq bozor turini ko'rsin)
+SHORT_BOSH_MS = 1666051200000  # 2022-10-18: short miyasi shu davrda sinalgan
 L, D, QAT, BOSH = miya.L, miya.D, miya.QAT, miya.BOSH
 
 
 def tarix(belgi):
-    """[(vaqt_ms, o, h, l, c, v)]: 2022-10 dan hozirgacha yopilgan shamlar."""
+    """[(vaqt_ms, o, h, l, c, v)]: 2019 dan hozirgacha yopilgan shamlar."""
     for manba in NARX_MANBALARI:
         try:
             natija, since = [], BOSH_MS
@@ -159,4 +160,4 @@ if __name__ == "__main__":
     shamlar = {b: tarix(b) for b in BELGILAR}
     main(shamlar)
     if "short" in sys.argv[1:]:
-        main(shamlar, short=True)
+        main({b: [s for s in q if s[0] >= SHORT_BOSH_MS] for b, q in shamlar.items()}, short=True)
