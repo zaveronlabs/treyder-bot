@@ -325,6 +325,9 @@ def hisobot_matni(h):
     if {"qoida", "short"} <= h["portfellar"].keys():  # teskari ishlaydigan ikki yo'lga pulni teng bo'lish
         pul = (jami_pul(h, h["portfellar"]["qoida"]) + jami_pul(h, h["portfellar"]["short"])) / 2
         qatorlar += ["", f"⚖️ Yarmi faqat qoida + yarmi miya short: {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})"]
+    if {"qoida", "miya", "longshort"} <= h["portfellar"].keys():  # oldingi ma'lumot bilan halol tanlangan birikma
+        pul = sum(jami_pul(h, h["portfellar"][y]) for y in ("qoida", "miya", "longshort")) / 3
+        qatorlar += [f"🔀 Uchga bo'lib (faqat qoida + faqat miya + asosiy+short): {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})"]
     return "\n".join(qatorlar)
 
 
