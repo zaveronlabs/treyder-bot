@@ -1,4 +1,4 @@
-name: Futures manbalari tekshiruvi (bir martalik)
+name: Gate futures tarix chuqurligi (bir martalik)
 permissions:
   contents: write
 on:
@@ -11,13 +11,24 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: orqaga-sinov
-      - run: |
-          {
-          for f in 1546300800 1609459200 1672531200 1704067200 1735689600 1767225600 1785000000; do
-            u="https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&interval=4h&limit=100&from=$f"
-            echo "== from $f"; curl -s -m 15 "$u" | python3 -c "import json,sys,time; d=json.load(sys.stdin); print(len(d), time.strftime('%F', time.gmtime(d[0]['time'])) if d else '-', time.strftime('%F', time.gmtime(d[-1]['time'])) if d else '-')" ; done
-          echo "== limit"; curl -s -m 15 "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&interval=4h&limit=2000" | head -c 300; echo
-          echo "== 1d eng eski"; curl -s -m 15 "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&interval=1d&limit=100&from=1546300800" | head -c 300; echo
-          } > manbalar.txt 2>&1
+      - shell: bash {0}
+        run: |
+          cat > t.py <<'PY'
+          import json, time, urllib.request
+          def ol(u):
+              try:
+                  with urllib.request.urlopen(u, timeout=20) as j: return json.load(j)
+              except Exception as e: return str(e)
+          B = "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT"
+          for f in (1546300800, 1609459200, 1672531200, 1704067200, 1735689600, 1767225600, 1785000000):
+              d = ol(f"{B}&interval=4h&limit=100&from={f}")
+              print("from", time.strftime('%F', time.gmtime(f)), "->", (len(d), time.strftime('%F', time.gmtime(d[0]['time'])), time.strftime('%F', time.gmtime(d[-1]['time']))) if isinstance(d, list) and d else str(d)[:200])
+          for iv in ("1h", "4h", "1d"):
+              d = ol(f"{B}&interval={iv}&limit=100&from=1546300800")
+              print(iv, "eng eski:", time.strftime('%F', time.gmtime(d[0]['time'])) if isinstance(d, list) and d else str(d)[:200])
+          d = ol(f"{B}&interval=4h&limit=2000")
+          print("limit 2000:", len(d) if isinstance(d, list) else str(d)[:200])
+          PY
+          python3 t.py > manbalar.txt 2>&1
           git config user.name treyder-bot; git config user.email treyder-bot@users.noreply.github.com
-          git add manbalar.txt && git commit -qm "manbalar natijasi [skip ci]" && git push -q origin HEAD:orqaga-sinov
+          git add manbalar.txt && git commit -qm "gate natijasi [skip ci]" && git push -q origin HEAD:orqaga-sinov
