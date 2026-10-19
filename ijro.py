@@ -34,6 +34,8 @@ from pathlib import Path
 BELGILAR = ["BTC", "ETH", "SOL", "BNB", "XRP"]  # bulut.py SIGNAL_BELGILAR bilan bir xil
 YOL_ULUSHI = 200 / 1000  # qog'oz yo'l har tangaga pulining 20% ini marja qiladi (ULUSH / BOSHLANG_ICH_PUL)
 HOLAT_URL = "https://api.github.com/repos/zaveronlabs/treyder-bot/contents/holat.json"
+HOLAT_RAW = "https://raw.githubusercontent.com/zaveronlabs/treyder-bot/main/holat.json"
+XATO_CHIDASH = 5  # bir lahzalik server xatolari: shuncha daqiqa ketma-ket bo'lsagina Telegramga yoziladi
 BAZA = {True: "https://demo-fapi.binance.com", False: "https://fapi.binance.com"}
 ZINAPOYA = [2, 3, 4, 5]  # leverage pog'onalari
 ZINA_KUN = [30, 14, 14]  # keyingi pog'onaga o'tishdan oldin shu pog'onada necha kun foydada turish kerak
@@ -243,10 +245,17 @@ class Xabarchi:
 
 
 def bulut_holati():
-    sorov = urllib.request.Request(HOLAT_URL, headers={"Accept": "application/vnd.github.raw+json",
-                                                       "User-Agent": "treyder-ai"})
-    with urllib.request.urlopen(sorov, timeout=30) as javob:
-        return json.load(javob)
+    """holat.json: avval GitHub API, u xato bersa raw.githubusercontent (keshsiz)."""
+    xato = None
+    for url, sarlavha in ((HOLAT_URL, {"Accept": "application/vnd.github.raw+json"}),
+                          (f"{HOLAT_RAW}?t={int(time.time())}", {})):
+        try:
+            sorov = urllib.request.Request(url, headers={"User-Agent": "treyder-ai", **sarlavha})
+            with urllib.request.urlopen(sorov, timeout=30) as javob:
+                return json.load(javob)
+        except Exception as e:
+            xato = e
+    raise xato
 
 
 def maqsadlar(h, komb):
@@ -434,8 +443,13 @@ class Ijrochi:
     def qadam(self):
         hozir = time.time()
         if hozir - self.h_vaqt > 120:
-            self.h, self.h_vaqt = bulut_holati(), hozir
-            self.x.chat_id = self.h.get("chat_id")
+            try:
+                self.h, self.h_vaqt = bulut_holati(), hozir
+                self.x.chat_id = self.h.get("chat_id")
+            except Exception as e:
+                if self.h is None:
+                    raise
+                log("bulut holati olinmadi, oldingisi ishlatiladi:", repr(e))  # uzoq davom etsa ESKIRISH ushlaydi
         h, st = self.h, self.st
         pul, poz = self.b.hisob()
         if st["choqqi"] is None:  # birinchi ishga tushish
@@ -576,13 +590,17 @@ def main():
             print(f"\nBinance rad etdi: {e}\n{XATO_MASLAHAT.get(e.kod, '')}\nKalitni qayta kiritamiz.\n")
             return sozla()
     ij = Ijrochi(birja, x, s, st)
+    ketma_ket = 0
     while True:
         try:
             ij.qadam()
             ij.saqla()
+            ketma_ket = 0
         except Exception as e:
+            ketma_ket += 1
             log("XATO:", repr(e))
-            x.yubor(f"⚠️ Ijrochida xato: {e}", "xato:" + type(e).__name__)
+            if ketma_ket >= XATO_CHIDASH:
+                x.yubor(f"⚠️ Ijrochi {ketma_ket} daqiqadan beri ishlay olmayapti: {e}", "xato:" + type(e).__name__)
         time.sleep(60)
 
 
