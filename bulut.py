@@ -96,6 +96,7 @@ def miya_fikri(natijalar):
 YOLLAR = {"ikkalasi": "Qoida + miya (asosiy)", "qoida": "Faqat qoida", "miya": "Faqat miya",
           "yangilik": "Qoida + miya + yangiliklar", "ai": "AI treyder (Qwen 14B)", "short": "Miya short (sinov)",
           "longshort": "Asosiy + short miyasi (sinov)", "qoida_iz": "Faqat qoida + iz chiqish (sinov)"}
+MIYA_CHEGARA = 0.02  # miya bundan yuqori bashorat bersagina "rozi" (juda zaif "ha" hisobga olinmaydi)
 SHORT_CHEGARA = -0.1  # miya bundan pastroq bashorat bersa short yo'li short ochadi
 SHORT_EHTIMOL = 0.45  # short miyasi tushish ehtimolini bundan yuqori desa (asosiy yo'l naqdda bo'lsa) short
 YANGILIK_CHEGARA = -0.2  # yangiliklar bundan salbiyroq bo'lsa 4-yo'l kirmaydi
@@ -243,7 +244,7 @@ def signallarni_tekshir(h):
         yangi, narx, farq, mom = trend_holati(natijalar[b])
         h["narx"][b], h["holat"][b] = narx, yangi
         p = h["miya"].get(b)
-        miya_ha = p is not None and p > 0
+        miya_ha = p is not None and p > MIYA_CHEGARA
         kerak = {"qoida": bool(yangi), "miya": miya_ha, "ikkalasi": bool(yangi) and (miya_ha or p is None)}
         yb = h["yangilik"].get("tangalar", {}).get(b, {}).get("baho")
         kerak["yangilik"] = kerak["ikkalasi"] and (yb is None or yb >= YANGILIK_CHEGARA)
