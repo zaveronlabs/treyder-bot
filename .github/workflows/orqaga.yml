@@ -1,51 +1,20 @@
-name: Uzun tarix miya sinovi (bir martalik)
+name: Futures manbalari tekshiruvi (bir martalik)
 on:
   push:
     branches: [orqaga-sinov]
-permissions:
-  contents: write
 jobs:
-  sinov:
-    runs-on: ubuntu-latest
-    timeout-minutes: 300
-    strategy:
-      fail-fast: false
-      matrix:
-        variant: [uzun, qisqa]
-        fold: [0, 1, 2, 3, 4, 5]
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: orqaga-sinov
-      - name: O'qitish
-        run: |
-          pip install -q numpy pandas
-          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
-          python3 uzun_miya.py ${{ matrix.fold }} ${{ matrix.variant }}
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: uzun-${{ matrix.variant }}-${{ matrix.fold }}
-          path: uzun_${{ matrix.variant }}_${{ matrix.fold }}.json
-  yigish:
-    needs: sinov
-    if: always()
+  tekshir:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: orqaga-sinov
-      - uses: actions/download-artifact@v4
-        with:
-          path: natija
       - run: |
-          python3 -c "
-          import json, glob
-          for v in ['uzun', 'qisqa']:
-              d = {'ic': {}, 'p': []}
-              for f in sorted(glob.glob(f'natija/uzun-{v}-*/*.json')):
-                  x = json.load(open(f)); d['ic'][f] = [x['ic'], x['namuna']]; d['p'] += x['p']
-              json.dump(d, open(f'uzun_natija_{v}.json', 'w'))
-              print(v, d['ic'])"
-          git config user.name treyder-bot; git config user.email treyder-bot@users.noreply.github.com
-          git add uzun_natija_*.json && git commit -qm "uzun tarix sinovi natijasi [skip ci]" && git push -q origin HEAD:orqaga-sinov
+          for u in \
+            "https://fapi.binance.com/futures/data/openInterestHist?symbol=BTCUSDT&period=4h&limit=2" \
+            "https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=4h&limit=2" \
+            "https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT" \
+            "https://api.bybit.com/v5/market/open-interest?category=linear&symbol=BTCUSDT&intervalTime=4h&limit=2" \
+            "https://api.bybit.com/v5/market/account-ratio?category=linear&symbol=BTCUSDT&period=4h&limit=2" \
+            "https://www.okx.com/api/v5/rubik/stat/contracts/open-interest-volume?ccy=BTC&period=4H" \
+            "https://www.okx.com/api/v5/rubik/stat/contracts/long-short-account-ratio?ccy=BTC&period=4H" \
+            "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&interval=4h&limit=2" \
+            "https://contract.mexc.com/api/v1/contract/funding_rate/BTC_USDT" ; do
+            echo "== $u"; curl -s -m 15 -w "\nHTTP %{http_code}\n" "$u" | head -c 400; echo; done
