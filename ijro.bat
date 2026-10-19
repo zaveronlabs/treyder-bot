@@ -8,5 +8,5 @@ curl -s -f -o ijro_yangi.py https://raw.githubusercontent.com/zaveronlabs/treyde
 if not exist ijro_sozlama.json python ijro.py sozla
 python ijro.py
 echo Ijrochi to'xtadi, 30 soniyadan keyin qayta ishga tushadi...
-timeout /t 30 >nul
+timeout /t 30 /nobreak >nul
 goto qayta
