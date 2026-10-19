@@ -431,23 +431,43 @@ def eski_token():
     return t.group(0) if t else None
 
 
+XATO_MASLAHAT = {
+    -1109: "Futures hisobi ochilmagan yoki kalit futures hisobi ochilishidan oldin yaratilgan: yangi kalit yarat.",
+    -2015: "Kalit noto'g'ri, boshqa hisobniki (demo/real aralashgan) yoki Futures ruxsati yo'q.",
+    -2014: "API Key noto'g'ri nusxalangan (to'liq emas yoki ortiqcha belgi bor).",
+    -1022: "Secret Key noto'g'ri nusxalangan (to'liq emas yoki boshqa kalitniki).",
+}
+
+
+def kalit_tozala(matn):
+    return matn.strip().strip('"').strip("'").replace(" ", "")
+
+
 def sozla():
-    """Kalitlarni so'rab ijro_sozlama.json yaratadi (kalitlar faqat shu kompyuterda qoladi)."""
+    """Kalitlarni so'rab ijro_sozlama.json yaratadi (kalitlar faqat shu kompyuterda qoladi).
+    Binance ulanishi ishlamaguncha qayta so'raydi."""
     f = PAPKA / "ijro_sozlama.json"
     s = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
-    s["sinov"] = input("Sinov (demo) hisobimi? [ha/yo'q, standart: ha]: ").strip().lower() not in ("yo'q", "yoq", "n", "no")
-    s["api_key"] = input("API Key: ").strip()
-    s["api_secret"] = getpass.getpass("Secret Key (yozganda ko'rinmaydi): ").strip()
+    print("Kalitni joylash: sichqonchaning O'NG tugmasini bos (Ctrl+V emas), keyin Enter.\n")
+    s["sinov"] = input("Sinov (demo) hisobimi? [Enter = ha, real bo'lsa: yo'q]: ").strip().lower() not in (
+        "yo'q", "yoq", "n", "no")
+    while True:
+        s["api_key"] = kalit_tozala(input("API Key: "))
+        s["api_secret"] = kalit_tozala(input("Secret Key: "))
+        print(f"  API Key {len(s['api_key'])} belgi ({s['api_key'][:4]}...), Secret {len(s['api_secret'])} belgi"
+              f" (odatda ikkalasi 64 belgi)")
+        try:
+            birja = Binance(s.get("baza") or BAZA[s["sinov"]], s["api_key"], s["api_secret"])
+            pul = birja.hisob()[0]
+            break
+        except BinanceXato as e:
+            print(f"\n❌ Binance rad etdi: {e}\n   {XATO_MASLAHAT.get(e.kod, '')}\n   Qaytadan kirit.\n")
+        except Exception as e:
+            print(f"\n❌ Ulanib bo'lmadi: {e}\n   Internetni tekshirib, qaytadan kirit.\n")
     if not eski_token() and not s.get("telegram_token"):
         s["telegram_token"] = getpass.getpass("Telegram bot tokeni (ko'rinmaydi): ").strip()
     f.write_text(json.dumps(s, ensure_ascii=False, indent=1), encoding="utf-8")
-    print("Saqlandi.")
-    try:
-        birja = Binance(s.get("baza") or BAZA[s["sinov"]], s["api_key"], s["api_secret"])
-        print(f"Binance ulanishi ishladi, futures hisobida {birja.hisob()[0]:.2f} USDT.")
-    except Exception as e:
-        print(f"Binance ulanmadi: {e}\nKalitni tekshirib, ijro_sozlama.json ni o'chirib qayta ishga tushir.")
-        input("Enter bosib davom et...")
+    print(f"\n✅ Binance ulanishi ishladi, futures hisobida {pul:.2f} USDT. Saqlandi.\n")
 
 
 def main():
@@ -462,13 +482,8 @@ def main():
         if rejim.get("dualSidePosition"):
             birja.sorov("POST", "/fapi/v1/positionSide/dual", True, dualSidePosition=False)  # bir tomonlama rejim
     except BinanceXato as e:
-        maslahat = {-1109: "Futures hisobi ochilmagan yoki kalit futures hisobidan oldin yaratilgan. Futures (USDⓈ-M) "
-                           "hisobini och, yangi API kalit yarat (Futures belgisi bilan), ijro_sozlama.json ni o'chir.",
-                    -2015: "Kalit, IP cheklovi yoki Futures ruxsati noto'g'ri. Kalitni tekshir, ijro_sozlama.json ni o'chir.",
-                    -2014: "Kalit noto'g'ri nusxalangan. ijro_sozlama.json ni o'chirib, qayta kirit."}
-        print(f"\nBinance rad etdi: {e}\n{maslahat.get(e.kod, '')}")
-        input("Tuzatgach Enter bos...")
-        return
+        print(f"\nBinance rad etdi: {e}\n{XATO_MASLAHAT.get(e.kod, '')}\nKalitni qayta kiritamiz.\n")
+        return sozla()
     ij = Ijrochi(birja, x, s, st)
     while True:
         try:
