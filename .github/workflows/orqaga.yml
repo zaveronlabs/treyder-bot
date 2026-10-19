@@ -1,4 +1,4 @@
-name: AI treyder orqaga sinov (bir martalik)
+name: Uzun tarix miya sinovi (bir martalik)
 on:
   push:
     branches: [orqaga-sinov]
@@ -7,29 +7,26 @@ permissions:
 jobs:
   sinov:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
+    timeout-minutes: 300
     strategy:
       fail-fast: false
       matrix:
-        yol: [long, short]
-        bolak: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+        variant: [uzun, qisqa]
+        fold: [0, 1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v4
         with:
           ref: orqaga-sinov
-      - name: Ollama va sinov
+      - name: O'qitish
         run: |
-          curl -fsSL https://ollama.com/install.sh | sh
-          curl -sf http://localhost:11434/api/version || (nohup ollama serve > /tmp/ollama.log 2>&1 &)
-          for i in $(seq 60); do curl -sf http://localhost:11434/api/version && break; sleep 2; done
-          for i in 1 2 3; do ollama pull qwen2.5:14b && break; sleep 10; done
-          pip install -q numpy
-          python3 orqaga2.py ${{ matrix.bolak }} 168 "2026-10-17 08:00" ${{ matrix.yol }}
+          pip install -q numpy pandas
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          python3 uzun_miya.py ${{ matrix.fold }} ${{ matrix.variant }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: orqaga-${{ matrix.yol }}-${{ matrix.bolak }}
-          path: orqaga_${{ matrix.bolak }}.json
+          name: uzun-${{ matrix.variant }}-${{ matrix.fold }}
+          path: uzun_${{ matrix.variant }}_${{ matrix.fold }}.json
   yigish:
     needs: sinov
     if: always()
@@ -44,11 +41,11 @@ jobs:
       - run: |
           python3 -c "
           import json, glob
-          for yol in ['long', 'short']:
-              d = {}
-              for f in glob.glob(f'natija/orqaga-{yol}-*/*.json'):
-                  for v, q in json.load(open(f)).items(): d.setdefault(v, {}).update(q)
-              json.dump(d, open(f'orqaga_4hafta_{yol}.json', 'w'), ensure_ascii=False, indent=1)
-              print(yol, len(d), 'sham')"
+          for v in ['uzun', 'qisqa']:
+              d = {'ic': {}, 'p': []}
+              for f in sorted(glob.glob(f'natija/uzun-{v}-*/*.json')):
+                  x = json.load(open(f)); d['ic'][f] = [x['ic'], x['namuna']]; d['p'] += x['p']
+              json.dump(d, open(f'uzun_natija_{v}.json', 'w'))
+              print(v, d['ic'])"
           git config user.name treyder-bot; git config user.email treyder-bot@users.noreply.github.com
-          git add orqaga_4hafta_*.json && git commit -qm "4 haftalik sinov natijasi [skip ci]" && git push -q origin HEAD:orqaga-sinov
+          git add uzun_natija_*.json && git commit -qm "uzun tarix sinovi natijasi [skip ci]" && git push -q origin HEAD:orqaga-sinov
