@@ -138,6 +138,82 @@ class Binance:
             return self.order(stopPrice=narx, **p)
 
 
+class QuruqBirja:
+    """Kalitsiz sinov: narxlar va qoidalar haqiqiy Binance'dan, hisob va savdolar shu kompyuterda yoziladi.
+    Limit order darhol shu narxda bajarilgan deb olinadi (0.02%), bozor order 0.05%; funding hisobga olinmaydi."""
+
+    FAYL = PAPKA / "ijro_quruq.json"
+
+    def __init__(self, baza, pul=1000.0):
+        self.real = Binance(baza, "", "")
+        self.d = json.loads(self.FAYL.read_text(encoding="utf-8")) if self.FAYL.exists() else \
+            {"naqd": pul, "poz": {}, "lev": {}, "stop": {}, "savdolar": []}
+        self.oid = 0
+
+    def saqla(self):
+        self.FAYL.write_text(json.dumps(self.d, ensure_ascii=False, indent=1), encoding="utf-8")
+
+    def qoidalar(self):
+        return self.real.qoidalar()
+
+    def kitob(self, belgi):
+        return self.real.kitob(belgi)
+
+    def _toldir(self, belgi, tomon, miqdor, narx, kom):
+        q = float(miqdor) * (1 if tomon == "BUY" else -1)
+        eski, e = self.d["poz"].get(belgi, (0.0, 0.0))
+        yangi = round(eski + q, 9)
+        if eski and (eski > 0) != (q > 0):  # kamaytirish yoki yopish: foyda/zarar naqdga o'tadi
+            yopildi = min(abs(q), abs(eski)) * (1 if eski > 0 else -1)
+            self.d["naqd"] += yopildi * (narx - e)
+            if abs(q) > abs(eski):
+                e = narx
+        else:
+            e = (eski * e + q * narx) / yangi
+        self.d["naqd"] -= abs(q) * narx * kom
+        if yangi:
+            self.d["poz"][belgi] = (yangi, e)
+        else:
+            self.d["poz"].pop(belgi, None)
+        self.d["savdolar"].append([time.strftime("%Y-%m-%d %H:%M"), belgi, tomon, abs(q), narx])
+        self.saqla()
+
+    def hisob(self):
+        pul, poz = self.d["naqd"], {}
+        for belgi, (q, e) in list(self.d["poz"].items()):
+            bid, ask = self.kitob(belgi)
+            narx = (bid + ask) / 2
+            st = self.d["stop"].get(belgi)
+            if st and ((q > 0 and narx <= st) or (q < 0 and narx >= st)):  # birja stopi ishladi
+                self._toldir(belgi, "SELL" if q > 0 else "BUY", abs(q), narx, 0.0005)
+                self.d["stop"].pop(belgi)
+                continue
+            pul += q * (narx - e)
+            poz[belgi] = (q, e, self.d["lev"].get(belgi, 2))
+        return pul, poz
+
+    def order(self, symbol, side, type, quantity, price=None, **_):
+        bid, ask = self.kitob(symbol)
+        narx, kom = (float(price), 0.0002) if type == "LIMIT" else ((ask if side == "BUY" else bid), 0.0005)
+        self._toldir(symbol, side, quantity, narx, kom)
+        self.oid += 1
+        return {"orderId": self.oid, "status": "FILLED", "executedQty": quantity, "avgPrice": str(narx)}
+
+    def stoplarni_bekor(self, belgi):
+        self.d["stop"].pop(belgi, None)
+        self.saqla()
+
+    def stop(self, belgi, yon, narx):
+        self.d["stop"][belgi] = float(narx)
+        self.saqla()
+
+    def sorov(self, usul, yol, imzo=False, **p):
+        if yol == "/fapi/v1/leverage":
+            self.d["lev"][p["symbol"]] = p["leverage"]
+            self.saqla()
+        return [] if yol == "/fapi/v1/income" else {}
+
+
 def yaxlit(x, qadam, usul=ROUND_DOWN):
     q = Decimal(qadam).normalize()
     return format((Decimal(str(abs(x))) / q).to_integral_value(usul) * q, "f")
@@ -146,8 +222,8 @@ def yaxlit(x, qadam, usul=ROUND_DOWN):
 # ---------- Telegram va bulut holati ----------
 
 class Xabarchi:
-    def __init__(self, token, sinov):
-        self.token, self.belgi, self.chat_id, self.oxirgi = token, "[SINOV] " if sinov else "", None, {}
+    def __init__(self, token, belgi=""):
+        self.token, self.belgi, self.chat_id, self.oxirgi = token, belgi, None, {}
 
     def yubor(self, matn, kalit=None, oraliq=3600):
         """kalit berilsa, bir xil ogohlantirish `oraliq` soniyada bir martadan ko'p yuborilmaydi."""
@@ -448,6 +524,15 @@ def sozla():
     Binance ulanishi ishlamaguncha qayta so'raydi."""
     f = PAPKA / "ijro_sozlama.json"
     s = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
+    if input("Kalitsiz sinovmi (Binance kaliti kerak emas, savdo kompyuterda yoziladi)? [Enter = ha, kalit "
+             "bilan bo'lsa: yo'q]: ").strip().lower() not in ("yo'q", "yoq", "n", "no"):
+        s.update(quruq=True, sinov=True)
+        if not eski_token() and not s.get("telegram_token"):
+            s["telegram_token"] = getpass.getpass("Telegram bot tokeni (ko'rinmaydi): ").strip()
+        f.write_text(json.dumps(s, ensure_ascii=False, indent=1), encoding="utf-8")
+        print("\n✅ Kalitsiz sinov rejimi saqlandi: 1000 USDT soxta pul, narxlar haqiqiy Binance'dan.\n")
+        return
+    s["quruq"] = False
     print("Kalitni joylash: sichqonchaning O'NG tugmasini bos (Ctrl+V emas), keyin Enter.\n")
     s["sinov"] = input("Sinov (demo) hisobimi? [Enter = ha, real bo'lsa: yo'q]: ").strip().lower() not in (
         "yo'q", "yoq", "n", "no")
@@ -473,17 +558,23 @@ def sozla():
 def main():
     if sys.argv[1:] == ["sozla"]:
         return sozla()
+    global HOLAT_FAYL
     s, token = sozlamani_oqi()
-    x = Xabarchi(token, s["sinov"])
+    if s.get("quruq"):
+        HOLAT_FAYL = PAPKA / "ijro_quruq_holat.json"  # real pulga o'tganda zinapoya noldan boshlanadi
+    x = Xabarchi(token, "[KALITSIZ SINOV] " if s.get("quruq") else "[DEMO] " if s["sinov"] else "")
     st = json.loads(HOLAT_FAYL.read_text(encoding="utf-8")) if HOLAT_FAYL.exists() else yangi_holat()
-    try:
-        birja = Binance(s.get("baza") or BAZA[s["sinov"]], s["api_key"], s["api_secret"])
-        rejim = birja.sorov("GET", "/fapi/v1/positionSide/dual", True)
-        if rejim.get("dualSidePosition"):
-            birja.sorov("POST", "/fapi/v1/positionSide/dual", True, dualSidePosition=False)  # bir tomonlama rejim
-    except BinanceXato as e:
-        print(f"\nBinance rad etdi: {e}\n{XATO_MASLAHAT.get(e.kod, '')}\nKalitni qayta kiritamiz.\n")
-        return sozla()
+    if s.get("quruq"):
+        birja = QuruqBirja(BAZA[False])
+    else:
+        try:
+            birja = Binance(s.get("baza") or BAZA[s["sinov"]], s["api_key"], s["api_secret"])
+            rejim = birja.sorov("GET", "/fapi/v1/positionSide/dual", True)
+            if rejim.get("dualSidePosition"):
+                birja.sorov("POST", "/fapi/v1/positionSide/dual", True, dualSidePosition=False)  # bir tomonlama rejim
+        except BinanceXato as e:
+            print(f"\nBinance rad etdi: {e}\n{XATO_MASLAHAT.get(e.kod, '')}\nKalitni qayta kiritamiz.\n")
+            return sozla()
     ij = Ijrochi(birja, x, s, st)
     while True:
         try:
