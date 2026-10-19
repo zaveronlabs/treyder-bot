@@ -1,0 +1,212 @@
+{
+ "https://testnet.binancefuture.com/fapi/v1/time": {
+  "serverTime": 1792412390065
+ },
+ "https://testnet.binancefuture.com/fapi/v1/exchangeInfo": {
+  "BTCUSDT": [
+   {
+    "filterType": "PRICE_FILTER",
+    "minPrice": "261.10",
+    "tickSize": "0.10",
+    "maxPrice": "809484"
+   },
+   {
+    "minQty": "0.0001",
+    "filterType": "LOT_SIZE",
+    "stepSize": "0.0001",
+    "maxQty": "1000"
+   },
+   {
+    "filterType": "MARKET_LOT_SIZE",
+    "maxQty": "120",
+    "minQty": "0.0001",
+    "stepSize": "0.0001"
+   },
+   {
+    "filterType": "MAX_NUM_ORDERS",
+    "limit": 10000
+   },
+   {
+    "filterType": "MIN_NOTIONAL",
+    "notional": "50"
+   },
+   {
+    "multiplierDown": "0.9500",
+    "multiplierDecimal": "4",
+    "multiplierUp": "1.0500",
+    "filterType": "PERCENT_PRICE"
+   },
+   {
+    "positionControlSide": "NONE",
+    "filterType": "POSITION_RISK_CONTROL"
+   }
+  ],
+  "ETHUSDT": [
+   {
+    "filterType": "PRICE_FILTER",
+    "maxPrice": "306177",
+    "minPrice": "39.86",
+    "tickSize": "0.01"
+   },
+   {
+    "stepSize": "0.001",
+    "maxQty": "10000",
+    "minQty": "0.001",
+    "filterType": "LOT_SIZE"
+   },
+   {
+    "minQty": "0.001",
+    "stepSize": "0.001",
+    "maxQty": "10000",
+    "filterType": "MARKET_LOT_SIZE"
+   },
+   {
+    "filterType": "MAX_NUM_ORDERS",
+    "limit": 10000
+   },
+   {
+    "filterType": "MIN_NOTIONAL",
+    "notional": "20"
+   },
+   {
+    "multiplierUp": "1.0500",
+    "multiplierDecimal": "4",
+    "filterType": "PERCENT_PRICE",
+    "multiplierDown": "0.9500"
+   },
+   {
+    "positionControlSide": "NONE",
+    "filterType": "POSITION_RISK_CONTROL"
+   }
+  ],
+  "XRPUSDT": [
+   {
+    "maxPrice": "100000",
+    "tickSize": "0.0001",
+    "filterType": "PRICE_FILTER",
+    "minPrice": "0.0143"
+   },
+   {
+    "filterType": "LOT_SIZE",
+    "minQty": "0.1",
+    "maxQty": "1000000",
+    "stepSize": "0.1"
+   },
+   {
+    "stepSize": "0.1",
+    "filterType": "MARKET_LOT_SIZE",
+    "minQty": "0.1",
+    "maxQty": "1000000"
+   },
+   {
+    "limit": 200,
+    "filterType": "MAX_NUM_ORDERS"
+   },
+   {
+    "notional": "5",
+    "filterType": "MIN_NOTIONAL"
+   },
+   {
+    "multiplierUp": "1.0500",
+    "multiplierDown": "0.9500",
+    "multiplierDecimal": "4",
+    "filterType": "PERCENT_PRICE"
+   },
+   {
+    "filterType": "POSITION_RISK_CONTROL",
+    "positionControlSide": "NONE"
+   }
+  ],
+  "BNBUSDT": [
+   {
+    "filterType": "PRICE_FILTER",
+    "maxPrice": "100000",
+    "minPrice": "6.600",
+    "tickSize": "0.010"
+   },
+   {
+    "stepSize": "0.01",
+    "minQty": "0.01",
+    "maxQty": "10000",
+    "filterType": "LOT_SIZE"
+   },
+   {
+    "filterType": "MARKET_LOT_SIZE",
+    "minQty": "0.01",
+    "stepSize": "0.01",
+    "maxQty": "100000"
+   },
+   {
+    "filterType": "MAX_NUM_ORDERS",
+    "limit": 200
+   },
+   {
+    "filterType": "MIN_NOTIONAL",
+    "notional": "5"
+   },
+   {
+    "filterType": "PERCENT_PRICE",
+    "multiplierUp": "1.0500",
+    "multiplierDecimal": "4",
+    "multiplierDown": "0.9500"
+   },
+   {
+    "filterType": "POSITION_RISK_CONTROL",
+    "positionControlSide": "NONE"
+   }
+  ],
+  "SOLUSDT": [
+   {
+    "minPrice": "0.4200",
+    "filterType": "PRICE_FILTER",
+    "maxPrice": "6857",
+    "tickSize": "0.0100"
+   },
+   {
+    "stepSize": "0.01",
+    "maxQty": "1000000",
+    "minQty": "0.01",
+    "filterType": "LOT_SIZE"
+   },
+   {
+    "stepSize": "0.01",
+    "filterType": "MARKET_LOT_SIZE",
+    "minQty": "0.01",
+    "maxQty": "6000"
+   },
+   {
+    "filterType": "MAX_NUM_ORDERS",
+    "limit": 200
+   },
+   {
+    "notional": "5",
+    "filterType": "MIN_NOTIONAL"
+   },
+   {
+    "multiplierUp": "1.0500",
+    "filterType": "PERCENT_PRICE",
+    "multiplierDecimal": "4",
+    "multiplierDown": "0.9500"
+   },
+   {
+    "filterType": "POSITION_RISK_CONTROL",
+    "positionControlSide": "NONE"
+   }
+  ]
+ },
+ "https://testnet.binancefuture.com/fapi/v1/ticker/bookTicker?symbol=BTCUSDT": {
+  "symbol": "BTCUSDT",
+  "bidPrice": "82541.80",
+  "bidQty": "127.9616",
+  "askPrice": "82544.70",
+  "askQty": "16.1065",
+  "time": 1792412389790,
+  "lastUpdateId": 457775829932
+ },
+ "https://demo-fapi.binance.com/fapi/v1/time": "XATO: HTTP Error 451: ",
+ "https://demo-fapi.binance.com/fapi/v1/exchangeInfo": "XATO: HTTP Error 451: ",
+ "https://demo-fapi.binance.com/fapi/v1/ticker/bookTicker?symbol=BTCUSDT": "XATO: HTTP Error 451: ",
+ "https://fapi.binance.com/fapi/v1/time": "XATO: HTTP Error 451: ",
+ "https://fapi.binance.com/fapi/v1/exchangeInfo": "XATO: HTTP Error 451: ",
+ "https://fapi.binance.com/fapi/v1/ticker/bookTicker?symbol=BTCUSDT": "XATO: HTTP Error 451: "
+}
