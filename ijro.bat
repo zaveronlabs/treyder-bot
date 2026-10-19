@@ -1,6 +1,8 @@
 @echo off
 chcp 65001 >nul
+set PYTHONIOENCODING=utf-8
 cd /d "%~dp0"
+title Treyder AI - real pul ijrochisi
 rem Real pul ijrochisi: har ishga tushganda eng yangi ijro.py ni GitHub'dan oladi.
 rem Birinchi marta kalitlarni so'raydi (ular faqat shu kompyuterda qoladi).
 :qayta
