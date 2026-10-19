@@ -13,17 +13,11 @@ jobs:
           ref: orqaga-sinov
       - run: |
           {
-          for u in \
-            "https://fapi.binance.com/futures/data/openInterestHist?symbol=BTCUSDT&period=4h&limit=2" \
-            "https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=4h&limit=2" \
-            "https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT" \
-            "https://api.bybit.com/v5/market/open-interest?category=linear&symbol=BTCUSDT&intervalTime=4h&limit=2" \
-            "https://api.bybit.com/v5/market/account-ratio?category=linear&symbol=BTCUSDT&period=4h&limit=2" \
-            "https://www.okx.com/api/v5/rubik/stat/contracts/open-interest-volume?ccy=BTC&period=4H" \
-            "https://www.okx.com/api/v5/rubik/stat/contracts/long-short-account-ratio?ccy=BTC&period=4H" \
-            "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&interval=4h&limit=2" \
-            "https://contract.mexc.com/api/v1/contract/funding_rate/BTC_USDT" ; do
-            echo "== $u"; curl -s -m 15 -w "\nHTTP %{http_code}\n" "$u" | head -c 400; echo; done
+          for f in 1546300800 1609459200 1672531200 1704067200 1735689600 1767225600 1785000000; do
+            u="https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&interval=4h&limit=100&from=$f"
+            echo "== from $f"; curl -s -m 15 "$u" | python3 -c "import json,sys,time; d=json.load(sys.stdin); print(len(d), time.strftime('%F', time.gmtime(d[0]['time'])) if d else '-', time.strftime('%F', time.gmtime(d[-1]['time'])) if d else '-')" ; done
+          echo "== limit"; curl -s -m 15 "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&interval=4h&limit=2000" | head -c 300; echo
+          echo "== 1d eng eski"; curl -s -m 15 "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&interval=1d&limit=100&from=1546300800" | head -c 300; echo
           } > manbalar.txt 2>&1
           git config user.name treyder-bot; git config user.email treyder-bot@users.noreply.github.com
           git add manbalar.txt && git commit -qm "manbalar natijasi [skip ci]" && git push -q origin HEAD:orqaga-sinov
