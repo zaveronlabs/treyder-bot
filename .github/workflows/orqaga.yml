@@ -1,4 +1,6 @@
 name: Futures manbalari tekshiruvi (bir martalik)
+permissions:
+  contents: write
 on:
   push:
     branches: [orqaga-sinov]
@@ -6,7 +8,11 @@ jobs:
   tekshir:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: orqaga-sinov
       - run: |
+          {
           for u in \
             "https://fapi.binance.com/futures/data/openInterestHist?symbol=BTCUSDT&period=4h&limit=2" \
             "https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=4h&limit=2" \
@@ -18,3 +24,6 @@ jobs:
             "https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract=BTC_USDT&interval=4h&limit=2" \
             "https://contract.mexc.com/api/v1/contract/funding_rate/BTC_USDT" ; do
             echo "== $u"; curl -s -m 15 -w "\nHTTP %{http_code}\n" "$u" | head -c 400; echo; done
+          } > manbalar.txt 2>&1
+          git config user.name treyder-bot; git config user.email treyder-bot@users.noreply.github.com
+          git add manbalar.txt && git commit -qm "manbalar natijasi [skip ci]" && git push -q origin HEAD:orqaga-sinov
