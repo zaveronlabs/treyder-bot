@@ -1,11 +1,11 @@
-name: Gate futures tarixini yuklash (bir martalik)
+name: Binance futures sinov manzillarini tekshirish (bir martalik)
 permissions:
   contents: write
 on:
   push:
     branches: [orqaga-sinov]
 jobs:
-  yukla:
+  tekshir:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,20 +14,21 @@ jobs:
       - shell: bash {0}
         run: |
           cat > t.py <<'PY'
-          import json, time, urllib.request
-          B = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "LTC"]
+          import json, urllib.request
           out = {}
-          for b in B:
-              for iv in ("4h", "1d"):
-                  u = f"https://api.gateio.ws/api/v4/futures/usdt/contract_stats?contract={b}_USDT&interval={iv}&limit=2000"
-                  for k in range(4):
-                      try:
-                          with urllib.request.urlopen(u, timeout=30) as j: d = json.load(j); break
-                      except Exception as e: print(b, iv, e); time.sleep(5); d = []
-                  out[f"{b}_{iv}"] = d
-                  print(b, iv, len(d), time.strftime('%F', time.gmtime(d[0]['time'])) if d else "-")
-          json.dump(out, open("gate_futures.json", "w"))
+          for baza in ["https://testnet.binancefuture.com", "https://demo-fapi.binance.com", "https://fapi.binance.com"]:
+              for yol in ["/fapi/v1/time", "/fapi/v1/exchangeInfo", "/fapi/v1/ticker/bookTicker?symbol=BTCUSDT"]:
+                  try:
+                      with urllib.request.urlopen(urllib.request.Request(baza + yol, headers={"User-Agent": "treyder-ai"}), timeout=30) as j:
+                          d = json.load(j)
+                      if "exchangeInfo" in yol:
+                          d = {s["symbol"]: s["filters"] for s in d["symbols"] if s["symbol"] in ("BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT")}
+                      out[baza + yol] = d
+                  except Exception as e:
+                      out[baza + yol] = f"XATO: {e}"
+                  print(baza + yol, str(out[baza + yol])[:150])
+          json.dump(out, open("binance_manzillar.json", "w"), indent=1)
           PY
           python3 t.py > manbalar.txt 2>&1
           git config user.name treyder-bot; git config user.email treyder-bot@users.noreply.github.com
-          git add manbalar.txt gate_futures.json && git commit -qm "gate futures tarixi [skip ci]" && git push -q origin HEAD:orqaga-sinov
+          git add manbalar.txt binance_manzillar.json && git commit -qm "binance manzillar natijasi [skip ci]" && git push -q origin HEAD:orqaga-sinov
