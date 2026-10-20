@@ -1,0 +1,31 @@
+name: Qorovul
+
+# Har 30 daqiqada: bot to'xtab qolgan bo'lsa qayta yoqadi, shamni kechiktirsa Telegramga yozadi.
+on:
+  schedule:
+    - cron: "13,43 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  qorovul:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tekshirish
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: python3 qorovul.py
+      - name: Saqlash
+        run: |
+          git config user.name "treyder-bot"
+          git config user.email "treyder-bot@users.noreply.github.com"
+          git add qorovul.json 2>/dev/null || exit 0
+          git diff --cached --quiet && exit 0
+          git commit -qm "qorovul holati"
+          for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done
