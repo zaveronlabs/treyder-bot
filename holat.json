@@ -1,7 +1,7 @@
 {
  "chat_id": 8859413416,
  "update_id": 74030486,
- "oxirgi_sana": "2026-10-19 16:00",
+ "oxirgi_sana": "2026-10-19 20:00",
  "holat": {
   "BTC": 0,
   "ETH": 0,
@@ -10,11 +10,11 @@
   "XRP": 0
  },
  "narx": {
-  "BTC": 81880.82,
-  "ETH": 2395.04,
-  "SOL": 104.03,
-  "BNB": 726.96,
-  "XRP": 1.3011,
+  "BTC": 81938.4,
+  "ETH": 2408.01,
+  "SOL": 105.08,
+  "BNB": 732.13,
+  "XRP": 1.3041,
   "DOGE": 0.08007,
   "ADA": 0.2228,
   "AVAX": 9.897,
@@ -23,16 +23,16 @@
  },
  "rejim": "4h-5-avto3",
  "miya": {
-  "BTC": -0.12285717200208153,
-  "ETH": 0.2914881455193466,
-  "SOL": 0.23640652327844627,
-  "BNB": -0.008736062408608105,
-  "XRP": 0.2145557201921139,
-  "DOGE": 0.11384926591629885,
-  "ADA": 0.09521042264948885,
-  "AVAX": -0.0519812366376607,
-  "LINK": 0.06660317410901043,
-  "LTC": 0.3067042231728191
+  "BTC": 0.012035982760987916,
+  "ETH": 0.26951923363478947,
+  "SOL": 0.2915839644059023,
+  "BNB": -0.12634602078150278,
+  "XRP": 0.22855824207154585,
+  "DOGE": 0.05544804156898805,
+  "ADA": 0.038961513631337465,
+  "AVAX": -0.058661687895876856,
+  "LINK": 0.05323841782192138,
+  "LTC": 0.24634387926135037
  },
  "sinov_boshi": "2026-10-17 20:00",
  "oxirgi_hisobot": 1792281662.0175865,
@@ -142,16 +142,26 @@
   },
   "short": {
    "portfel": {
-    "BTC": {
-     "miqdor": 0.004927432470153926,
-     "kirish_narx": 81178.18,
-     "kirish_sana": "2026-10-18 12:00",
+    "BNB": {
+     "miqdor": 0.5463510578722358,
+     "kirish_narx": 732.13,
+     "kirish_sana": "2026-10-19 20:00",
      "yon": -1
     }
    },
-   "jurnal": [],
-   "naqd": 799.8,
-   "komissiya": 0.2
+   "jurnal": [
+    {
+     "belgi": "BTC",
+     "kirish_sana": "2026-10-18 12:00",
+     "kirish_narx": 81178.18,
+     "chiqish_sana": "2026-10-19 20:00",
+     "chiqish_narx": 81938.4,
+     "foyda": -3.947805678816654,
+     "sabab": "miya endi tushish kutmayapti (+0.01)"
+    }
+   ],
+   "naqd": 795.6521943211833,
+   "komissiya": 0.6018729663562303
   },
   "longshort": {
    "portfel": {},
@@ -263,46 +273,46 @@
  },
  "ai_vaqt": "2026-10-19 20:21",
  "yangilik": {
-  "vaqt": "2026-10-19 19:24",
+  "vaqt": "2026-10-19 23:24",
   "soni": 50,
   "model": "qwen2.5:7b",
   "bozor": {
-   "baho": 0.08,
-   "izoh": "Umumiy bozor: 50 ta yangilik (18 yaxshi, 15 yomon). Kayfiyat betaraf."
+   "baho": 0.03,
+   "izoh": "Umumiy bozor: 50 ta yangilik (13 yaxshi, 10 yomon). Kayfiyat betaraf."
   },
   "tangalar": {
    "BTC": {
-    "baho": 0.1,
-    "izoh": "Bitcoin haqida 24 ta yangilik (10 yaxshi, 10 yomon). Kayfiyat ijobiy."
+    "baho": 0.0,
+    "izoh": "Bitcoin haqida 19 ta yangilik (4 yaxshi, 5 yomon). Kayfiyat betaraf."
    },
    "ETH": {
     "baho": 0.18,
-    "izoh": "Ethereum haqida 7 ta yangilik (4 yaxshi, 1 yomon). Kayfiyat ijobiy."
+    "izoh": "Ethereum haqida 3 ta yangilik (2 yaxshi, 0 yomon). Kayfiyat ijobiy."
    },
    "SOL": {
-    "baho": -0.46,
-    "izoh": "Solana haqida 2 ta yangilik (0 yaxshi, 2 yomon). Kayfiyat salbiy."
+    "baho": -0.07,
+    "izoh": "Solana haqida 3 ta yangilik (1 yaxshi, 2 yomon). Kayfiyat salbiy."
    },
    "BNB": {
-    "baho": 0.04,
-    "izoh": "BNB haqida 1 ta yangilik (0 yaxshi, 0 yomon). Kayfiyat betaraf."
+    "baho": 0.03,
+    "izoh": "Alohida yangilik yo'q, umumiy bozorga qaraldi."
    },
    "XRP": {
-    "baho": 0.08,
-    "izoh": "Alohida yangilik yo'q, umumiy bozorga qaraldi."
+    "baho": 0.01,
+    "izoh": "XRP haqida 1 ta yangilik (0 yaxshi, 0 yomon). Kayfiyat betaraf."
    }
   }
  },
  "short_miya": {
-  "BTC": 0.43350399098136366,
-  "ETH": 0.20904355116058226,
-  "SOL": 0.2496627509173276,
-  "BNB": 0.2687662348850003,
-  "XRP": 0.3367102176151889,
-  "DOGE": 0.06466893931449696,
-  "ADA": 0.04680404344249069,
-  "AVAX": 0.1401039716274326,
-  "LINK": 0.11434468994287281,
-  "LTC": 0.214677978307688
+  "BTC": 0.2917079581095416,
+  "ETH": 0.11780607266589675,
+  "SOL": 0.19321268344153414,
+  "BNB": 0.21421707075509863,
+  "XRP": 0.20720763544873597,
+  "DOGE": 0.05795537660696909,
+  "ADA": 0.04365354636485685,
+  "AVAX": 0.09416154317102586,
+  "LINK": 0.09026573027969419,
+  "LTC": 0.1936949161856878
  }
 }
