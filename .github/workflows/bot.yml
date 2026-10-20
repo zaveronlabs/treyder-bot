@@ -1,6 +1,6 @@
 name: Treyder AI bot
 
-# Bot ~5.5 soat davomida har daqiqada ishlaydi, keyin keyingi ishga tushishini o'zi chaqiradi.
+# Bot ~5.5 soat davomida to'xtovsiz ishlaydi (bulut.py har safar ~50 soniya buyruqlarni tinglaydi), keyin keyingi ishga tushishini o'zi chaqiradi.
 # Jadval (schedule) zaxira sifatida qoldirildi.
 on:
   schedule:
@@ -50,7 +50,7 @@ jobs:
                && [ $(( $(date +%s) - oxirgi_ai )) -gt 7200 ]; then
               gh workflow run ai_treyder.yml --ref main --repo ${{ github.repository }} && oxirgi_ai=$(date +%s) || true
             fi
-            sleep 60
+            sleep 2  # bulut.py o'zi ~50 soniya Telegramni tinglaydi
           done
       - name: Keyingi ishga tushirish
         if: always()

@@ -23,6 +23,8 @@ TF, EMA_N, MOMENTUM_N, FILTR_N = "4h", 150, 60, 600
 BOSHLANG_ICH_PUL, ULUSH, LEVERAGE = 1000.0, 200.0, 2
 REJIM = f"{TF}-{len(SIGNAL_BELGILAR)}-avto3"
 KOMISSIYA, SINOV_KUN = 0.0005, 90  # har tomonga 0.05%; sinov muddati 3 oy
+SHAM_SONIYA = 4 * 3600
+TINGLASH = 50  # har ishga tushishda Telegram buyruqlarini shuncha soniya tinglaydi (workflow keyin darhol qayta chaqiradi)
 HOLAT_FAYL = Path(__file__).with_name("holat.json")
 TOKEN = os.environ["TELEGRAM_TOKEN"]
 NARX_MANBALARI = ["https://data-api.binance.vision", "https://api.binance.com"]
@@ -246,6 +248,9 @@ def yangilik_matni(h):
 def signallarni_tekshir(h):
     """Avto rejim: 4 ta qog'oz portfel parallel yuritiladi (faqat qoida, faqat miya, ikkalasi rozi bo'lsa,
     ikkalasi + yangiliklar salbiy emas). Telegramga asosiy (ikkalasi) portfel savdolari yoziladi."""
+    kutilgan = time.strftime("%Y-%m-%d %H:00", time.gmtime((time.time() // SHAM_SONIYA - 1) * SHAM_SONIYA))
+    if h.get("oxirgi_sana") == kutilgan and h.get("rejim") == REJIM:
+        return  # yangi sham hali yopilmagan: narxlarni har daqiqada qayta yuklash shart emas
     natijalar = {b: yopilishlar(b) for b in BELGILAR}
     sana = natijalar["BTC"][-1][0]
     if h.get("oxirgi_sana") == sana:
@@ -391,8 +396,9 @@ def jurnal_matni(h):
     return "Asosiy yo'l (qoida + miya):\n" + ("\n".join(ochiq + yopiq) or "Hali savdo yo'q.")
 
 
-def yangilanishlar(h):
-    for u in tg("getUpdates", offset=h["update_id"] + 1, timeout=0):
+def yangilanishlar(h, kutish=0):
+    """kutish > 0: Telegram yangi xabarni shuncha soniyagacha kutadi (long polling), kelishi bilan javob beriladi."""
+    for u in tg("getUpdates", offset=h["update_id"] + 1, timeout=kutish):
         h["update_id"] = u["update_id"]
         if "callback_query" in u:
             tg("answerCallbackQuery", callback_query_id=u["callback_query"]["id"])
@@ -428,13 +434,19 @@ def main():
     for k, v in [("chat_id", None), ("update_id", 0), ("oxirgi_sana", None), ("holat", {}),
                  ("narx", {})]:
         h.setdefault(k, v)
+    boshi = time.time()
+    saqla = lambda: HOLAT_FAYL.write_text(json.dumps(h, ensure_ascii=False, indent=1), encoding="utf-8")
     try:
         yangilanishlar(h)
         if h.get("chat_id"):
             signallarni_tekshir(h)
             ai_tekshir(h)
+        saqla()
+        while (qoldi := TINGLASH - (time.time() - boshi)) > 3:  # buyruqlarga darhol javob berish uchun kutib turamiz
+            yangilanishlar(h, int(min(qoldi, 25)))
+            saqla()
     finally:
-        HOLAT_FAYL.write_text(json.dumps(h, ensure_ascii=False, indent=1), encoding="utf-8")
+        saqla()
 
 
 if __name__ == "__main__":
