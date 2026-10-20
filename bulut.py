@@ -41,6 +41,28 @@ def tg(metod, **p):
     return http_json(f"https://api.telegram.org/bot{TOKEN}/{metod}", p)["result"]
 
 
+def rasm_yubor(h, natijalar=None, izoh=""):
+    """Haftalik rasm (rasm.py): 1000$ har bir pul taqsimlash usulida qanday o'zgargani."""
+    try:
+        import rasm
+    except ImportError:  # eski workflow nusxasida matplotlib o'rnatilmagan bo'lishi mumkin
+        import subprocess, sys
+        subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", "matplotlib"], check=True)
+        import rasm
+    natijalar = natijalar or {b: yopilishlar(b) for b in SIGNAL_BELGILAR}
+    png = rasm.chiz(h, natijalar, BOSHLANG_ICH_PUL, ULUSH, LEVERAGE, KOMISSIYA)
+    if not png:
+        return yubor(h, "Rasm uchun tarix hali juda qisqa.")
+    chegara = "treyderchegara"
+    qism = lambda nom, qiymat: f'--{chegara}\r\nContent-Disposition: form-data; name="{nom}"\r\n\r\n{qiymat}\r\n'.encode()
+    tana = (qism("chat_id", h["chat_id"]) + qism("caption", izoh or "Chiziq tepaga ketsa foyda, pastga ketsa zarar.")
+            + f'--{chegara}\r\nContent-Disposition: form-data; name="photo"; filename="hisobot.png"\r\n'
+              f'Content-Type: image/png\r\n\r\n'.encode() + png + f"\r\n--{chegara}--\r\n".encode())
+    sorov = urllib.request.Request(f"https://api.telegram.org/bot{TOKEN}/sendPhoto", tana,
+                                   {"Content-Type": f"multipart/form-data; boundary={chegara}"})
+    urllib.request.urlopen(sorov, timeout=60).read()
+
+
 def yubor(h, matn, tugmalar=None):
     if not h.get("chat_id"):
         return
@@ -288,10 +310,14 @@ def signallarni_tekshir(h):
         yubor(h, f"🤖 Avto rejim boshlandi: bot {len(SIGNAL_BELGILAR)} ta tangada o'zi savdo qiladi (qog'ozda). "
                  f"Sinov muddati: {tugash} gacha.\n3 xil yo'l parallel yoziladi, har biriga {BOSHLANG_ICH_PUL:.0f} USDT: "
                  f"faqat qoida, faqat miya, qoida + miya (asosiy). Bu yerga asosiy yo'l savdolari yoziladi, "
-                 f"har hafta uchalasi solishtirilgan hisobot keladi. /hisobot, /holat, /jurnal, /yangilik\n\n" + holat_matni(h))
+                 f"har hafta uchalasi solishtirilgan hisobot keladi. /hisobot, /rasm, /holat, /jurnal, /yangilik\n\n" + holat_matni(h))
     if time.time() - h.get("oxirgi_hisobot", 0) >= 7 * 86400:
         h["oxirgi_hisobot"] = time.time()
         yubor(h, "📊 Haftalik hisobot\n" + hisobot_matni(h))
+        try:
+            rasm_yubor(h, natijalar)
+        except Exception as xato:
+            print("rasm:", xato)
 
 
 # ---------- Qog'oz portfel ----------
@@ -388,6 +414,11 @@ def yangilanishlar(h):
                 h["ijro_toxtat"] = matn.startswith("/toxtat")  # real pul ijrochisi (ijro.py) shuni o'qiydi
                 yubor(h, "⏸ Real savdo to'xtatilmoqda: ijrochi hammasini yopadi." if h["ijro_toxtat"] else
                          "▶️ Real savdo qayta yoqilmoqda.")
+            elif matn.startswith("/rasm"):
+                try:
+                    rasm_yubor(h) if h.get("portfellar") else yubor(h, "Hali savdo yo'q.")
+                except Exception as xato:
+                    yubor(h, f"Rasmni chizib bo'lmadi: {xato}")
             elif matn.startswith("/hisobot"):
                 yubor(h, hisobot_matni(h) if h.get("portfellar") else "Avto rejim keyingi 4 soatlik shamda boshlanadi.")
 

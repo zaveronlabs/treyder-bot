@@ -17,3 +17,7 @@
 ## Qorovul
 
 `qorovul.yml` har 30 daqiqada `qorovul.py` ni ishga tushiradi: `bot.yml` hech qayerda yurmayotgan bo'lsa uni qayta yoqadi, bot oxirgi 4 soatlik shamni 45 daqiqadan ko'proq kechiktirsa Telegramga ⚠️ yozadi (6 soatda bir eslatadi), tuzalganda ✅ xabar beradi.
+
+## Rasmli hisobot
+
+`rasm.py` haftalik hisobotga va Telegramdagi /rasm buyrug'iga rasm chizadi: 1000$ "uchga bo'lish" (🔀), "yarmi qoida + yarmi short" (⚖) va shunchaki BTC ushlab turishda qanday o'zgargani. Tarix alohida saqlanmaydi, qog'oz yo'llar jurnali va 4 soatlik narxlardan qayta hisoblanadi.
