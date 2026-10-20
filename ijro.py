@@ -47,7 +47,9 @@ ESKIRISH = 8.5 * 3600  # bulutdagi bot shuncha vaqt yangi shamni qayta ishlamasa
 LIMIT_URINISH, LIMIT_KUTISH = 5, 60  # limit orderni 5 marta, har birini 60 soniya kutib qayta narxlaydi
 
 PAPKA = Path(__file__).parent
-SOZLAMA = {"sinov": True, "kombinatsiya": {"qoida": 0.5, "short": 0.5}, "bozor_zaxira": True}
+# 🔀 uchga bo'lish: 2019 dan o'qigan miya bilan 2024..2026 da ⚖ (qoida + short) dan ikkala yarmida ham yaxshi
+SOZLAMA = {"sinov": True, "kombinatsiya": {"qoida": 1 / 3, "miya": 1 / 3, "longshort": 1 / 3}, "bozor_zaxira": True}
+KOD_URL = "https://raw.githubusercontent.com/zaveronlabs/treyder-bot/main/ijro.py"
 HOLAT_FAYL = PAPKA / "ijro_holat.json"
 
 
@@ -569,6 +571,17 @@ def sozla():
     print(f"\n✅ Binance ulanishi ishladi, futures hisobida {pul:.2f} USDT. Saqlandi.\n")
 
 
+def yangi_versiya_bor():
+    try:
+        with urllib.request.urlopen(urllib.request.Request(f"{KOD_URL}?t={int(time.time())}",
+                                                           headers={"User-Agent": "treyder-ai"}), timeout=30) as j:
+            yangi = j.read()
+        return yangi.strip() != Path(__file__).read_bytes().replace(b"\r\n", b"\n").strip() and b"def main" in yangi
+    except Exception as e:
+        log("versiya tekshirilmadi:", repr(e))
+        return False
+
+
 def main():
     if sys.argv[1:] == ["sozla"]:
         return sozla()
@@ -590,8 +603,13 @@ def main():
             print(f"\nBinance rad etdi: {e}\n{XATO_MASLAHAT.get(e.kod, '')}\nKalitni qayta kiritamiz.\n")
             return sozla()
     ij = Ijrochi(birja, x, s, st)
-    ketma_ket = 0
+    ketma_ket, kod_vaqt = 0, time.time()
     while True:
+        if time.time() - kod_vaqt > 1800:  # yangi versiya chiqqan bo'lsa chiqadi, ijro.bat uni yuklab qayta ishga tushiradi
+            kod_vaqt = time.time()
+            if yangi_versiya_bor():
+                x.yubor("🔄 Ijrochining yangi versiyasi topildi, qayta ishga tushyapti.")
+                return
         try:
             ij.qadam()
             ij.saqla()
