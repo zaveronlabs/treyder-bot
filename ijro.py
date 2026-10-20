@@ -535,6 +535,79 @@ def kalit_tozala(matn):
     return matn.strip().strip('"').strip("'").replace(" ", "")
 
 
+def kalit_kirit(s):
+    """API kalitlarini so'raydi va Binance ulanishi ishlamaguncha qayta so'raydi. (birja, futures puli) qaytaradi."""
+    print("Kalitni joylash: sichqonchaning O'NG tugmasini bos (Ctrl+V emas), keyin Enter.\n")
+    while True:
+        s["api_key"] = kalit_tozala(input("API Key: "))
+        s["api_secret"] = kalit_tozala(input("Secret Key: "))
+        print(f"  API Key {len(s['api_key'])} belgi ({s['api_key'][:4]}...), Secret {len(s['api_secret'])} belgi"
+              f" (odatda ikkalasi 64 belgi)")
+        try:
+            birja = Binance(s.get("baza") or BAZA[s["sinov"]], s["api_key"], s["api_secret"])
+            return birja, birja.hisob()[0]
+        except BinanceXato as e:
+            print(f"\n❌ Binance rad etdi: {e}\n   {XATO_MASLAHAT.get(e.kod, '')}\n   Qaytadan kirit.\n")
+        except Exception as e:
+            print(f"\n❌ Ulanib bo'lmadi: {e}\n   Internetni tekshirib, qaytadan kirit.\n")
+
+
+TEKSHIR_BELGI, TEKSHIR_HAJM = "XRPUSDT", 6.0  # tekshiruv savdosi: ~6 USDT pozitsiya (birja eng kami 5), marjasi ~3 USDT
+
+
+def tekshir():
+    """Real pul bilan bitta eng kichik savdo: ochadi, birjaga himoya stopi qo'yadi, yopadi va natijani aytadi.
+    Kalitlar, ruxsatlar va order yo'li ishlashini tekshiradi. Asosiy ijrochi rejimini o'zgartirmaydi."""
+    f = PAPKA / "ijro_sozlama.json"
+    s = json.loads(f.read_text(encoding="utf-8")) if f.exists() else {}
+    s = {**SOZLAMA, **s}
+    x = Xabarchi(s.get("telegram_token") or os.environ.get("TELEGRAM_TOKEN") or eski_token(), "")
+    try:
+        x.chat_id = bulut_holati().get("chat_id")
+    except Exception as e:
+        log("bulut holati o'qilmadi:", repr(e))
+    if s.get("api_key") and s.get("sinov") is False:
+        birja, pul = Binance(BAZA[False], s["api_key"], s["api_secret"]), None
+    else:
+        print("Haqiqiy Binance hisobi kaliti kerak (Futures ruxsati yoqilgan, pul yechish O'CHIQ).\n")
+        s["sinov"] = False
+        birja, pul = kalit_kirit(s)
+        f.write_text(json.dumps(s, ensure_ascii=False, indent=1), encoding="utf-8")  # quruq rejim o'z holicha qoladi
+    rejim = birja.sorov("GET", "/fapi/v1/positionSide/dual", True)
+    if rejim.get("dualSidePosition"):
+        birja.sorov("POST", "/fapi/v1/positionSide/dual", True, dualSidePosition=False)
+    boshi = birja.hisob()[0]
+    print(f"Futures hisobida {boshi:.2f} USDT.")
+    if boshi < TEKSHIR_HAJM / 2 + 1:
+        print(f"❌ Tekshiruv uchun kamida {TEKSHIR_HAJM / 2 + 1:.0f} USDT kerak (Spot'dan Futures'ga o'tkaz).")
+        return
+    ij = Ijrochi(birja, x, s, yangi_holat())
+    belgi = TEKSHIR_BELGI
+    tick, qadam, eng_kam, eng_kam_usdt = ij.q[belgi]
+    try:
+        ij.sozla(belgi)
+        bid, ask = birja.kitob(belgi)
+        miqdor = float(yaxlit(max(TEKSHIR_HAJM, eng_kam_usdt * 1.1) / ask, qadam, ROUND_HALF_UP))
+        print(f"1/3 {belgi}: {miqdor:g} ta sotib olinyapti (limit order, bir necha daqiqagacha kutishi mumkin)...")
+        n, narx = ij.bajar(belgi, 1, miqdor, False)
+        print(f"   ✅ sotib olindi: {n:g} ta, narx {narx:g}")
+        print("2/3 Birjaga himoya stopi qo'yilyapti...")
+        ij.stop_yangila(belgi)
+        print("   ✅ stop qo'yildi")
+    finally:
+        q = birja.hisob()[1].get(belgi, (0, 0, 0))[0]
+        if q:
+            print("3/3 Pozitsiya yopilyapti...")
+            n2, narx2 = ij.bajar(belgi, -1 if q > 0 else 1, abs(q), True)
+            print(f"   ✅ sotildi: {n2:g} ta, narx {narx2:g}")
+        birja.stoplarni_bekor(belgi)
+    oxiri = birja.hisob()[0]
+    matn = (f"Real pul tekshiruvi o'tdi: {belgi} da kichik savdo ochildi, stop qo'yildi va yopildi. "
+            f"Xarajat {boshi - oxiri:.3f} USDT. Hisobda {oxiri:.2f} USDT.")
+    print("\n" + matn)
+    x.yubor(matn)
+
+
 def sozla():
     """Kalitlarni so'rab ijro_sozlama.json yaratadi (kalitlar faqat shu kompyuterda qoladi).
     Binance ulanishi ishlamaguncha qayta so'raydi."""
@@ -549,22 +622,9 @@ def sozla():
         print("\n✅ Kalitsiz sinov rejimi saqlandi: 1000 USDT soxta pul, narxlar haqiqiy Binance'dan.\n")
         return
     s["quruq"] = False
-    print("Kalitni joylash: sichqonchaning O'NG tugmasini bos (Ctrl+V emas), keyin Enter.\n")
     s["sinov"] = input("Sinov (demo) hisobimi? [Enter = ha, real bo'lsa: yo'q]: ").strip().lower() not in (
         "yo'q", "yoq", "n", "no")
-    while True:
-        s["api_key"] = kalit_tozala(input("API Key: "))
-        s["api_secret"] = kalit_tozala(input("Secret Key: "))
-        print(f"  API Key {len(s['api_key'])} belgi ({s['api_key'][:4]}...), Secret {len(s['api_secret'])} belgi"
-              f" (odatda ikkalasi 64 belgi)")
-        try:
-            birja = Binance(s.get("baza") or BAZA[s["sinov"]], s["api_key"], s["api_secret"])
-            pul = birja.hisob()[0]
-            break
-        except BinanceXato as e:
-            print(f"\n❌ Binance rad etdi: {e}\n   {XATO_MASLAHAT.get(e.kod, '')}\n   Qaytadan kirit.\n")
-        except Exception as e:
-            print(f"\n❌ Ulanib bo'lmadi: {e}\n   Internetni tekshirib, qaytadan kirit.\n")
+    birja, pul = kalit_kirit(s)
     if not eski_token() and not s.get("telegram_token"):
         s["telegram_token"] = getpass.getpass("Telegram bot tokeni (ko'rinmaydi): ").strip()
     f.write_text(json.dumps(s, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -585,6 +645,8 @@ def yangi_versiya_bor():
 def main():
     if sys.argv[1:] == ["sozla"]:
         return sozla()
+    if sys.argv[1:] == ["tekshir"]:
+        return tekshir()
     global HOLAT_FAYL
     s, token = sozlamani_oqi()
     if s.get("quruq"):

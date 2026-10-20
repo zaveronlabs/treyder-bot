@@ -21,3 +21,7 @@
 ## Rasmli hisobot
 
 `rasm.py` haftalik hisobotga va Telegramdagi /rasm buyrug'iga rasm chizadi: 1000$ "uchga bo'lish" (🔀), "yarmi qoida + yarmi short" (⚖) va shunchaki BTC ushlab turishda qanday o'zgargani. Tarix alohida saqlanmaydi, qog'oz yo'llar jurnali va 4 soatlik narxlardan qayta hisoblanadi.
+
+## Real pul tekshiruvi
+
+`tekshir.bat` (`python ijro.py tekshir`): haqiqiy Binance kaliti bilan XRPUSDT da ~6 USDT lik bitta savdo ochadi, birjaga himoya stopi qo'yadi va yopadi (marja ~3 USDT, futures hisobida kamida ~4 USDT kerak). Kalitlar, ruxsatlar va order yo'lini tekshiradi; kalitsiz sinov rejimini o'zgartirmaydi.
