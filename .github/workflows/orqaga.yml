@@ -1,11 +1,11 @@
-name: ijro.py ni testnetda tekshirish (kalitsiz qismlar)
+name: Oltin (PAXG) tarixini yig'ish
 permissions:
   contents: write
 on:
   push:
     branches: [orqaga-sinov]
 jobs:
-  tekshir:
+  yigish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -13,20 +13,28 @@ jobs:
           ref: orqaga-sinov
       - shell: bash {0}
         run: |
-          curl -s -o ijro.py https://raw.githubusercontent.com/zaveronlabs/treyder-bot/main/ijro.py
-          cat > t.py <<'PY'
-          import ijro
-          b = ijro.Binance("https://testnet.binancefuture.com", "soxta", "soxta")
-          print("vaqt farqi ms", b.farq)
-          q = b.qoidalar()
-          for s in ("BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT"): print(s, q[s], b.kitob(s))
-          print("yaxlit", ijro.yaxlit(0.0123456, q["BTCUSDT"][1]), ijro.yaxlit(82541.83, q["BTCUSDT"][0]))
-          try: b.hisob()
-          except ijro.BinanceXato as e: print("imzoli soxta kalit:", e.kod, e)
-          h = ijro.bulut_holati()
-          print("holat:", h["oxirgi_sana"], ijro.maqsadlar(h, {"qoida": 0.5, "short": 0.5}), ijro.maqsadlar(h, {"qoida": 1/3, "miya": 1/3, "longshort": 1/3}))
-          print("eskirgan soat", (ijro.time.time() - ijro.sana_soniya(h["oxirgi_sana"])) / 3600)
+          cat > y.py <<'PY'
+          import json, urllib.request, time, csv
+          def ol(sym, tf):
+              out, start = [], 0
+              while True:
+                  u = f"https://data-api.binance.vision/api/v3/klines?symbol={sym}&interval={tf}&startTime={start}&limit=1000"
+                  d = json.load(urllib.request.urlopen(u, timeout=30))
+                  if not d: break
+                  out += d; start = d[-1][0] + 1
+                  if len(d) < 1000: break
+              return out
+          for sym in ("PAXGUSDT",):
+              d = ol(sym, "4h")
+              with open(f"{sym}_4h.csv", "w", newline="") as f:
+                  w = csv.writer(f); [w.writerow([r[0], r[1], r[2], r[3], r[4], r[5]]) for r in d]
+              print(sym, len(d), time.strftime("%Y-%m-%d", time.gmtime(d[0][0]/1000)), time.strftime("%Y-%m-%d", time.gmtime(d[-1][0]/1000)))
+          for u in ("https://fapi.binance.com/fapi/v1/exchangeInfo",):
+              try:
+                  s = json.load(urllib.request.urlopen(u, timeout=20))["symbols"]
+                  print([x["symbol"] for x in s if "XAU" in x["symbol"] or "PAXG" in x["symbol"]])
+              except Exception as e: print("fapi:", e)
           PY
-          python3 t.py > manbalar.txt 2>&1
+          python3 y.py > manbalar.txt 2>&1
           git config user.name treyder-bot; git config user.email treyder-bot@users.noreply.github.com
-          git add manbalar.txt && git commit -qm "ijro tekshiruv natijasi [skip ci]" && git push -q origin HEAD:orqaga-sinov
+          git add manbalar.txt *.csv && git commit -qm "oltin tarixi [skip ci]" && git push -q origin HEAD:orqaga-sinov
