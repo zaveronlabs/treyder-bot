@@ -29,3 +29,7 @@
 ## Kichik pul rejimi
 
 Kerakli pozitsiya Binance eng kam order hajmidan kichik, lekin uning yarmidan katta bo'lsa, ijrochi uni eng kamigacha oshiradi (shu orderning marjasi pulning 30% idan oshmasa). Tarixda (2024..hozir, 🔀) 100-300$ hisoblarda o'tkazib yuborishdan yaxshiroq: masalan 200$ da x4.2 o'rniga x5.2. Birja chegaralari ishga tushganda `ijro_qoidalar.json` ga yoziladi.
+
+## Oltin yo'li (sinov)
+
+9-qog'oz yo'l `oltin`: PAXGUSDT kunlik yopilishi 50 kunlik o'rtachadan yuqori va 20 kunda o'sgan bo'lsa long (2x). Hisobotdagi 🥇 qatori: 80% 🔀 + 20% oltin (oltin yo'li butun pulga keltirilgan). Tarixda (2024..hozir, 0.1% xarajat) 🔀 3581$ (eng chuqur -39%) o'rniga 3445$ (-28%). 4 soatlik qoida oltinda zarar ko'rsatdi.

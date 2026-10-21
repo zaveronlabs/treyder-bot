@@ -119,7 +119,8 @@ def miya_fikri(natijalar):
 
 YOLLAR = {"ikkalasi": "Qoida + miya (asosiy)", "qoida": "Faqat qoida", "miya": "Faqat miya",
           "yangilik": "Qoida + miya + yangiliklar", "ai": "AI treyder (Qwen 14B)", "short": "Miya short (sinov)",
-          "longshort": "Asosiy + short miyasi (sinov)", "qoida_iz": "Faqat qoida + iz chiqish (sinov)"}
+          "longshort": "Asosiy + short miyasi (sinov)", "qoida_iz": "Faqat qoida + iz chiqish (sinov)",
+          "oltin": "Oltin kunlik qoida (sinov)"}
 MIYA_CHEGARA = 0.02  # miya bundan yuqori bashorat bersagina "rozi" (juda zaif "ha" hisobga olinmaydi)
 SHORT_CHEGARA = -0.1  # miya bundan pastroq bashorat bersa short yo'li short ochadi
 SHORT_EHTIMOL = 0.45  # short miyasi tushish ehtimolini bundan yuqori desa (asosiy yo'l naqdda bo'lsa) short
@@ -158,6 +159,26 @@ def short_miya_fikri(natijalar):
     except Exception as xato:
         print("short miya xatosi:", xato)
         return {}
+
+
+def oltin_tekshir(h, sana):
+    """Oltin yo'li (PAXG): kunlik yopilish 50 kunlik o'rtachadan yuqori va 20 kunda o'sgan bo'lsa long.
+    Hisobotda oltin yo'li 5 baravar kattalashtirilib (butun pul x2) 80% 🔀 + 20% oltin birikmasida ishlatiladi."""
+    try:
+        kunlar = http_json(f"{NARX_MANBALARI[0]}/api/v3/klines?symbol=PAXGUSDT&interval=1d&limit=60")
+        sham = yopilishlar("PAXG")
+    except Exception as xato:
+        print("oltin:", xato)
+        return
+    yopiq = [float(k[4]) for k in kunlar if k[6] < time.time() * 1000]
+    narx = sham[-1][4]
+    h["narx"]["PAXG"] = narx
+    kerak = len(yopiq) >= 50 and yopiq[-1] > sum(yopiq[-50:]) / 50 and yopiq[-1] > yopiq[-21]
+    pf = h["portfellar"]["oltin"]
+    if kerak and "PAXG" not in pf["portfel"]:
+        och(pf, "PAXG", narx, sana)
+    elif not kerak and "PAXG" in pf["portfel"]:
+        yop(pf, "PAXG", narx, sana, "oltin trendi tugadi")
 
 
 def yangi_portfel():
@@ -309,6 +330,7 @@ def signallarni_tekshir(h):
                 if y == "ikkalasi":
                     yubor(h, f"🤖🔴 {b}: yopildi\nNarx: {narx:g}, natija {foyda:+.2f} USDT\nSabab: {sabab}"
                              + yangilik_qatori(h, b))
+    oltin_tekshir(h, sana)
     h["oxirgi_sana"] = sana
     if birinchi:
         tugash = time.strftime("%Y-%m-%d", time.gmtime(time.time() + SINOV_KUN * 86400))
@@ -373,7 +395,9 @@ def hisobot_matni(h):
     qatorlar = [f"Sinov boshi: {h.get('sinov_boshi', '?')} (har yo'lga {BOSHLANG_ICH_PUL:.0f} USDT)",
                 f"Taqqoslash: shu davrda BTC {btc:+.1%}"]
     for y, nom in YOLLAR.items():
-        pf = h["portfellar"][y]
+        pf = h["portfellar"].get(y)
+        if pf is None:  # yangi qo'shilgan yo'l keyingi 4 soatlik shamdan boshlanadi
+            continue
         j, pul = pf["jurnal"], jami_pul(h, pf)
         yutuq = sum(x["foyda"] > 0 for x in j)
         qatorlar += ["", f"{nom}: {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})",
@@ -385,6 +409,11 @@ def hisobot_matni(h):
     if {"qoida", "miya", "longshort"} <= h["portfellar"].keys():  # oldingi ma'lumot bilan halol tanlangan birikma
         pul = sum(jami_pul(h, h["portfellar"][y]) for y in ("qoida", "miya", "longshort")) / 3
         qatorlar += [f"🔀 Uchga bo'lib (faqat qoida + faqat miya + asosiy+short): {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})"]
+    if {"qoida", "miya", "longshort", "oltin"} <= h["portfellar"].keys():  # oltin yo'li butun pulga (x5) keltiriladi
+        komb = sum(jami_pul(h, h["portfellar"][y]) for y in ("qoida", "miya", "longshort")) / 3
+        oltin = BOSHLANG_ICH_PUL + 5 * (jami_pul(h, h["portfellar"]["oltin"]) - BOSHLANG_ICH_PUL)
+        pul = 0.8 * komb + 0.2 * oltin
+        qatorlar += [f"🥇 80% uchga bo'lish + 20% oltin: {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})"]
     return "\n".join(qatorlar)
 
 
