@@ -74,6 +74,15 @@ for n in (50, 150, 600):
 mx, mn = h.rolling(20).max(), l.rolling(20).min()
 fe["joy"] = (c - mn) / (mx - mn) * 2 - 1  # 20 shamlik diapazondagi o'rni
 fe["r24"] = np.log(c / c.shift(24)) / (vol * math.sqrt(24))
+if VARIANT == "nisbiy":  # faqat tanganing o'ziga xos belgisi: bozorga nisbatan kuchi
+    fe["nisbiy"] = fe["r24"].sub(fe["r24"].mean(axis=1), axis=0)
+    fe["nisbiy96"] = (np.log(c / c.shift(96)) / (vol * math.sqrt(96))).pipe(lambda x: x.sub(x.mean(axis=1), axis=0))
+if VARIANT == "oltin":
+    g = pd.DataFrame(yukla("PAXG"), columns=["belgi", "vaqt", "open", "high", "low", "close", "hajm"])
+    g["t"] = pd.to_datetime(g.vaqt, unit="ms")
+    gc = g.set_index("t").close.reindex(c.index)
+    gr = np.log(gc / gc.shift(1)); gv = gr.rolling(100, min_periods=50).std()
+    fe["oltin24"] = pd.DataFrame({b: (np.log(gc / gc.shift(24)) / (gv * math.sqrt(24))).fillna(0) for b in belgilar})
 if VARIANT in ("yangi", "kesishma"):
     g = pd.DataFrame(yukla("PAXG"), columns=["belgi", "vaqt", "open", "high", "low", "close", "hajm"])
     g["t"] = pd.to_datetime(g.vaqt, unit="ms")

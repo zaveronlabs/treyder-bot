@@ -1,4 +1,4 @@
-name: Miya yangi belgilar sinovi (bir martalik)
+name: Miya yangi belgilar sinovi 2 (bir martalik)
 on:
   push:
     branches: [orqaga-sinov]
@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variant: [yangi, kesishma]
+        variant: [nisbiy, oltin]
         fold: [0, 1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
       - run: |
           python3 -c "
           import json, glob
-          for v in ['yangi', 'kesishma']:
+          for v in ['nisbiy', 'oltin']:
               d = {'ic': {}, 'p': []}
               for f in sorted(glob.glob(f'natija/uzun-{v}-*/*.json')):
                   x = json.load(open(f)); d['ic'][f] = [x['ic'], x['namuna']]; d['p'] += x['p']
