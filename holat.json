@@ -1,46 +1,52 @@
 {
  "chat_id": 8859413416,
  "update_id": 74030497,
- "oxirgi_sana": "2026-10-21 00:00",
+ "oxirgi_sana": "2026-10-21 04:00",
  "holat": {
-  "BTC": 0,
+  "BTC": 1,
   "ETH": 0,
   "SOL": 0,
-  "BNB": 0,
+  "BNB": 1,
   "XRP": 0
  },
  "narx": {
-  "BTC": 82793.08,
-  "ETH": 2444.3,
-  "SOL": 105.86,
-  "BNB": 740.37,
-  "XRP": 1.3324,
+  "BTC": 83153.78,
+  "ETH": 2456.24,
+  "SOL": 106.83,
+  "BNB": 747.46,
+  "XRP": 1.3465,
   "DOGE": 0.08007,
   "ADA": 0.2228,
   "AVAX": 9.897,
   "LINK": 12.074,
   "LTC": 59.36,
-  "PAXG": 4125.6
+  "PAXG": 4130.47
  },
  "rejim": "4h-5-avto3",
  "miya": {
-  "BTC": 0.21420964919356789,
-  "ETH": 0.15121497812026174,
-  "SOL": 0.13982834642257305,
-  "BNB": -0.014810204358804896,
-  "XRP": -0.08411056491554643,
-  "DOGE": -0.008087229437048263,
-  "ADA": 0.18316870533384128,
-  "AVAX": 0.09260082765987725,
-  "LINK": 0.3474480983802523,
-  "LTC": 0.25899734129090307
+  "BTC": 0.2084470407060938,
+  "ETH": 0.07690335289831719,
+  "SOL": 0.054981598154688095,
+  "BNB": -0.07532696446820535,
+  "XRP": -0.18043692627343022,
+  "DOGE": -0.01925723706330612,
+  "ADA": 0.13858419087063495,
+  "AVAX": -0.01810973643355,
+  "LINK": 0.23442766755232658,
+  "LTC": 0.24372763918057816
  },
  "sinov_boshi": "2026-10-17 20:00",
  "oxirgi_hisobot": 1792281662.0175865,
  "btc_boshi": 81491.04,
  "portfellar": {
   "ikkalasi": {
-   "portfel": {},
+   "portfel": {
+    "BTC": {
+     "miqdor": 0.004810364603990342,
+     "kirish_narx": 83153.78,
+     "kirish_sana": "2026-10-21 04:00"
+    }
+   },
    "jurnal": [
     {
      "belgi": "BTC",
@@ -52,11 +58,22 @@
      "sabab": "trend tugadi"
     }
    ],
-   "naqd": 998.1827320733992,
-   "komissiya": 0.3992910115424709
+   "naqd": 797.9827320733991,
+   "komissiya": 0.5992910115424709
   },
   "qoida": {
-   "portfel": {},
+   "portfel": {
+    "BTC": {
+     "miqdor": 0.004810364603990342,
+     "kirish_narx": 83153.78,
+     "kirish_sana": "2026-10-21 04:00"
+    },
+    "BNB": {
+     "miqdor": 0.5351456934150323,
+     "kirish_narx": 747.46,
+     "kirish_sana": "2026-10-21 04:00"
+    }
+   },
    "jurnal": [
     {
      "belgi": "BTC",
@@ -77,8 +94,8 @@
      "sabab": "trend tugadi"
     }
    ],
-   "naqd": 996.9400261848596,
-   "komissiya": 0.7988694478163381
+   "naqd": 596.5400261848595,
+   "komissiya": 1.198869447816338
   },
   "miya": {
    "portfel": {
@@ -183,7 +200,13 @@
    "komissiya": 0.3990939984975323
   },
   "yangilik": {
-   "portfel": {},
+   "portfel": {
+    "BTC": {
+     "miqdor": 0.004810364603990342,
+     "kirish_narx": 83153.78,
+     "kirish_sana": "2026-10-21 04:00"
+    }
+   },
    "jurnal": [
     {
      "belgi": "BTC",
@@ -195,11 +218,18 @@
      "sabab": "trend tugadi"
     }
    ],
-   "naqd": 998.1827320733992,
-   "komissiya": 0.3992910115424709
+   "naqd": 797.9827320733991,
+   "komissiya": 0.5992910115424709
   },
   "short": {
-   "portfel": {},
+   "portfel": {
+    "XRP": {
+     "miqdor": 297.06646862235425,
+     "kirish_narx": 1.3465,
+     "kirish_sana": "2026-10-21 04:00",
+     "yon": -1
+    }
+   },
    "jurnal": [
     {
      "belgi": "BTC",
@@ -220,11 +250,17 @@
      "sabab": "miya endi tushish kutmayapti (-0.10)"
     }
    ],
-   "naqd": 996.2885293982871,
-   "komissiya": 0.8014550077969581
+   "naqd": 796.0885293982872,
+   "komissiya": 1.0014550077969582
   },
   "longshort": {
-   "portfel": {},
+   "portfel": {
+    "BTC": {
+     "miqdor": 0.004810364603990342,
+     "kirish_narx": 83153.78,
+     "kirish_sana": "2026-10-21 04:00"
+    }
+   },
    "jurnal": [
     {
      "belgi": "BTC",
@@ -254,11 +290,22 @@
      "sabab": "signal tugadi"
     }
    ],
-   "naqd": 1000.4328193295819,
-   "komissiya": 1.1977667300551231
+   "naqd": 800.2328193295818,
+   "komissiya": 1.397766730055123
   },
   "qoida_iz": {
-   "portfel": {},
+   "portfel": {
+    "BTC": {
+     "miqdor": 0.004810364603990342,
+     "kirish_narx": 83153.78,
+     "kirish_sana": "2026-10-21 04:00"
+    },
+    "BNB": {
+     "miqdor": 0.5351456934150323,
+     "kirish_narx": 747.46,
+     "kirish_sana": "2026-10-21 04:00"
+    }
+   },
    "jurnal": [
     {
      "belgi": "BTC",
@@ -279,8 +326,8 @@
      "sabab": "trend tugadi"
     }
    ],
-   "naqd": 996.0435902703191,
-   "komissiya": 0.7984210056379786,
+   "naqd": 595.643590270319,
+   "komissiya": 1.1984210056379785,
    "blok": {}
   },
   "oltin": {
@@ -354,46 +401,46 @@
  },
  "ai_vaqt": "2026-10-21 04:22",
  "yangilik": {
-  "vaqt": "2026-10-21 03:24",
+  "vaqt": "2026-10-21 07:24",
   "soni": 50,
   "model": "qwen2.5:7b",
   "bozor": {
-   "baho": 0.01,
-   "izoh": "Umumiy bozor: 50 ta yangilik (11 yaxshi, 12 yomon). Kayfiyat betaraf."
+   "baho": -0.01,
+   "izoh": "Umumiy bozor: 50 ta yangilik (15 yaxshi, 16 yomon). Kayfiyat betaraf."
   },
   "tangalar": {
    "BTC": {
-    "baho": 0.11,
-    "izoh": "Bitcoin haqida 19 ta yangilik (7 yaxshi, 2 yomon). Kayfiyat ijobiy."
+    "baho": 0.22,
+    "izoh": "Bitcoin haqida 17 ta yangilik (11 yaxshi, 0 yomon). Kayfiyat ijobiy."
    },
    "ETH": {
-    "baho": -0.08,
-    "izoh": "Ethereum haqida 3 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat salbiy."
+    "baho": -0.01,
+    "izoh": "Ethereum haqida 2 ta yangilik (1 yaxshi, 1 yomon). Kayfiyat betaraf."
    },
    "SOL": {
-    "baho": 0.01,
-    "izoh": "Solana haqida 1 ta yangilik (0 yaxshi, 0 yomon). Kayfiyat betaraf."
+    "baho": 0.24,
+    "izoh": "Solana haqida 1 ta yangilik (1 yaxshi, 0 yomon). Kayfiyat ijobiy."
    },
    "BNB": {
-    "baho": -0.24,
+    "baho": -0.26,
     "izoh": "BNB haqida 1 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat salbiy."
    },
    "XRP": {
-    "baho": 0.01,
-    "izoh": "Alohida yangilik yo'q, umumiy bozorga qaraldi."
+    "baho": -0.26,
+    "izoh": "XRP haqida 1 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat salbiy."
    }
   }
  },
  "short_miya": {
-  "BTC": 0.36386603622183394,
-  "ETH": 0.08082138577385045,
-  "SOL": 0.1455950964389746,
-  "BNB": 0.15131559661341337,
-  "XRP": 0.21357572689665918,
-  "DOGE": 0.09720213312576961,
-  "ADA": 0.1400648690084647,
-  "AVAX": 0.1668138819831249,
-  "LINK": 0.13559361679187468,
-  "LTC": 0.13995274895696452
+  "BTC": 0.394350507846124,
+  "ETH": 0.08988004908335558,
+  "SOL": 0.1268365365981873,
+  "BNB": 0.1466158134584987,
+  "XRP": 0.22639509921516032,
+  "DOGE": 0.1038657539274377,
+  "ADA": 0.1360531137655594,
+  "AVAX": 0.20519057220412218,
+  "LINK": 0.16357444961504816,
+  "LTC": 0.13857037873636524
  }
 }
