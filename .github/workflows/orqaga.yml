@@ -1,40 +1,51 @@
-name: Oltin (PAXG) tarixini yig'ish
-permissions:
-  contents: write
+name: Miya yangi belgilar sinovi (bir martalik)
 on:
   push:
     branches: [orqaga-sinov]
+permissions:
+  contents: write
 jobs:
+  sinov:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [yangi, kesishma]
+        fold: [0, 1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: orqaga-sinov
+      - name: O'qitish
+        run: |
+          pip install -q numpy pandas
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          python3 uzun_miya.py ${{ matrix.fold }} ${{ matrix.variant }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: uzun-${{ matrix.variant }}-${{ matrix.fold }}
+          path: uzun_${{ matrix.variant }}_${{ matrix.fold }}.json
   yigish:
+    needs: sinov
+    if: always()
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: orqaga-sinov
-      - shell: bash {0}
-        run: |
-          cat > y.py <<'PY'
-          import json, urllib.request, time, csv
-          def ol(sym, tf):
-              out, start = [], 0
-              while True:
-                  u = f"https://data-api.binance.vision/api/v3/klines?symbol={sym}&interval={tf}&startTime={start}&limit=1000"
-                  d = json.load(urllib.request.urlopen(u, timeout=30))
-                  if not d: break
-                  out += d; start = d[-1][0] + 1
-                  if len(d) < 1000: break
-              return out
-          for sym in ("PAXGUSDT",):
-              d = ol(sym, "4h")
-              with open(f"{sym}_4h.csv", "w", newline="") as f:
-                  w = csv.writer(f); [w.writerow([r[0], r[1], r[2], r[3], r[4], r[5]]) for r in d]
-              print(sym, len(d), time.strftime("%Y-%m-%d", time.gmtime(d[0][0]/1000)), time.strftime("%Y-%m-%d", time.gmtime(d[-1][0]/1000)))
-          for u in ("https://fapi.binance.com/fapi/v1/exchangeInfo",):
-              try:
-                  s = json.load(urllib.request.urlopen(u, timeout=20))["symbols"]
-                  print([x["symbol"] for x in s if "XAU" in x["symbol"] or "PAXG" in x["symbol"]])
-              except Exception as e: print("fapi:", e)
-          PY
-          python3 y.py > manbalar.txt 2>&1
+      - uses: actions/download-artifact@v4
+        with:
+          path: natija
+      - run: |
+          python3 -c "
+          import json, glob
+          for v in ['yangi', 'kesishma']:
+              d = {'ic': {}, 'p': []}
+              for f in sorted(glob.glob(f'natija/uzun-{v}-*/*.json')):
+                  x = json.load(open(f)); d['ic'][f] = [x['ic'], x['namuna']]; d['p'] += x['p']
+              json.dump(d, open(f'uzun_natija_{v}.json', 'w'))
+              print(v, d['ic'])"
           git config user.name treyder-bot; git config user.email treyder-bot@users.noreply.github.com
-          git add manbalar.txt *.csv && git commit -qm "oltin tarixi [skip ci]" && git push -q origin HEAD:orqaga-sinov
+          git add uzun_natija_*.json && git commit -qm "yangi belgilar sinovi natijasi [skip ci]" && git pull -q --rebase origin orqaga-sinov && git push -q origin HEAD:orqaga-sinov

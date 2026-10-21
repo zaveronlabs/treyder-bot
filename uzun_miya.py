@@ -11,7 +11,8 @@ L, H = 64, 12
 D, QAT, BOSH, EPOX, BATCH = 64, 4, 4, 4, 256
 TEST_BOSHI, QADAM_OY = "2024-01-01", 6
 SEEDS = [0, 1, 2]
-ORG_BOSHI = pd.Timestamp("2019-01-01" if VARIANT == "uzun" else "2022-10-18 20:00")
+ORG_BOSHI = pd.Timestamp("2022-10-18 20:00" if VARIANT == "qisqa" else "2019-01-01")
+# yangi: uzun + bozorlararo belgilar + vaqt; kesishma: uzun + faqat bozorlararo belgilar
 
 
 def yukla(b):
@@ -73,7 +74,25 @@ for n in (50, 150, 600):
 mx, mn = h.rolling(20).max(), l.rolling(20).min()
 fe["joy"] = (c - mn) / (mx - mn) * 2 - 1  # 20 shamlik diapazondagi o'rni
 fe["r24"] = np.log(c / c.shift(24)) / (vol * math.sqrt(24))
+if VARIANT in ("yangi", "kesishma"):
+    g = pd.DataFrame(yukla("PAXG"), columns=["belgi", "vaqt", "open", "high", "low", "close", "hajm"])
+    g["t"] = pd.to_datetime(g.vaqt, unit="ms")
+    gc = g.set_index("t").close.reindex(c.index)
+    gr = np.log(gc / gc.shift(1)); gv = gr.rolling(100, min_periods=50).std()
+    hamma = lambda s: pd.DataFrame({b: s for b in belgilar})
+    fe["oltin"] = hamma((gr / gv).fillna(0))                                   # oltin harakati
+    fe["oltin24"] = hamma((np.log(gc / gc.shift(24)) / (gv * math.sqrt(24))).fillna(0))
+    eb = np.log(c["ETH/USDT"] / c["BTC/USDT"])
+    fe["ethbtc"] = hamma(((eb - eb.shift(24)) / (vol["BTC/USDT"] * math.sqrt(24))).fillna(0))  # altlar kuchimi
+    fe["nisbiy"] = fe["r24"].sub(fe["r24"].mean(axis=1), axis=0)              # tanga bozordan kuchlimi
+    fe["kenglik"] = hamma((c > c.ewm(span=150, adjust=False).mean()).mean(axis=1) * 2 - 1)  # nechta tanga trendda
+    fe["btc_e150"] = hamma(fe["e150"]["BTC/USDT"])
+    if VARIANT == "yangi":
+        soat = c.index.hour.values / 24 * 2 * math.pi; kun = c.index.dayofweek.values / 7 * 2 * math.pi
+        for nom, qiymat in (("soat_s", np.sin(soat)), ("soat_c", np.cos(soat)), ("kun_s", np.sin(kun)), ("kun_c", np.cos(kun))):
+            fe[nom] = pd.DataFrame({b: qiymat for b in belgilar}, index=c.index)
 FN = list(fe)
+print("belgilar soni:", len(FN), FN, flush=True)
 X = np.stack([fe[k].clip(-6, 6).values for k in FN], -1).astype(np.float32)  # [T, C, F]
 kelajak = r.rolling(H).sum().shift(-H)
 Y = (kelajak / (vol * math.sqrt(H))).clip(-3, 3).values.astype(np.float32)   # [T, C]
