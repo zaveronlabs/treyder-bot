@@ -51,6 +51,8 @@ def yukla(b):
 B10 = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "LTC"]
 # "kop" rejimi: miya 30 ta tangada o'qiydi (3 baravar ko'p misol), lekin baho faqat asosiy 10 tangada (taqqoslash uchun)
 KOP = "kop" in sys.argv[1:]
+if "s10" in sys.argv[1:]:  # ko'p nusxa: 10 ta miya o'rtachasi (shovqin kamayadimi)
+    SEEDS = list(range(10))
 B30 = B10 + ["DOT", "TRX", "ATOM", "NEAR", "UNI", "BCH", "ETC", "FIL", "XLM", "ALGO",
              "AAVE", "SAND", "MANA", "EGLD", "ICP", "OP", "INJ", "APT", "THETA", "VET"]
 d = pd.DataFrame(sum((yukla(b) for b in (B30 if KOP else B10)), []), columns=["belgi", "vaqt", "open", "high", "low", "close", "hajm"])
@@ -190,7 +192,7 @@ def bashorat(m, tt, jj, L):
 
 def sinov(nom):
     D, Q, B, L, EPOX, BATCH = {**OLCHAMLAR, **TUTUN}[nom]
-    fayl = PAPKA / f"natija_{'kop_' if KOP else ''}{nom}.json"
+    fayl = PAPKA / f"natija_{'kop_' if KOP else ''}{nom}{'_s10' if len(SEEDS) == 10 else ''}.json"
     natija = json.loads(fayl.read_text()) if fayl.exists() else {"ic": {}, "p": []}
     okx = ok_x(L)
     t_org0 = int(np.searchsorted(vaqt, ORG_BOSHI))
@@ -219,11 +221,11 @@ def sinov(nom):
         fayl.write_text(json.dumps(natija))
         log(f"{nom} {bosh:%Y-%m}: IC {ic:+.3f}, {time.time() - t0:.0f} soniya")
     ics = [natija["ic"][str(f)][0] for f in range(FOLDLAR)]
-    log(f"=== {'30 tanga, ' if KOP else ''}{nom}: o'rtacha IC {np.mean(ics):+.3f} ({', '.join(f'{x:+.3f}' for x in ics)})")
+    log(f"=== {'30 tanga, ' if KOP else ''}{len(SEEDS)} nusxa, {nom}: o'rtacha IC {np.mean(ics):+.3f} ({', '.join(f'{x:+.3f}' for x in ics)})")
 
 
 if __name__ == "__main__":
     log("qurilma:", QURILMA, torch.cuda.get_device_name(0) if QURILMA == "cuda" else "", "| belgilar:", NF, "| namunalar davri:", vaqt[0], "..", vaqt[-1])
-    for nom in ([a for a in sys.argv[1:] if a != "kop"] or (["kichik", "orta"] if KOP else list(OLCHAMLAR))):
+    for nom in ([a for a in sys.argv[1:] if a not in ("kop", "s10")] or (["kichik", "orta"] if KOP else list(OLCHAMLAR))):
         sinov(nom)
     log("TAYYOR")
