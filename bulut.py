@@ -120,7 +120,8 @@ def miya_fikri(natijalar):
 YOLLAR = {"ikkalasi": "Qoida + miya (asosiy)", "qoida": "Faqat qoida", "miya": "Faqat miya",
           "yangilik": "Qoida + miya + yangiliklar", "ai": "AI treyder (Qwen 14B)", "short": "Miya short (sinov)",
           "longshort": "Asosiy + short miyasi (sinov)", "qoida_iz": "Faqat qoida + iz chiqish (sinov)",
-          "oltin": "Oltin kunlik qoida (sinov)"}
+          "oltin": "Oltin kunlik qoida (sinov)", "ikki_tub": "Ikki tub shakli (sinov)",
+          "qoida_tub": "Qoida yoki ikki tub (sinov)"}
 MIYA_CHEGARA = 0.02  # miya bundan yuqori bashorat bersagina "rozi" (juda zaif "ha" hisobga olinmaydi)
 SHORT_CHEGARA = -0.1  # miya bundan pastroq bashorat bersa short yo'li short ochadi
 SHORT_EHTIMOL = 0.45  # short miyasi tushish ehtimolini bundan yuqori desa (asosiy yo'l naqdda bo'lsa) short
@@ -159,6 +160,48 @@ def short_miya_fikri(natijalar):
     except Exception as xato:
         print("short miya xatosi:", xato)
         return {}
+
+
+TUB_K, TUB_TENG, TUB_CHUQUR, TUB_KUT, TUB_USHLASH = 5, 0.015, 0.03, 40, 12
+
+
+def ikki_tub(sham):
+    """Oxirgi yopilgan shamda "ikki tub" (double bottom) bo'yni yuqoriga yorildimi.
+    Tub-cho'qqi-tub (K sham chap/o'ngda tasdiqlangan), tublar 1.5% ichida teng, cho'qqi tublardan kamida 3% baland;
+    ikkinchi tub tasdiqlangandan keyin 40 sham ichida yopilish cho'qqidan birinchi marta oshsa signal
+    (oraliqda narx tublardan 1% pastga tushsa shakl bekor). Tarixda 2024..: 12 sham ichida o'rtacha +1%."""
+    hi, lo, cl = [x[2] for x in sham], [x[3] for x in sham], [x[4] for x in sham]
+    n, K = len(sham), TUB_K
+    piv = []
+    for i in range(K, n - K):
+        if hi[i] == max(hi[i - K:i + K + 1]):
+            piv.append((i, "H", hi[i]))
+        if lo[i] == min(lo[i - K:i + K + 1]):
+            piv.append((i, "L", lo[i]))
+    alt = []
+    for p in piv:  # cho'qqi va tublar almashib kelsin
+        if alt and alt[-1][1] == p[1]:
+            if (p[1] == "H" and p[2] > alt[-1][2]) or (p[1] == "L" and p[2] < alt[-1][2]):
+                alt[-1] = p
+        else:
+            alt.append(p)
+    t = n - 1
+    for k in range(2, len(alt)):
+        l1, h1, l2 = alt[k - 2:k + 1]
+        if (l1[1], h1[1], l2[1]) != ("L", "H", "L") or not l2[0] + K <= t < l2[0] + K + TUB_KUT:
+            continue
+        if abs(l2[2] / l1[2] - 1) >= TUB_TENG or h1[2] / max(l1[2], l2[2]) - 1 <= TUB_CHUQUR:
+            continue
+        bekor = min(l1[2], l2[2]) * 0.99
+        if any(cl[tt] > h1[2] or lo[tt] < bekor for tt in range(l2[0] + K, t)):
+            continue  # oldinroq yorilgan yoki shakl buzilgan
+        if cl[t] > h1[2]:
+            return True
+    return False
+
+
+def sana_soniya(sana):
+    return calendar.timegm(time.strptime(sana, "%Y-%m-%d %H:%M"))
 
 
 def oltin_tekshir(h, sana):
@@ -283,6 +326,8 @@ def signallarni_tekshir(h):
         for k in ["portfel", "jurnal", "naqd", "komissiya", "signallar"]:
             h.pop(k, None)
     for y in YOLLAR:  # keyin qo'shilgan yo'l boshqalarini nolga tushirmasdan qo'shiladi
+        if y == "qoida_tub" and y not in h["portfellar"] and "qoida" in h["portfellar"]:
+            h["portfellar"][y] = json.loads(json.dumps(h["portfellar"]["qoida"]))  # qoida tarixidan boshlanadi
         h["portfellar"].setdefault(y, yangi_portfel())
     h["miya"] = miya_fikri(natijalar)
     h["short_miya"] = short_miya_fikri(natijalar)
@@ -294,6 +339,10 @@ def signallarni_tekshir(h):
         p = h["miya"].get(b)
         miya_ha = p is not None and p > MIYA_CHEGARA
         kerak = {"qoida": bool(yangi), "miya": miya_ha, "ikkalasi": bool(yangi) and (miya_ha or p is None)}
+        tp = h["portfellar"]["ikki_tub"]["portfel"].get(b)
+        kerak["ikki_tub"] = ikki_tub(natijalar[b]) or bool(
+            tp and sana_soniya(sana) - sana_soniya(tp["kirish_sana"]) < TUB_USHLASH * 4 * 3600)
+        kerak["qoida_tub"] = bool(yangi) or kerak["ikki_tub"]
         yb = h["yangilik"].get("tangalar", {}).get(b, {}).get("baho")
         kerak["yangilik"] = kerak["ikkalasi"] and (yb is None or yb >= YANGILIK_CHEGARA)
         kerak["short"] = p is not None and p < SHORT_CHEGARA
@@ -324,6 +373,8 @@ def signallarni_tekshir(h):
                     sabab = "signal tugadi"
                 elif y == "short":
                     sabab = f"miya endi tushish kutmayapti ({p:+.2f})" if p is not None else "miya yo'q"
+                elif y in ("ikki_tub", "qoida_tub"):
+                    sabab = "ikki tubdan keyin 2 kun o'tdi" if y == "ikki_tub" or not yangi else "trend tugadi"
                 else:
                     sabab = "trend tugadi" if y in ("qoida", "qoida_iz") else f"miya salbiy ({p:+.2f})" if p is not None else "miya yo'q"
                 foyda = yop(pf, b, narx, sana, sabab)
@@ -409,6 +460,9 @@ def hisobot_matni(h):
     if {"qoida", "miya", "longshort"} <= h["portfellar"].keys():  # oldingi ma'lumot bilan halol tanlangan birikma
         pul = sum(jami_pul(h, h["portfellar"][y]) for y in ("qoida", "miya", "longshort")) / 3
         qatorlar += [f"🔀 Uchga bo'lib (faqat qoida + faqat miya + asosiy+short): {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})"]
+    if {"qoida_tub", "miya", "longshort"} <= h["portfellar"].keys():
+        pul = sum(jami_pul(h, h["portfellar"][y]) for y in ("qoida_tub", "miya", "longshort")) / 3
+        qatorlar += [f"🔲 Uchga bo'lib, qoida o'rniga qoida yoki ikki tub: {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})"]
     if {"qoida", "miya", "longshort", "oltin"} <= h["portfellar"].keys():  # oltin yo'li butun pulga (x5) keltiriladi
         komb = sum(jami_pul(h, h["portfellar"][y]) for y in ("qoida", "miya", "longshort")) / 3
         oltin = BOSHLANG_ICH_PUL + 5 * (jami_pul(h, h["portfellar"]["oltin"]) - BOSHLANG_ICH_PUL)
