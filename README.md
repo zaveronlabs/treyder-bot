@@ -33,3 +33,7 @@ Kerakli pozitsiya Binance eng kam order hajmidan kichik, lekin uning yarmidan ka
 ## Oltin yo'li (sinov)
 
 9-qog'oz yo'l `oltin`: PAXGUSDT kunlik yopilishi 50 kunlik o'rtachadan yuqori va 20 kunda o'sgan bo'lsa long (2x). Hisobotdagi 🥇 qatori: 80% 🔀 + 20% oltin (oltin yo'li butun pulga keltirilgan). Tarixda (2024..hozir, 0.1% xarajat) 🔀 3581$ (eng chuqur -39%) o'rniga 3445$ (-28%). 4 soatlik qoida oltinda zarar ko'rsatdi.
+
+## Katta miya sinovi (videokartada)
+
+`katta_miya.bat` (`katta_miya.py`): Gojo kompyuteridagi NVIDIA videokartada hozirgi miya bilan bir xil ma'lumot va walk-forward sinovda (2024-01 dan 6 ta yarim yil, 3 seed) kichik (0.17M), o'rta (1M) va katta (5.3M parametr) modellarni o'qitadi. Natija va jurnal `katta/` papkasida; to'xtab qolsa qayta ishga tushirilganda davom etadi.
