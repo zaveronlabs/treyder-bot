@@ -25,3 +25,7 @@
 ## Real pul tekshiruvi
 
 `tekshir.bat` (`python ijro.py tekshir`): haqiqiy Binance kaliti bilan XRPUSDT da ~6 USDT lik bitta savdo ochadi, birjaga himoya stopi qo'yadi va yopadi (marja ~3 USDT, futures hisobida kamida ~4 USDT kerak). Kalitlar, ruxsatlar va order yo'lini tekshiradi; kalitsiz sinov rejimini o'zgartirmaydi.
+
+## Kichik pul rejimi
+
+Kerakli pozitsiya Binance eng kam order hajmidan kichik, lekin uning yarmidan katta bo'lsa, ijrochi uni eng kamigacha oshiradi (shu orderning marjasi pulning 30% idan oshmasa). Tarixda (2024..hozir, 🔀) 100-300$ hisoblarda o'tkazib yuborishdan yaxshiroq: masalan 200$ da x4.2 o'rniga x5.2. Birja chegaralari ishga tushganda `ijro_qoidalar.json` ga yoziladi.

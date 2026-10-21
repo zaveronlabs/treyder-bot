@@ -28,7 +28,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from decimal import ROUND_DOWN, ROUND_HALF_UP, Decimal
+from decimal import ROUND_DOWN, ROUND_HALF_UP, ROUND_UP, Decimal
 from pathlib import Path
 
 BELGILAR = ["BTC", "ETH", "SOL", "BNB", "XRP"]  # bulut.py SIGNAL_BELGILAR bilan bir xil
@@ -43,6 +43,8 @@ TUSHISH = 0.20  # pog'ona ichidagi cho'qqidan shuncha tushsa bir pog'ona pastga
 KUNLIK_ZARAR = 0.10  # kun boshidagi puldan shuncha yo'qotilsa hammasi yopiladi, ertasigacha savdo yo'q
 STOP_ULUSH = 0.6  # pozitsiya marjasining 60% i yo'qolsa birja stopi yopadi (likvidatsiyadan oldin)
 PUL_ULUSHI = 0.97  # komissiya va narx siljishi uchun pulning 3% i chetda turadi
+YAXLITLASH = 0.5  # kichik pul: kerakli hajm birja eng kamining shu qismidan katta bo'lsa eng kamigacha oshiriladi
+YAXLITLASH_CHEGARA = 0.3  # ...lekin eng kam order marjasi pulning 30% idan oshmasa
 ESKIRISH = 8.5 * 3600  # bulutdagi bot shuncha vaqt yangi shamni qayta ishlamasa xabar beriladi
 LIMIT_URINISH, LIMIT_KUTISH = 5, 60  # limit orderni 5 marta, har birini 60 soniya kutib qayta narxlaydi
 
@@ -283,6 +285,11 @@ class Ijrochi:
     def __init__(self, birja, xabarchi, sozlama, holat):
         self.b, self.x, self.s, self.st = birja, xabarchi, sozlama, holat
         self.q = birja.qoidalar()
+        try:  # birja chegaralari faylga yoziladi (kichik pul rejimini tekshirish uchun)
+            (PAPKA / "ijro_qoidalar.json").write_text(json.dumps(
+                {b + "USDT": self.q.get(b + "USDT") for b in BELGILAR}, indent=1), encoding="utf-8")
+        except OSError:
+            pass
         self.h, self.h_vaqt = None, 0
 
     def lev(self):
@@ -362,6 +369,12 @@ class Ijrochi:
         narx = (bid + ask) / 2
         kerak = ulush * pul * PUL_ULUSHI * self.lev() / narx
         kerak = float(yaxlit(kerak, qadam, ROUND_HALF_UP)) * (1 if kerak > 0 else -1)
+        if kerak and eng_kam_usdt * YAXLITLASH <= abs(kerak) * narx < eng_kam_usdt:
+            # kichik pul rejimi: kerakli hajm birja eng kamining yarmidan katta bo'lsa, eng kamigacha oshiriladi
+            # (tarixda 100-300$ hisoblarda o'tkazib yuborishdan yaxshiroq natija berdi), marjasi juda katta bo'lmasa
+            eng_kam_miqdor = float(yaxlit(eng_kam_usdt * 1.02 / narx, qadam, ROUND_UP))
+            if eng_kam_miqdor * narx / self.lev() <= pul * YAXLITLASH_CHEGARA:
+                kerak = eng_kam_miqdor * (1 if kerak > 0 else -1)
         if kerak and abs(kerak) * narx < eng_kam_usdt:
             self.x.yubor(f"{b}: kerakli pozitsiya {abs(kerak) * narx:.0f} USDT, birja eng kami {eng_kam_usdt:.0f} USDT. "
                          f"Pul kam bo'lgani uchun bu tanga o'tkazib yuborildi.", f"kam_{b}", 86400)
