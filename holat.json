@@ -426,70 +426,69 @@
  },
  "ai_sham": "2026-10-18 00:00",
  "ai": {
-  "sham": "2026-10-21 12:00",
-  "vaqt": "2026-10-21 16:23",
+  "sham": "2026-10-21 16:00",
+  "vaqt": "2026-10-21 20:18",
   "model": "qwen2.5:14b",
   "tangalar": {
    "BTC": {
-    "tahlil": "BTC/USDT is in a clear uptrend with the EMA 50/150/600 trend rule intact. The price structure shows a higher high and higher low pattern, indicating strength. The price is near resistance at 84972.01, but the RSI is overbought at 68.8, suggesting caution. Volume is healthy, confirming the price action. The daily timeframe aligns with the 4-hour trend, and the ML model forecast is slightly positive. The market news score is neutral, and the Fear & Greed index is moderate.",
+    "tahlil": "BTC/USDT is in a strong uptrend with the EMA 50/150/600 trend rule intact. The price structure shows a higher high and higher low pattern, indicating bullish continuation. The price is near resistance at 84972.01, but the RSI is overbought at 68.2, suggesting potential near-term pullback. Volume is slightly above average, confirming the price action. The daily timeframe aligns with the 4-hour trend, and the ML forecast and news score are slightly positive.",
     "qaror": "kutish",
-    "ishonch": 75,
+    "ishonch": 70,
     "sabablar": [
      "qarshilik_yaqin",
      "kunlik_salbiy"
     ],
-    "narx": 84540.01
+    "narx": 84489.59
    },
    "ETH": {
-    "tahlil": "ETH/USDT is currently in a bearish market structure with a recent higher high and higher low pattern, but the trend is not aligned with the broader BTC context. The price is near resistance at 2530.44, and the RSI is overbought at 65.6, indicating potential near-term weakness. Volume is slightly above average, but the ML forecast is slightly negative, and the news score is positive, suggesting a cautious approach.",
+    "tahlil": "ETH/USDT is currently in a bearish market structure with higher highs and higher lows, but the trend is not following the EMA trend rule. The price is near resistance at 2530.44, and the RSI is overbought at 61.2, indicating potential overextension. The daily structure is bearish, and the ML forecast is slightly negative (-0.018), suggesting a possible downturn. The market context for BTC is trending upwards, but ETH is not aligning with this trend, increasing the risk of a correction.",
     "qaror": "kutish",
-    "ishonch": 60,
+    "ishonch": 70,
     "sabablar": [
      "trend_past",
      "qarshilik_yaqin",
      "kunlik_salbiy",
      "miya_qarshi"
     ],
-    "narx": 2512.54
+    "narx": 2494.54
    },
    "SOL": {
-    "tahlil": "SOL/USDT is currently in a sideways market structure with a recent higher high and higher low, indicating some bullish momentum. However, the trend rule is not satisfied, and the RSI is in overbought territory at 63.3, suggesting potential near-term correction. The daily timeframe shows a similar sideways pattern, and the ML forecast is slightly negative (-0.171). The price is close to resistance at 108.96, adding to the caution.",
+    "tahlil": "SOL/USDT is currently in an ambiguous market structure with a mix of higher highs and lower lows, indicating a lack of clear trend direction. The price is near resistance at 108.67, and the RSI is in overbought territory at 62.3, suggesting potential for a pullback. The daily timeframe shows a similar ambiguous structure, with the price above the 50 EMA but below the 150 EMA, indicating a weak trend. The ML forecast is slightly negative, and the news score is neutral, adding to the cautious outlook.",
     "qaror": "kutish",
-    "ishonch": 70,
+    "ishonch": 30,
     "sabablar": [
      "trend_past",
      "qarshilik_yaqin",
      "miya_qarshi"
     ],
-    "narx": 108.49
+    "narx": 108.31
    },
    "BNB": {
-    "tahlil": "BNB/USDT is currently in a bearish structure with lower highs and lower lows, indicating a downtrend. The price is near resistance at 753.86, and the RSI is overbought at 68.6, suggesting potential for a pullback or reversal. The daily context shows an uptrend but the 4-hour timeframe is conflicting, with a recent breakout above the swing high, yet the overall trend is bearish. The ML forecast is slightly negative, and the news score is positive, adding some uncertainty.",
+    "tahlil": "BNB/USDT is currently in a bearish structure with lower highs and lower lows, indicating a downtrend. The price is near resistance at 753.86, and the RSI is overbought at 67.8, suggesting potential for a pullback. The daily context shows an uptrend but is currently in an 'aralash' (ranging) structure, which is not supportive of a long position. The ML forecast is slightly negative (-0.09), and the news score is neutral (0.08).",
     "qaror": "kutish",
-    "ishonch": 40,
+    "ishonch": 70,
     "sabablar": [
      "trend_past",
      "struktura_salbiy",
      "qarshilik_yaqin",
      "miya_qarshi"
     ],
-    "narx": 749.53
+    "narx": 749.01
    },
    "XRP": {
-    "tahlil": "XRP/USDT is currently in an overbought condition with an RSI of 70.5, indicating potential near-term correction. The price has broken above its recent swing high at 1.3868, suggesting a bullish breakout. However, the daily structure is mixed, and the market context from BTC is trending but with a bearish daily structure, which could pose a risk. The ML forecast and news score are negative, adding to the caution.",
+    "tahlil": "XRP/USDT is currently in an uptrend but not aligned with the broader BTC context, which is trending higher. The price is near resistance at 1.413, with RSI at 72.1 indicating overbought conditions. Volume is slightly above average, but the daily structure is mixed, suggesting caution. The ML forecast is negative, and the news score is neutral.",
     "qaror": "kutish",
-    "ishonch": 60,
+    "ishonch": 40,
     "sabablar": [
      "trend_past",
-     "qarshilik_yaqin",
      "rsi_juda_baland",
      "miya_qarshi"
     ],
-    "narx": 1.3806
+    "narx": 1.3889
    }
   }
  },
- "ai_vaqt": "2026-10-21 16:23",
+ "ai_vaqt": "2026-10-21 20:18",
  "yangilik": {
   "vaqt": "2026-10-21 19:23",
   "soni": 50,
