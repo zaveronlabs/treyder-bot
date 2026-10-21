@@ -339,33 +339,32 @@
  },
  "ai_sham": "2026-10-18 00:00",
  "ai": {
-  "sham": "2026-10-21 00:00",
-  "vaqt": "2026-10-21 04:22",
+  "sham": "2026-10-21 04:00",
+  "vaqt": "2026-10-21 08:13",
   "model": "qwen2.5:14b",
   "tangalar": {
    "BTC": {
-    "tahlil": "BTC/USDT is currently in a corrective phase within a broader uptrend, as indicated by the EMA 50/150/600 trend rules and the higher highs/lower lows structure. The price is near support at 82563.0, with resistance at 82940.81, and the RSI is neutral at 56.0, suggesting neither overbought nor oversold conditions. Volume is slightly below average, indicating a potential consolidation phase. The ML forecast and news score are slightly positive, but the overall market sentiment is neutral to slightly bullish.",
+    "tahlil": "BTC/USDT is in a clear uptrend with the EMA 50/150/600 trend rule intact. The price structure shows a higher high and higher low pattern, indicating bullish continuation. Price is currently near resistance at 83528.98, with RSI at 59.5, suggesting some overbought conditions but not extreme. Volume is healthy, confirming the price action. The daily timeframe aligns with the 4-hour trend, and the ML model forecast is positive, adding to the bullish sentiment.",
     "qaror": "kutish",
     "ishonch": 65,
     "sabablar": [
-     "trend_past",
      "qarshilik_yaqin",
      "kunlik_salbiy"
     ],
-    "narx": 82733.82
+    "narx": 83153.78
    },
    "ETH": {
-    "tahlil": "ETH/USDT is currently in a bearish market structure with lower highs and lower lows, indicating a downtrend. The price is near support at 2409.09, but the RSI is neutral at 54.5, suggesting limited near-term momentum. The daily timeframe also shows a bearish trend, with the price below the 50-day EMA. The ML forecast is slightly positive, but the news score is negative, adding to the bearish sentiment.",
+    "tahlil": "ETH/USDT is currently in a bearish daily structure with a lower high and lower low pattern, indicating a downtrend. The 4-hour chart shows a mixed structure with a recent higher low and higher high, but the price is still below the nearest resistance at 2494.0. The RSI is at 56.7, suggesting the market is neither overbought nor oversold. The ML forecast is slightly positive, but the market news score is negative, adding to the bearish sentiment. The trend rule is not satisfied, and the BTC context is also bearish.",
     "qaror": "kutish",
-    "ishonch": 70,
+    "ishonch": 30,
     "sabablar": [
      "trend_past",
      "kunlik_salbiy"
     ],
-    "narx": 2444.3
+    "narx": 2456.24
    },
    "SOL": {
-    "tahlil": "SOL/USDT is currently in a bearish market structure with lower lows and lower highs, indicating a downtrend. The price is near support at 102.49, but the RSI is neutral at 53.8, suggesting limited near-term momentum. The daily context shows a mixed trend with the price below the 50 EMA but above the 200 EMA, and the BTC context is also bearish. The ML forecast is slightly positive, but the news score is neutral.",
+    "tahlil": "SOL/USDT is currently in a bearish structure with lower highs and lower lows, indicating a downtrend. The price is near support at 106.22, but the RSI is at 57.5, suggesting some overbought conditions in the short term. The daily context shows an indecisive structure, and the market context from BTC is bearish. The ML forecast is slightly positive, but the news score is neutral.",
     "qaror": "kutish",
     "ishonch": 40,
     "sabablar": [
@@ -373,33 +372,35 @@
      "struktura_salbiy",
      "qarshilik_yaqin"
     ],
-    "narx": 105.86
+    "narx": 106.83
    },
    "BNB": {
-    "tahlil": "BNB/USDT is currently in a bearish market structure with lower highs and lower lows, indicating a downtrend. The price is near resistance at 744.77, and the RSI is at 62.4, suggesting the market is overbought but not extremely so. The ML forecast and news score are negative, adding to the bearish sentiment. The daily timeframe shows an indecisive structure, and the trend rule is not in favor. Overall, the risk-reward ratio is not favorable for a long position.",
+    "tahlil": "BNB/USDT is currently in a bullish trend with the EMA 50, 150, and 600 all supporting the uptrend. The price structure shows a bullish continuation pattern with higher lows and higher highs, and the RSI is in overbought territory at 67.7, indicating strong momentum. The price is near resistance at 750.47, but the daily structure is neutral to slightly bullish, and the ML forecast is slightly negative, suggesting caution. The market context for BTC is also bullish, but the news score is negative, adding some risk.",
     "qaror": "kutish",
     "ishonch": 70,
     "sabablar": [
-     "trend_past",
      "struktura_salbiy",
      "qarshilik_yaqin",
-     "miya_qarshi"
+     "miya_qarshi",
+     "yangilik_salbiy"
     ],
-    "narx": 740.37
+    "narx": 747.46
    },
    "XRP": {
-    "tahlil": "XRP/USDT is currently in a sideways market structure with recent higher lows and lower highs, indicating a lack of clear trend direction. The price is near resistance at 1.3534, and the RSI is in the neutral zone at 57.5, suggesting neither overbought nor oversold conditions. The daily timeframe shows a bearish bias with the price below the EMA50 and EMA200, and the ML forecast is slightly negative (-0.084).",
+    "tahlil": "XRP/USDT is currently in a sideways market structure with the price near resistance at 1.3534, having recently broken above its swing high. The RSI is overbought at 61.9, indicating potential near-term weakness. The daily structure is also sideways, with the price below the EMA50, suggesting a lack of strong bullish momentum. The ML forecast and news score are negative, adding to the caution.",
     "qaror": "kutish",
-    "ishonch": 30,
+    "ishonch": 40,
     "sabablar": [
      "trend_past",
-     "miya_qarshi"
+     "qarshilik_yaqin",
+     "miya_qarshi",
+     "yangilik_salbiy"
     ],
-    "narx": 1.3324
+    "narx": 1.3465
    }
   }
  },
- "ai_vaqt": "2026-10-21 04:22",
+ "ai_vaqt": "2026-10-21 08:13",
  "yangilik": {
   "vaqt": "2026-10-21 07:24",
   "soni": 50,
