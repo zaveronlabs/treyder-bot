@@ -33,6 +33,7 @@ def yukla(b):
     natija, since = [], 1546300800000
     while True:
         url = f"https://data-api.binance.vision/api/v3/klines?symbol={b}USDT&interval=4h&limit=1000&startTime={since}"
+        s = []
         for k in range(5):
             try:
                 with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "x"}), timeout=30) as j:
@@ -48,7 +49,11 @@ def yukla(b):
 
 
 B10 = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "LTC"]
-d = pd.DataFrame(sum((yukla(b) for b in B10), []), columns=["belgi", "vaqt", "open", "high", "low", "close", "hajm"])
+# "kop" rejimi: miya 30 ta tangada o'qiydi (3 baravar ko'p misol), lekin baho faqat asosiy 10 tangada (taqqoslash uchun)
+KOP = "kop" in sys.argv[1:]
+B30 = B10 + ["DOT", "TRX", "ATOM", "NEAR", "UNI", "BCH", "ETC", "FIL", "XLM", "ALGO",
+             "AAVE", "SAND", "MANA", "EGLD", "ICP", "OP", "INJ", "APT", "THETA", "VET"]
+d = pd.DataFrame(sum((yukla(b) for b in (B30 if KOP else B10)), []), columns=["belgi", "vaqt", "open", "high", "low", "close", "hajm"])
 d["t"] = pd.to_datetime(d.vaqt, unit="ms")
 pv = lambda col: d.pivot(index="t", columns="belgi", values=col).sort_index()
 o, h, l, c, v = (pv(x) for x in ["open", "high", "low", "close", "hajm"])
@@ -185,7 +190,7 @@ def bashorat(m, tt, jj, L):
 
 def sinov(nom):
     D, Q, B, L, EPOX, BATCH = {**OLCHAMLAR, **TUTUN}[nom]
-    fayl = PAPKA / f"natija_{nom}.json"
+    fayl = PAPKA / f"natija_{'kop_' if KOP else ''}{nom}.json"
     natija = json.loads(fayl.read_text()) if fayl.exists() else {"ic": {}, "p": []}
     okx = ok_x(L)
     t_org0 = int(np.searchsorted(vaqt, ORG_BOSHI))
@@ -196,7 +201,8 @@ def sinov(nom):
         keyin = bosh + pd.DateOffset(months=QADAM_OY)
         ti = np.where(vaqt < bosh)[0][-1] - H
         org = [(t, j) for t in range(max(L, t_org0 + L), ti, 2) for j in range(C) if okx[t, j] and not np.isnan(Y[t, j])]
-        sin = [(t, j) for t in np.where((vaqt >= bosh) & (vaqt < keyin))[0] for j in range(C) if okx[t, j]]
+        sin = [(t, j) for t in np.where((vaqt >= bosh) & (vaqt < keyin))[0] for j in range(C)
+               if okx[t, j] and belgilar[j][:-5] in B10]
         to = torch.tensor([t for t, _ in org], device=QURILMA); jo = torch.tensor([j for _, j in org], device=QURILMA)
         yt = torch.tensor([Y[t, j] for t, j in org], device=QURILMA)
         ts = torch.tensor([t for t, _ in sin], device=QURILMA); js = torch.tensor([j for _, j in sin], device=QURILMA)
@@ -213,11 +219,11 @@ def sinov(nom):
         fayl.write_text(json.dumps(natija))
         log(f"{nom} {bosh:%Y-%m}: IC {ic:+.3f}, {time.time() - t0:.0f} soniya")
     ics = [natija["ic"][str(f)][0] for f in range(FOLDLAR)]
-    log(f"=== {nom}: o'rtacha IC {np.mean(ics):+.3f} ({', '.join(f'{x:+.3f}' for x in ics)})")
+    log(f"=== {'30 tanga, ' if KOP else ''}{nom}: o'rtacha IC {np.mean(ics):+.3f} ({', '.join(f'{x:+.3f}' for x in ics)})")
 
 
 if __name__ == "__main__":
     log("qurilma:", QURILMA, torch.cuda.get_device_name(0) if QURILMA == "cuda" else "", "| belgilar:", NF, "| namunalar davri:", vaqt[0], "..", vaqt[-1])
-    for nom in (sys.argv[1:] or list(OLCHAMLAR)):
+    for nom in ([a for a in sys.argv[1:] if a != "kop"] or (["kichik", "orta"] if KOP else list(OLCHAMLAR))):
         sinov(nom)
     log("TAYYOR")

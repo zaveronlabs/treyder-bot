@@ -37,3 +37,5 @@ Kerakli pozitsiya Binance eng kam order hajmidan kichik, lekin uning yarmidan ka
 ## Katta miya sinovi (videokartada)
 
 `katta_miya.bat` (`katta_miya.py`): Gojo kompyuteridagi NVIDIA videokartada hozirgi miya bilan bir xil ma'lumot va walk-forward sinovda (2024-01 dan 6 ta yarim yil, 3 seed) kichik (0.17M), o'rta (1M) va katta (5.3M parametr) modellarni o'qitadi. Natija va jurnal `katta/` papkasida; to'xtab qolsa qayta ishga tushirilganda davom etadi.
+
+`kop_miya.bat` (`python katta_miya.py kop`): xuddi shu sinov, lekin miya 30 ta tangada o'qiydi (3 baravar ko'p misol), baho faqat asosiy 10 tangada; kichik va o'rta model. Natija `katta/natija_kop_<o'lcham>.json`.
