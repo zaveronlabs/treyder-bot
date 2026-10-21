@@ -51,6 +51,7 @@ def yukla(b):
 B10 = ["BTC", "ETH", "SOL", "BNB", "XRP", "DOGE", "ADA", "AVAX", "LINK", "LTC"]
 # "kop" rejimi: miya 30 ta tangada o'qiydi (3 baravar ko'p misol), lekin baho faqat asosiy 10 tangada (taqqoslash uchun)
 KOP = "kop" in sys.argv[1:]
+SHAKL = "shakl" in sys.argv[1:]  # 6 ta grafik shakli (ikki cho'qqi/tub, bosh-yelka, ponalar) miyaga qo'shimcha belgi
 if "s10" in sys.argv[1:]:  # ko'p nusxa: 10 ta miya o'rtachasi (shovqin kamayadimi)
     SEEDS = list(range(10))
 B30 = B10 + ["DOT", "TRX", "ATOM", "NEAR", "UNI", "BCH", "ETC", "FIL", "XLM", "ALGO",
@@ -97,6 +98,69 @@ for n in (50, 150, 600):
 mx, mn = h.rolling(20).max(), l.rolling(20).min()
 fe["joy"] = (c - mn) / (mx - mn) * 2 - 1  # 20 shamlik diapazondagi o'rni
 fe["r24"] = np.log(c / c.shift(24)) / (vol * math.sqrt(24))
+
+
+def shakllar(hi, lo, cl):
+    """Bitta tanga: [(shakl, trigger sham)] — faqat o'tmishga qaraydi (pivot K sham keyin tasdiqlanadi)."""
+    n, TOL, KUT = len(cl), 0.015, 40
+    ph = [i for i in range(K, n - K) if hi[i] == hi[i - K:i + K + 1].max()]
+    pl = [i for i in range(K, n - K) if lo[i] == lo[i - K:i + K + 1].min()]
+    alt = []
+    for p in sorted([(i, "H", hi[i]) for i in ph] + [(i, "L", lo[i]) for i in pl]):
+        if alt and alt[-1][1] == p[1]:
+            if (p[1] == "H" and p[2] > alt[-1][2]) or (p[1] == "L" and p[2] < alt[-1][2]): alt[-1] = p
+        else: alt.append(p)
+    hodisa = set()
+    def signal(nom, yon, t0, chiziq, bekor):
+        for t in range(t0, min(t0 + KUT, n)):
+            lv = chiziq(t)
+            if (yon < 0 and cl[t] < lv) or (yon > 0 and cl[t] > lv):
+                hodisa.add((nom, t)); return
+            if (yon < 0 and hi[t] > bekor) or (yon > 0 and lo[t] < bekor): return
+    for k in range(len(alt)):
+        if k >= 2 and [a[1] for a in alt[k-2:k+1]] == ["H", "L", "H"]:
+            h1, l1, h2 = alt[k-2:k+1]
+            if abs(h2[2] / h1[2] - 1) < TOL and (min(h1[2], h2[2]) / l1[2] - 1) > 0.03:
+                signal("ikki_chuqqi", -1, h2[0] + K, lambda t, v=l1[2]: v, max(h1[2], h2[2]) * 1.01)
+        if k >= 2 and [a[1] for a in alt[k-2:k+1]] == ["L", "H", "L"]:
+            l1, h1, l2 = alt[k-2:k+1]
+            if abs(l2[2] / l1[2] - 1) < TOL and (h1[2] / max(l1[2], l2[2]) - 1) > 0.03:
+                signal("ikki_tub", 1, l2[0] + K, lambda t, v=h1[2]: v, min(l1[2], l2[2]) * 0.99)
+        if k >= 4 and [a[1] for a in alt[k-4:k+1]] == ["H", "L", "H", "L", "H"]:
+            s1, n1, hd, n2, s2 = alt[k-4:k+1]
+            if hd[2] > s1[2] * 1.02 and hd[2] > s2[2] * 1.02 and abs(s2[2] / s1[2] - 1) < 0.04:
+                sl = (n2[2] - n1[2]) / (n2[0] - n1[0])
+                signal("bosh_yelka", -1, s2[0] + K, lambda t, a=n1, s=sl: a[2] + s * (t - a[0]), hd[2])
+        if k >= 4 and [a[1] for a in alt[k-4:k+1]] == ["L", "H", "L", "H", "L"]:
+            s1, n1, hd, n2, s2 = alt[k-4:k+1]
+            if hd[2] < s1[2] * 0.98 and hd[2] < s2[2] * 0.98 and abs(s2[2] / s1[2] - 1) < 0.04:
+                sl = (n2[2] - n1[2]) / (n2[0] - n1[0])
+                signal("teskari_bosh_yelka", 1, s2[0] + K, lambda t, a=n1, s=sl: a[2] + s * (t - a[0]), hd[2])
+        if k >= 3:
+            last = alt[k-3:k+1]; H_ = [p for p in last if p[1] == "H"]; L_ = [p for p in last if p[1] == "L"]
+            if len(H_) == 2 and len(L_) == 2:
+                sh = (H_[1][2] - H_[0][2]) / (H_[1][0] - H_[0][0]); slw = (L_[1][2] - L_[0][2]) / (L_[1][0] - L_[0][0])
+                t0 = last[-1][0] + K
+                if sh > 0 and slw > 0 and slw > sh * 1.2:
+                    signal("kotariluvchi_pona", -1, t0, lambda t, a=L_[1], s=slw: a[2] + s * (t - a[0]), max(H_[0][2], H_[1][2]) * 1.02)
+                if sh < 0 and slw < 0 and sh < slw * 1.2:
+                    signal("tushuvchi_pona", 1, t0, lambda t, a=H_[1], s=sh: a[2] + s * (t - a[0]), min(L_[0][2], L_[1][2]) * 0.98)
+    return hodisa
+
+
+SHAKL_NOMLARI = ["ikki_chuqqi", "ikki_tub", "bosh_yelka", "teskari_bosh_yelka", "kotariluvchi_pona", "tushuvchi_pona"]
+if SHAKL:  # har shakl uchun: yaqinda yorilgan bo'lsa 1 dan so'nadi (yarim yemirilish ~4 sham), 24 shamdan keyin 0
+    sm = {nm: np.zeros(c.shape) for nm in SHAKL_NOMLARI}
+    soni = dict.fromkeys(SHAKL_NOMLARI, 0)
+    for j, b in enumerate(belgilar):
+        ix = np.where(~np.isnan(c[b].values))[0]
+        for nm, t in shakllar(h[b].values[ix], l[b].values[ix], c[b].values[ix]):
+            tt = ix[t]; soni[nm] += 1
+            uz = min(24, len(c) - tt)
+            sm[nm][tt:tt + uz, j] = np.maximum(sm[nm][tt:tt + uz, j], np.exp(-np.arange(uz) / 6))
+    for nm in SHAKL_NOMLARI:
+        fe["sh_" + nm] = pd.DataFrame(sm[nm], index=c.index, columns=belgilar)
+    print("shakllar soni:", soni, flush=True)
 FN = list(fe)
 X = np.stack([fe[k].clip(-6, 6).values for k in FN], -1).astype(np.float32)  # [T, C, F]
 kelajak = r.rolling(H).sum().shift(-H)
@@ -192,7 +256,7 @@ def bashorat(m, tt, jj, L):
 
 def sinov(nom):
     D, Q, B, L, EPOX, BATCH = {**OLCHAMLAR, **TUTUN}[nom]
-    fayl = PAPKA / f"natija_{'kop_' if KOP else ''}{nom}{'_s10' if len(SEEDS) == 10 else ''}.json"
+    fayl = PAPKA / f"natija_{'kop_' if KOP else ''}{nom}{'_shakl' if SHAKL else ''}{'_s10' if len(SEEDS) == 10 else ''}.json"
     natija = json.loads(fayl.read_text()) if fayl.exists() else {"ic": {}, "p": []}
     okx = ok_x(L)
     t_org0 = int(np.searchsorted(vaqt, ORG_BOSHI))
@@ -221,11 +285,11 @@ def sinov(nom):
         fayl.write_text(json.dumps(natija))
         log(f"{nom} {bosh:%Y-%m}: IC {ic:+.3f}, {time.time() - t0:.0f} soniya")
     ics = [natija["ic"][str(f)][0] for f in range(FOLDLAR)]
-    log(f"=== {'30 tanga, ' if KOP else ''}{len(SEEDS)} nusxa, {nom}: o'rtacha IC {np.mean(ics):+.3f} ({', '.join(f'{x:+.3f}' for x in ics)})")
+    log(f"=== {'30 tanga, ' if KOP else ''}{'shakllar bilan, ' if SHAKL else ''}{len(SEEDS)} nusxa, {nom}: o'rtacha IC {np.mean(ics):+.3f} ({', '.join(f'{x:+.3f}' for x in ics)})")
 
 
 if __name__ == "__main__":
     log("qurilma:", QURILMA, torch.cuda.get_device_name(0) if QURILMA == "cuda" else "", "| belgilar:", NF, "| namunalar davri:", vaqt[0], "..", vaqt[-1])
-    for nom in ([a for a in sys.argv[1:] if a not in ("kop", "s10")] or (["kichik", "orta"] if KOP else list(OLCHAMLAR))):
+    for nom in ([a for a in sys.argv[1:] if a not in ("kop", "s10", "shakl")] or (["kichik", "orta"] if KOP else list(OLCHAMLAR))):
         sinov(nom)
     log("TAYYOR")
