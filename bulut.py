@@ -124,7 +124,8 @@ YOLLAR = {"ikkalasi": "Qoida + miya (asosiy)", "qoida": "Faqat qoida", "miya": "
           "oltin": "Oltin kunlik qoida (sinov)", "ikki_tub": "Ikki tub shakli (sinov)",
           "qoida_tub": "Qoida yoki ikki tub (sinov)", "hakam": "Shakl + miya hakam (sinov)",
           "katta_sham": "Katta sham + miya hakam (sinov)", "sinish": "Cho'qqi/tub sinishi + miya hakam (sinov)",
-          "hakam_hammasi": "Uchala hakam signali bitta hisobda (sinov)"}
+          "hakam_hammasi": "Uchala hakam signali bitta hisobda (sinov)",
+          "hakam_ls": "Hakam + asosiy/short bitta hisobda (sinov)"}
 MIYA_CHEGARA = 0.02  # miya bundan yuqori bashorat bersagina "rozi" (juda zaif "ha" hisobga olinmaydi)
 SHORT_CHEGARA = -0.1  # miya bundan pastroq bashorat bersa short yo'li short ochadi
 SHORT_EHTIMOL = 0.45  # short miyasi tushish ehtimolini bundan yuqori desa (asosiy yo'l naqdda bo'lsa) short
@@ -480,11 +481,14 @@ def signallarni_tekshir(h):
         iz_tekshir(h, b, natijalar[b], sana)
         kerak["qoida_iz"] = bool(yangi) and not blok.get(b)
         yon_ls = 1 if kerak["ikkalasi"] else -1
+        # hakam signali bo'lsa o'sha tomonga, aks holda asosiy+short qarori (2024..: ikkalasidan ham yaxshi, tushish kamroq)
+        kerak["hakam_ls"] = kerak["hakam"] or kerak["longshort"]
+        yon_h["hakam_ls"] = yon_h["hakam"] if kerak["hakam"] else yon_ls
         for y, pf in h["portfellar"].items():
             if y not in kerak:  # AI treyder o'z qarorlari bilan alohida (ai_tekshir)
                 continue
             yon_y = {"short": -1, "longshort": yon_ls, **yon_h}.get(y, 1)
-            if (y == "longshort" or y in HAKAM_YOLLAR) and b in pf["portfel"] and kerak[y] and pf["portfel"][b].get("yon", 1) != yon_y:
+            if (y in ("longshort", "hakam_ls") or y in HAKAM_YOLLAR) and b in pf["portfel"] and kerak[y] and pf["portfel"][b].get("yon", 1) != yon_y:
                 yop(pf, b, narx, sana, "yo'nalish o'zgardi")  # long <-> short almashadi
             if kerak[y] and b not in pf["portfel"]:
                 och(pf, b, narx, sana, yon_y)
@@ -500,7 +504,7 @@ def signallarni_tekshir(h):
                 if y in ("ikkalasi", "yangilik"):
                     sabab = "trend tugadi" if not yangi else f"miya rozi emas ({p:+.2f})" if not miya_ha else \
                             f"yangiliklar salbiy ({yb:+.1f})"
-                elif y == "longshort":
+                elif y in ("longshort", "hakam_ls"):
                     sabab = "signal tugadi"
                 elif y == "short":
                     sabab = f"miya endi tushish kutmayapti ({p:+.2f})" if p is not None else "miya yo'q"
