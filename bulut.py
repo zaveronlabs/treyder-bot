@@ -126,7 +126,8 @@ YOLLAR = {"ikkalasi": "Qoida + miya (asosiy)", "qoida": "Faqat qoida", "miya": "
           "katta_sham": "Katta sham + miya hakam (sinov)", "sinish": "Cho'qqi/tub sinishi + miya hakam (sinov)",
           "hakam_hammasi": "Uchala hakam signali bitta hisobda (sinov)",
           "hakam_ls": "Hakam + asosiy/short bitta hisobda (sinov)",
-          "super": "Hakam/katta sham x5 + asosiy/short x3 bitta hisobda (sinov)"}
+          "super": "Hakam/katta sham x5 + asosiy/short x3 bitta hisobda (sinov)",
+          "super20": "Super, tushish chegarasi 20% (halol sozlama, sinov)"}
 MIYA_CHEGARA = 0.02  # miya bundan yuqori bashorat bersagina "rozi" (juda zaif "ha" hisobga olinmaydi)
 SHORT_CHEGARA = -0.1  # miya bundan pastroq bashorat bersa short yo'li short ochadi
 SHORT_EHTIMOL = 0.45  # short miyasi tushish ehtimolini bundan yuqori desa (asosiy yo'l naqdda bo'lsa) short
@@ -213,6 +214,10 @@ SHAKL_NOMI = {"ikki_chuqqi": "ikki cho'qqi", "ikki_tub": "ikki tub", "bosh_yelka
               "teskari_bosh_yelka": "teskari bosh-yelka", "kotariluvchi_pona": "ko'tariluvchi pona",
               "tushuvchi_pona": "tushuvchi pona"}
 HAKAM_CHEGARA, HAKAM_USHLASH = 0.2, 12  # miya shakl tomoniga kamida 0.2 bersa kiriladi, 12 sham (2 kun) ushlanadi
+# super20: sozlamalar halol tanlangan — har chorakda faqat o'tmishdan, o'tmishdagi tushish 20% dan oshmasin, shu ichida
+# eng ko'p foyda. 2026-10 chorak tanlovi; 2024..2026-10 halol hisob: 🏆 $1000 -> $9.2k, tushish -29% (oxirgi 17 oyda -12%).
+SUPER20 = {"hakam": 0.1, "katta_sham": 0.2, "ushlash": 12, "miya": 0.05, "short": 0.45, "lev": 2,
+           "vazn": (0.4, 0.3, 0.3), "ks_lev": 5}  # vazn: super20, katta sham (x5 ga keltiriladi), oltin
 
 
 def shakllar(sham):
@@ -489,14 +494,24 @@ def signallarni_tekshir(h):
         kerak["super"] = kerak["hakam"] or kerak["katta_sham"] or kerak["longshort"]
         yon_h["super"] = yon_h["hakam"] if kerak["hakam"] else yon_h["katta_sham"] if kerak["katta_sham"] else yon_ls
         lev_super = 5 if kerak["hakam"] or kerak["katta_sham"] else 3
+        # super20: hakam / katta sham signali (o'z chegarasi bilan) 12 sham ushlanadi, aks holda asosiy+short; hammasi x2
+        s20 = h["portfellar"]["super20"].setdefault("signal", {}).setdefault(b, {})
+        for tur in ("hakam", "katta_sham"):
+            if any(p is not None and p * yn > SUPER20[tur] for nm, yn in sig[tur]):
+                s20[tur] = [sana, 1 if p > 0 else -1]
+        faol = [tur for tur in ("hakam", "katta_sham") if tur in s20 and
+                sana_soniya(sana) - sana_soniya(s20[tur][0]) < SUPER20["ushlash"] * 4 * 3600]
+        ikkalasi20 = bool(yangi) and (p is None or p > SUPER20["miya"])
+        kerak["super20"] = bool(faol) or ikkalasi20 or (ps is not None and ps > SUPER20["short"])
+        yon_h["super20"] = s20[faol[0]][1] if faol else 1 if ikkalasi20 else -1
         for y, pf in h["portfellar"].items():
             if y not in kerak:  # AI treyder o'z qarorlari bilan alohida (ai_tekshir)
                 continue
             yon_y = {"short": -1, "longshort": yon_ls, **yon_h}.get(y, 1)
-            if (y in ("longshort", "hakam_ls", "super") or y in HAKAM_YOLLAR) and b in pf["portfel"] and kerak[y] and pf["portfel"][b].get("yon", 1) != yon_y:
+            if (y in ("longshort", "hakam_ls", "super", "super20") or y in HAKAM_YOLLAR) and b in pf["portfel"] and kerak[y] and pf["portfel"][b].get("yon", 1) != yon_y:
                 yop(pf, b, narx, sana, "yo'nalish o'zgardi")  # long <-> short almashadi
             if kerak[y] and b not in pf["portfel"]:
-                och(pf, b, narx, sana, yon_y, lev_super if y == "super" else LEVERAGE)
+                och(pf, b, narx, sana, yon_y, lev_super if y == "super" else SUPER20["lev"] if y == "super20" else LEVERAGE)
                 if HAKAM_YOLLAR.get(y, (None,))[0]:
                     belgi, nomi = HAKAM_YOLLAR[y]
                     yubor(h, f"{belgi}🟢 {b}: {'long' if yon_y > 0 else 'short'} ochildi ({nomi}, sinov)\n"
@@ -509,7 +524,7 @@ def signallarni_tekshir(h):
                 if y in ("ikkalasi", "yangilik"):
                     sabab = "trend tugadi" if not yangi else f"miya rozi emas ({p:+.2f})" if not miya_ha else \
                             f"yangiliklar salbiy ({yb:+.1f})"
-                elif y in ("longshort", "hakam_ls", "super"):
+                elif y in ("longshort", "hakam_ls", "super", "super20"):
                     sabab = "signal tugadi"
                 elif y == "short":
                     sabab = f"miya endi tushish kutmayapti ({p:+.2f})" if p is not None else "miya yo'q"
@@ -622,6 +637,12 @@ def hisobot_matni(h):
         oltin = BOSHLANG_ICH_PUL + 5 * (jami_pul(h, h["portfellar"]["oltin"]) - BOSHLANG_ICH_PUL)
         pul = 0.6 * jami_pul(h, h["portfellar"]["super"]) + 0.2 * jami_pul(h, h["portfellar"]["katta_sham"]) + 0.2 * oltin
         qatorlar += [f"🏆 60% super + 20% katta sham + 20% oltin: {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})"]
+    if {"super20", "katta_sham", "oltin"} <= h["portfellar"].keys():  # halol sozlama, tushish chegarasi 20%
+        oltin = BOSHLANG_ICH_PUL + 5 * (jami_pul(h, h["portfellar"]["oltin"]) - BOSHLANG_ICH_PUL)
+        ks = BOSHLANG_ICH_PUL + SUPER20["ks_lev"] / LEVERAGE * (jami_pul(h, h["portfellar"]["katta_sham"]) - BOSHLANG_ICH_PUL)
+        w = SUPER20["vazn"]
+        pul = w[0] * jami_pul(h, h["portfellar"]["super20"]) + w[1] * ks + w[2] * oltin
+        qatorlar += [f"🏆20 {w[0]:.0%} super20 + {w[1]:.0%} katta sham + {w[2]:.0%} oltin: {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})"]
     return "\n".join(qatorlar)
 
 
