@@ -618,6 +618,10 @@ def hisobot_matni(h):
         oltin = BOSHLANG_ICH_PUL + 5 * (jami_pul(h, h["portfellar"]["oltin"]) - BOSHLANG_ICH_PUL)
         pul = 0.4 * jami_pul(h, h["portfellar"]["hakam_ls"]) + 0.4 * jami_pul(h, h["portfellar"]["katta_sham"]) + 0.2 * oltin
         qatorlar += [f"🛡 40% hakam+asosiy/short + 40% katta sham + 20% oltin: {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})"]
+    if {"super", "katta_sham", "oltin"} <= h["portfellar"].keys():  # o'rinlar jadvalida 1-o'rin (2024..: $30k, tushish -20%)
+        oltin = BOSHLANG_ICH_PUL + 5 * (jami_pul(h, h["portfellar"]["oltin"]) - BOSHLANG_ICH_PUL)
+        pul = 0.6 * jami_pul(h, h["portfellar"]["super"]) + 0.2 * jami_pul(h, h["portfellar"]["katta_sham"]) + 0.2 * oltin
+        qatorlar += [f"🏆 60% super + 20% katta sham + 20% oltin: {pul:.2f} USDT ({pul / BOSHLANG_ICH_PUL - 1:+.1%})"]
     return "\n".join(qatorlar)
 
 
