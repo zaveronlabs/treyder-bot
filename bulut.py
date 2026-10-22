@@ -121,7 +121,7 @@ YOLLAR = {"ikkalasi": "Qoida + miya (asosiy)", "qoida": "Faqat qoida", "miya": "
           "yangilik": "Qoida + miya + yangiliklar", "ai": "AI treyder (Qwen 14B)", "short": "Miya short (sinov)",
           "longshort": "Asosiy + short miyasi (sinov)", "qoida_iz": "Faqat qoida + iz chiqish (sinov)",
           "oltin": "Oltin kunlik qoida (sinov)", "ikki_tub": "Ikki tub shakli (sinov)",
-          "qoida_tub": "Qoida yoki ikki tub (sinov)"}
+          "qoida_tub": "Qoida yoki ikki tub (sinov)", "hakam": "Shakl + miya hakam (sinov)"}
 MIYA_CHEGARA = 0.02  # miya bundan yuqori bashorat bersagina "rozi" (juda zaif "ha" hisobga olinmaydi)
 SHORT_CHEGARA = -0.1  # miya bundan pastroq bashorat bersa short yo'li short ochadi
 SHORT_EHTIMOL = 0.45  # short miyasi tushish ehtimolini bundan yuqori desa (asosiy yo'l naqdda bo'lsa) short
@@ -202,6 +202,80 @@ def ikki_tub(sham):
 
 def sana_soniya(sana):
     return calendar.timegm(time.strptime(sana, "%Y-%m-%d %H:%M"))
+
+
+SHAKL_NOMI = {"ikki_chuqqi": "ikki cho'qqi", "ikki_tub": "ikki tub", "bosh_yelka": "bosh-yelka",
+              "teskari_bosh_yelka": "teskari bosh-yelka", "kotariluvchi_pona": "ko'tariluvchi pona",
+              "tushuvchi_pona": "tushuvchi pona"}
+HAKAM_CHEGARA, HAKAM_USHLASH = 0.2, 12  # miya shakl tomoniga kamida 0.2 bersa kiriladi, 12 sham (2 kun) ushlanadi
+
+
+def shakllar(sham):
+    """Oxirgi yopilgan shamda yorilgan grafik shakllari: [(nom, yon)], yon 1 = narx ko'tarilishi, -1 = tushishi kutiladi.
+    6 shakl (ikki cho'qqi/tub, bosh-yelka, teskari bosh-yelka, ko'tariluvchi/tushuvchi pona), qoidalar katta_miya.py dagi
+    bilan bir xil. "Hakam" yo'li faqat miya shu tomonga rozi bo'lgan shakllarda savdo qiladi (2024..: hakamsiz x1.1 va
+    -67% tushish, hakam bilan x2.4 va -16%)."""
+    hi, lo, cl = [x[2] for x in sham], [x[3] for x in sham], [x[4] for x in sham]
+    n, K, TOL, KUT = len(sham), TUB_K, 0.015, 40
+    piv = []
+    for i in range(K, n - K):
+        if hi[i] == max(hi[i - K:i + K + 1]):
+            piv.append((i, "H", hi[i]))
+        if lo[i] == min(lo[i - K:i + K + 1]):
+            piv.append((i, "L", lo[i]))
+    alt = []
+    for p in piv:
+        if alt and alt[-1][1] == p[1]:
+            if (p[1] == "H" and p[2] > alt[-1][2]) or (p[1] == "L" and p[2] < alt[-1][2]):
+                alt[-1] = p
+        else:
+            alt.append(p)
+    natija, t = set(), n - 1
+
+    def signal(nom, yon, t0, chiziq, bekor):
+        if not t0 <= t < t0 + KUT:
+            return
+        for tt in range(t0, t + 1):
+            if (yon < 0 and cl[tt] < chiziq(tt)) or (yon > 0 and cl[tt] > chiziq(tt)):
+                if tt == t:
+                    natija.add((nom, yon))
+                return  # birinchi yorilish (oldinroq bo'lgan bo'lsa yangi signal emas)
+            if (yon < 0 and hi[tt] > bekor) or (yon > 0 and lo[tt] < bekor):
+                return  # shakl buzildi
+    for k in range(len(alt)):
+        turlar = [a[1] for a in alt[max(0, k - 4):k + 1]]
+        if turlar[-3:] == ["H", "L", "H"]:
+            h1, l1, h2 = alt[k - 2:k + 1]
+            if abs(h2[2] / h1[2] - 1) < TOL and min(h1[2], h2[2]) / l1[2] - 1 > 0.03:
+                signal("ikki_chuqqi", -1, h2[0] + K, lambda x, v=l1[2]: v, max(h1[2], h2[2]) * 1.01)
+        if turlar[-3:] == ["L", "H", "L"]:
+            l1, h1, l2 = alt[k - 2:k + 1]
+            if abs(l2[2] / l1[2] - 1) < TOL and h1[2] / max(l1[2], l2[2]) - 1 > 0.03:
+                signal("ikki_tub", 1, l2[0] + K, lambda x, v=h1[2]: v, min(l1[2], l2[2]) * 0.99)
+        if turlar == ["H", "L", "H", "L", "H"]:
+            s1, n1, hd, n2, s2 = alt[k - 4:k + 1]
+            if hd[2] > s1[2] * 1.02 and hd[2] > s2[2] * 1.02 and abs(s2[2] / s1[2] - 1) < 0.04:
+                sl = (n2[2] - n1[2]) / (n2[0] - n1[0])
+                signal("bosh_yelka", -1, s2[0] + K, lambda x, a=n1, s=sl: a[2] + s * (x - a[0]), hd[2])
+        if turlar == ["L", "H", "L", "H", "L"]:
+            s1, n1, hd, n2, s2 = alt[k - 4:k + 1]
+            if hd[2] < s1[2] * 0.98 and hd[2] < s2[2] * 0.98 and abs(s2[2] / s1[2] - 1) < 0.04:
+                sl = (n2[2] - n1[2]) / (n2[0] - n1[0])
+                signal("teskari_bosh_yelka", 1, s2[0] + K, lambda x, a=n1, s=sl: a[2] + s * (x - a[0]), hd[2])
+        if k >= 3:
+            oxir = alt[k - 3:k + 1]
+            H_, L_ = [a for a in oxir if a[1] == "H"], [a for a in oxir if a[1] == "L"]
+            if len(H_) == 2 and len(L_) == 2:
+                sh = (H_[1][2] - H_[0][2]) / (H_[1][0] - H_[0][0])
+                sl = (L_[1][2] - L_[0][2]) / (L_[1][0] - L_[0][0])
+                t0 = oxir[-1][0] + K
+                if sh > 0 and sl > 0 and sl > sh * 1.2:
+                    signal("kotariluvchi_pona", -1, t0, lambda x, a=L_[1], s=sl: a[2] + s * (x - a[0]),
+                           max(H_[0][2], H_[1][2]) * 1.02)
+                if sh < 0 and sl < 0 and sh < sl * 1.2:
+                    signal("tushuvchi_pona", 1, t0, lambda x, a=H_[1], s=sh: a[2] + s * (x - a[0]),
+                           min(L_[0][2], L_[1][2]) * 0.98)
+    return sorted(natija)
 
 
 def oltin_tekshir(h, sana):
@@ -343,6 +417,11 @@ def signallarni_tekshir(h):
         kerak["ikki_tub"] = ikki_tub(natijalar[b]) or bool(
             tp and sana_soniya(sana) - sana_soniya(tp["kirish_sana"]) < TUB_USHLASH * 4 * 3600)
         kerak["qoida_tub"] = bool(yangi) or kerak["ikki_tub"]
+        hakam_sig = [nm for nm, yn in shakllar(natijalar[b]) if p is not None and p * yn > HAKAM_CHEGARA]
+        hp = h["portfellar"]["hakam"]["portfel"].get(b)
+        yon_h = (1 if p > 0 else -1) if hakam_sig else hp.get("yon", 1) if hp else 1
+        kerak["hakam"] = bool(hakam_sig) or bool(
+            hp and sana_soniya(sana) - sana_soniya(hp.get("signal_sana", hp["kirish_sana"])) < HAKAM_USHLASH * 4 * 3600)
         yb = h["yangilik"].get("tangalar", {}).get(b, {}).get("baho")
         kerak["yangilik"] = kerak["ikkalasi"] and (yb is None or yb >= YANGILIK_CHEGARA)
         kerak["short"] = p is not None and p < SHORT_CHEGARA
@@ -357,10 +436,14 @@ def signallarni_tekshir(h):
         for y, pf in h["portfellar"].items():
             if y not in kerak:  # AI treyder o'z qarorlari bilan alohida (ai_tekshir)
                 continue
-            if y == "longshort" and b in pf["portfel"] and kerak[y] and pf["portfel"][b].get("yon", 1) != yon_ls:
+            yon_y = {"short": -1, "longshort": yon_ls, "hakam": yon_h}.get(y, 1)
+            if y in ("longshort", "hakam") and b in pf["portfel"] and kerak[y] and pf["portfel"][b].get("yon", 1) != yon_y:
                 yop(pf, b, narx, sana, "yo'nalish o'zgardi")  # long <-> short almashadi
             if kerak[y] and b not in pf["portfel"]:
-                och(pf, b, narx, sana, -1 if y == "short" or (y == "longshort" and yon_ls == -1) else 1)
+                och(pf, b, narx, sana, yon_y)
+                if y == "hakam":
+                    yubor(h, f"🧑‍⚖️🟢 {b}: {'long' if yon_y > 0 else 'short'} ochildi (shakl + miya hakam, sinov)\n"
+                             f"Narx: {narx:g}. Sabab: {', '.join(SHAKL_NOMI[nm] for nm in hakam_sig)} yorildi, miya rozi ({p:+.2f})")
                 if y == "ikkalasi":
                     miya_matn = f"miya ✅ {p:+.2f}" if p is not None else "miya ishlamadi"
                     yubor(h, f"🤖🟢 {b}: long ochildi\nNarx: {narx:g}, {ULUSH:.0f} USDT x{LEVERAGE}\n"
@@ -373,14 +456,20 @@ def signallarni_tekshir(h):
                     sabab = "signal tugadi"
                 elif y == "short":
                     sabab = f"miya endi tushish kutmayapti ({p:+.2f})" if p is not None else "miya yo'q"
+                elif y == "hakam":
+                    sabab = "shakldan keyin 2 kun o'tdi"
                 elif y in ("ikki_tub", "qoida_tub"):
                     sabab = "ikki tubdan keyin 2 kun o'tdi" if y == "ikki_tub" or not yangi else "trend tugadi"
                 else:
                     sabab = "trend tugadi" if y in ("qoida", "qoida_iz") else f"miya salbiy ({p:+.2f})" if p is not None else "miya yo'q"
                 foyda = yop(pf, b, narx, sana, sabab)
+                if y == "hakam":
+                    yubor(h, f"🧑‍⚖️🔴 {b}: yopildi, natija {foyda:+.2f} USDT ({sabab})")
                 if y == "ikkalasi":
                     yubor(h, f"🤖🔴 {b}: yopildi\nNarx: {narx:g}, natija {foyda:+.2f} USDT\nSabab: {sabab}"
                              + yangilik_qatori(h, b))
+            if y == "hakam" and hakam_sig and b in pf["portfel"]:
+                pf["portfel"][b]["signal_sana"] = sana  # yangi shakl: 2 kun shu shamdan qayta sanaladi
     oltin_tekshir(h, sana)
     h["oxirgi_sana"] = sana
     if birinchi:
