@@ -125,7 +125,8 @@ YOLLAR = {"ikkalasi": "Qoida + miya (asosiy)", "qoida": "Faqat qoida", "miya": "
           "qoida_tub": "Qoida yoki ikki tub (sinov)", "hakam": "Shakl + miya hakam (sinov)",
           "katta_sham": "Katta sham + miya hakam (sinov)", "sinish": "Cho'qqi/tub sinishi + miya hakam (sinov)",
           "hakam_hammasi": "Uchala hakam signali bitta hisobda (sinov)",
-          "hakam_ls": "Hakam + asosiy/short bitta hisobda (sinov)"}
+          "hakam_ls": "Hakam + asosiy/short bitta hisobda (sinov)",
+          "super": "Hakam/katta sham x5 + asosiy/short x3 bitta hisobda (sinov)"}
 MIYA_CHEGARA = 0.02  # miya bundan yuqori bashorat bersagina "rozi" (juda zaif "ha" hisobga olinmaydi)
 SHORT_CHEGARA = -0.1  # miya bundan pastroq bashorat bersa short yo'li short ochadi
 SHORT_EHTIMOL = 0.45  # short miyasi tushish ehtimolini bundan yuqori desa (asosiy yo'l naqdda bo'lsa) short
@@ -484,14 +485,18 @@ def signallarni_tekshir(h):
         # hakam signali bo'lsa o'sha tomonga, aks holda asosiy+short qarori (2024..: ikkalasidan ham yaxshi, tushish kamroq)
         kerak["hakam_ls"] = kerak["hakam"] or kerak["longshort"]
         yon_h["hakam_ls"] = yon_h["hakam"] if kerak["hakam"] else yon_ls
+        # super: hakam yoki katta sham signali bo'lsa x5, aks holda asosiy+short x3 (2024..: ⭐ x5 dan foyda ko'p, tushish -51% o'rniga -34%)
+        kerak["super"] = kerak["hakam"] or kerak["katta_sham"] or kerak["longshort"]
+        yon_h["super"] = yon_h["hakam"] if kerak["hakam"] else yon_h["katta_sham"] if kerak["katta_sham"] else yon_ls
+        lev_super = 5 if kerak["hakam"] or kerak["katta_sham"] else 3
         for y, pf in h["portfellar"].items():
             if y not in kerak:  # AI treyder o'z qarorlari bilan alohida (ai_tekshir)
                 continue
             yon_y = {"short": -1, "longshort": yon_ls, **yon_h}.get(y, 1)
-            if (y in ("longshort", "hakam_ls") or y in HAKAM_YOLLAR) and b in pf["portfel"] and kerak[y] and pf["portfel"][b].get("yon", 1) != yon_y:
+            if (y in ("longshort", "hakam_ls", "super") or y in HAKAM_YOLLAR) and b in pf["portfel"] and kerak[y] and pf["portfel"][b].get("yon", 1) != yon_y:
                 yop(pf, b, narx, sana, "yo'nalish o'zgardi")  # long <-> short almashadi
             if kerak[y] and b not in pf["portfel"]:
-                och(pf, b, narx, sana, yon_y)
+                och(pf, b, narx, sana, yon_y, lev_super if y == "super" else LEVERAGE)
                 if HAKAM_YOLLAR.get(y, (None,))[0]:
                     belgi, nomi = HAKAM_YOLLAR[y]
                     yubor(h, f"{belgi}🟢 {b}: {'long' if yon_y > 0 else 'short'} ochildi ({nomi}, sinov)\n"
@@ -504,7 +509,7 @@ def signallarni_tekshir(h):
                 if y in ("ikkalasi", "yangilik"):
                     sabab = "trend tugadi" if not yangi else f"miya rozi emas ({p:+.2f})" if not miya_ha else \
                             f"yangiliklar salbiy ({yb:+.1f})"
-                elif y in ("longshort", "hakam_ls"):
+                elif y in ("longshort", "hakam_ls", "super"):
                     sabab = "signal tugadi"
                 elif y == "short":
                     sabab = f"miya endi tushish kutmayapti ({p:+.2f})" if p is not None else "miya yo'q"
@@ -545,10 +550,10 @@ def natija_usdt(p, narx):
     return max(p.get("yon", 1) * p["miqdor"] * (narx - p["kirish_narx"]), -ULUSH)
 
 
-def och(pf, b, narx, sana, yon=1):
+def och(pf, b, narx, sana, yon=1, lev=LEVERAGE):
     """yon: 1 = long, -1 = short."""
-    kom = ULUSH * LEVERAGE * KOMISSIYA
-    pf["portfel"][b] = {"miqdor": ULUSH * LEVERAGE / narx, "kirish_narx": narx, "kirish_sana": sana}
+    kom = ULUSH * lev * KOMISSIYA
+    pf["portfel"][b] = {"miqdor": ULUSH * lev / narx, "kirish_narx": narx, "kirish_sana": sana}
     if yon == -1:
         pf["portfel"][b]["yon"] = -1
     pf["naqd"] -= ULUSH + kom
