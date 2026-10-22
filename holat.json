@@ -431,45 +431,45 @@
  },
  "ai_sham": "2026-10-18 00:00",
  "ai": {
-  "sham": "2026-10-21 16:00",
-  "vaqt": "2026-10-21 20:18",
+  "sham": "2026-10-21 20:00",
+  "vaqt": "2026-10-22 00:21",
   "model": "qwen2.5:14b",
   "tangalar": {
    "BTC": {
-    "tahlil": "BTC/USDT is in a strong uptrend with the EMA 50/150/600 trend rule intact. The price structure shows a higher high and higher low pattern, indicating bullish continuation. The price is near resistance at 84972.01, but the RSI is overbought at 68.2, suggesting potential near-term pullback. Volume is slightly above average, confirming the price action. The daily timeframe aligns with the 4-hour trend, and the ML forecast and news score are slightly positive.",
+    "tahlil": "BTC/USDT is currently in a strong uptrend with the EMA 50, 150, and 600 all showing positive divergence. The price structure indicates a bullish continuation pattern with higher highs and higher lows. The price is near resistance at 84352.0, but the RSI is at 63.3, indicating some overbought conditions. Volume is slightly above average, confirming the price action. The daily timeframe aligns with the 4-hour trend, and the ML model forecast is slightly positive. The market news score is slightly negative, but the Fear & Greed index is neutral, suggesting no extreme sentiment.",
     "qaror": "kutish",
-    "ishonch": 70,
+    "ishonch": 65,
     "sabablar": [
      "qarshilik_yaqin",
      "kunlik_salbiy"
     ],
-    "narx": 84489.59
+    "narx": 84093.42
    },
    "ETH": {
-    "tahlil": "ETH/USDT is currently in a bearish market structure with higher highs and higher lows, but the trend is not following the EMA trend rule. The price is near resistance at 2530.44, and the RSI is overbought at 61.2, indicating potential overextension. The daily structure is bearish, and the ML forecast is slightly negative (-0.018), suggesting a possible downturn. The market context for BTC is trending upwards, but ETH is not aligning with this trend, increasing the risk of a correction.",
+    "tahlil": "ETH/USDT is currently in a corrective phase within a broader uptrend, as indicated by the 'ko'tariluvchi (HH+HL)' structure and the trend rule being false. The price is near resistance at 2494.0, with the RSI at 56.5 suggesting moderate buying pressure but not overbought conditions. Daily structure is 'tushuvchi', and the ML forecast is slightly positive, but the market news score is negative. The trend on the daily timeframe remains positive, with the price above the 200 EMA, but the short-term trend is weakening.",
     "qaror": "kutish",
-    "ishonch": 70,
+    "ishonch": 45,
     "sabablar": [
      "trend_past",
      "qarshilik_yaqin",
-     "kunlik_salbiy",
-     "miya_qarshi"
+     "kunlik_salbiy"
     ],
-    "narx": 2494.54
+    "narx": 2473.76
    },
    "SOL": {
-    "tahlil": "SOL/USDT is currently in an ambiguous market structure with a mix of higher highs and lower lows, indicating a lack of clear trend direction. The price is near resistance at 108.67, and the RSI is in overbought territory at 62.3, suggesting potential for a pullback. The daily timeframe shows a similar ambiguous structure, with the price above the 50 EMA but below the 150 EMA, indicating a weak trend. The ML forecast is slightly negative, and the news score is neutral, adding to the cautious outlook.",
+    "tahlil": "SOL/USDT is currently in a sideways market structure with a recent higher high and lower low pattern, indicating indecision. The price is near resistance at 107.4, with RSI at 55.3, suggesting moderate momentum. The daily context shows a similar sideways pattern, with the price above the daily EMA50 but below the EMA150, indicating a lack of clear trend direction. The ML forecast and news score are negative, adding to the cautious sentiment.",
     "qaror": "kutish",
     "ishonch": 30,
     "sabablar": [
      "trend_past",
      "qarshilik_yaqin",
-     "miya_qarshi"
+     "miya_qarshi",
+     "yangilik_salbiy"
     ],
-    "narx": 108.31
+    "narx": 106.97
    },
    "BNB": {
-    "tahlil": "BNB/USDT is currently in a bearish structure with lower highs and lower lows, indicating a downtrend. The price is near resistance at 753.86, and the RSI is overbought at 67.8, suggesting potential for a pullback. The daily context shows an uptrend but is currently in an 'aralash' (ranging) structure, which is not supportive of a long position. The ML forecast is slightly negative (-0.09), and the news score is neutral (0.08).",
+    "tahlil": "BNB/USDT is currently in a bearish structure with lower highs and lower lows, indicating a downtrend. The price is near resistance at 750.47, and the RSI is in overbought territory at 63.6, suggesting potential for a pullback. The daily structure is mixed, but the trend is bearish, and the ML forecast is slightly negative (-0.075).",
     "qaror": "kutish",
     "ishonch": 70,
     "sabablar": [
@@ -478,22 +478,21 @@
      "qarshilik_yaqin",
      "miya_qarshi"
     ],
-    "narx": 749.01
+    "narx": 746.31
    },
    "XRP": {
-    "tahlil": "XRP/USDT is currently in an uptrend but not aligned with the broader BTC context, which is trending higher. The price is near resistance at 1.413, with RSI at 72.1 indicating overbought conditions. Volume is slightly above average, but the daily structure is mixed, suggesting caution. The ML forecast is negative, and the news score is neutral.",
+    "tahlil": "XRP/USDT is currently in a sideways market structure with the price near resistance at 1.3868 and support at 1.3534. The RSI is overbought at 61.5, indicating potential near-term weakness. The daily structure is also sideways, with the price below the daily EMA50, suggesting a lack of strong bullish momentum. The ML forecast is negative (-0.343), and the news score is slightly negative (-0.03), adding to the bearish sentiment.",
     "qaror": "kutish",
     "ishonch": 40,
     "sabablar": [
      "trend_past",
-     "rsi_juda_baland",
      "miya_qarshi"
     ],
-    "narx": 1.3889
+    "narx": 1.3654
    }
   }
  },
- "ai_vaqt": "2026-10-21 20:18",
+ "ai_vaqt": "2026-10-22 00:21",
  "yangilik": {
   "vaqt": "2026-10-21 23:25",
   "soni": 50,
