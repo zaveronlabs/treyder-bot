@@ -1,6 +1,6 @@
 {
  "sham": "2026-10-23 08:00",
- "vaqt": "2026-10-23 12:21",
+ "vaqt": "2026-10-23 12:43",
  "model": "qwen2.5:14b",
  "tangalar": {
   "BTC": {
@@ -36,7 +36,7 @@
    "narx": 104.54
   },
   "BNB": {
-   "tahlil": "BNB/USDT is currently in an uptrend according to the EMA trend rule, with the price above the EMA50, EMA150, and EMA600. The market structure is showing an oscillating pattern with higher highs and higher lows, indicating a potential continuation of the uptrend. The price is near resistance at 750.47, but the RSI is at 62.4, suggesting the market is not overbought yet. Volume is slightly above average, confirming the price movement. The daily timeframe aligns with the 4-hour trend, and the ML model forecast is slightly positive. The market context for BTC is bearish, but BNB is showing resilience.",
+   "tahlil": "BNB/USDT is currently in an uptrend according to the trend rule, with the EMA 50/150/600 indicating a positive slope. The price structure shows an advancing pattern with higher highs and higher lows, supported by a positive RSI of 62.4, suggesting moderate buying pressure. The price is near resistance at 750.47, but with volume confirmation and a positive daily structure, there's potential for a breakout. However, the market context for BTC is bearish, which could pose a risk.",
    "qaror": "long",
    "ishonch": 75,
    "sabablar": [
