@@ -1,20 +1,21 @@
 {
- "sham": "2026-10-23 20:00",
- "vaqt": "2026-10-24 00:21",
+ "sham": "2026-10-24 00:00",
+ "vaqt": "2026-10-24 04:22",
  "model": "qwen2.5:14b",
  "tangalar": {
   "BTC": {
-   "tahlil": "BTC is currently in a sideways market structure with the price near support at 80939.54 and resistance at 82563.0. The trend is not clearly defined as the EMA 50 and 150 are below the 600 EMA, indicating a potential consolidation phase. RSI is at 39.7, suggesting a neutral to slightly oversold condition, and volume is near average, indicating no strong directional bias. The ML forecast is slightly positive, but the news score is negative, adding some uncertainty.",
+   "tahlil": "BTC/USDT is currently in a sideways market structure with recent higher lows and higher highs, but the trend is not clearly defined as per the EMA indicators. The price is near resistance at 81200.0 and support at 80809.25, with RSI at 37.9 indicating a neutral to slightly oversold condition. The ML forecast is slightly positive, but the market news score is negative, suggesting caution. The daily timeframe shows a bullish bias with the price above the EMA50 and EMA200, but the overall trend is not strong enough to warrant a long position.",
    "qaror": "kutish",
-   "ishonch": 45,
+   "ishonch": 30,
    "sabablar": [
     "trend_past",
+    "qarshilik_yaqin",
     "kunlik_salbiy"
    ],
-   "narx": 81189.43
+   "narx": 80977.92
   },
   "ETH": {
-   "tahlil": "ETH/USDT is currently in a sideways market structure with recent higher highs and lower lows, indicating a lack of clear trend direction. The price is near resistance at 2393.48 and has broken below support at 2372.62, suggesting potential further downside pressure. The RSI is neutral at 41.8, and volume is slightly below average, indicating a lack of conviction in the current price action. The ML forecast is slightly positive, but the market news score is negative, adding to the bearish sentiment.",
+   "tahlil": "ETH/USDT is currently in a sideways market structure with recent higher highs and lower lows, indicating a lack of clear trend direction. The price is near resistance at 2393.48 and close to support at 2372.62, with RSI at 40.7, suggesting neither overbought nor oversold conditions. The daily timeframe shows a bearish bias with the price below the 50 EMA. The ML forecast is slightly positive, but the market news score is negative, adding to the cautious sentiment.",
    "qaror": "kutish",
    "ishonch": 30,
    "sabablar": [
@@ -23,39 +24,40 @@
     "kunlik_salbiy",
     "yangilik_salbiy"
    ],
-   "narx": 2387.6
+   "narx": 2382.82
   },
   "SOL": {
-   "tahlil": "SOL/USDT is currently in a bearish market structure with lower highs and lower lows, indicating a downtrend. The price is near support at 102.49, but the RSI is neutral at 38.8, suggesting potential for a bounce but not a strong reversal. The daily timeframe also shows a bearish trend with the price below the EMA50. The ML forecast is slightly positive, but the market news score is negative, adding to the bearish sentiment.",
+   "tahlil": "SOL/USDT is currently in a bearish market structure with lower highs and lower lows, indicating a downtrend. The price is near support at 101.69, but the RSI is neutral at 38, suggesting potential for a bounce but not strong enough to confirm a reversal. The daily timeframe also shows a bearish trend with the price below the EMA50. The ML forecast is slightly positive, but the market news score is negative, adding to the bearish sentiment.",
    "qaror": "kutish",
    "ishonch": 45,
-   "sabablar": [
-    "trend_past",
-    "sinish_past"
-   ],
-   "narx": 102.85
-  },
-  "BNB": {
-   "tahlil": "BNB/USDT is currently in a corrective phase with a bearish market context, as indicated by the lower highs and lower lows structure. The price is near resistance at 744.77, and the RSI is neutral at 51.9, suggesting limited near-term upside potential. The daily timeframe shows a similar corrective pattern, and the ML forecast is slightly positive but not strongly bullish. Overall, the risk-reward ratio is not favorable for a long entry.",
-   "qaror": "kutish",
-   "ishonch": 30,
-   "sabablar": [
-    "trend_past",
-    "qarshilik_yaqin",
-    "yangilik_salbiy"
-   ],
-   "narx": 739.59
-  },
-  "XRP": {
-   "tahlil": "XRP/USDT is currently in a downtrend with a bearish market structure, showing lower highs and lower lows. The price is near support but has recently broken a recent swing low, indicating potential further downside pressure. RSI is neutral at 39, and volume is in line with the trend, suggesting no immediate reversal signals. The daily context also aligns with the bearish trend, with the price below both EMA50 and EMA200. The ML forecast is slightly positive, but the news score is negative, adding to the bearish sentiment.",
-   "qaror": "kutish",
-   "ishonch": 70,
    "sabablar": [
     "trend_past",
     "sinish_past",
     "qarshilik_yaqin"
    ],
-   "narx": 1.295
+   "narx": 102.66
+  },
+  "BNB": {
+   "tahlil": "BNB/USDT is currently in a sideways market structure with recent higher highs and higher lows, indicating some bullish momentum. However, the trend is not confirmed by EMAs, and the RSI is neutral at 52.3, suggesting neither overbought nor oversold conditions. Price is near resistance at 744.77, and the daily timeframe shows a similar sideways pattern with a slight positive bias. The ML forecast is slightly positive, but the market news score is negative, adding some uncertainty.",
+   "qaror": "kutish",
+   "ishonch": 45,
+   "sabablar": [
+    "trend_past",
+    "qarshilik_yaqin"
+   ],
+   "narx": 739.97
+  },
+  "XRP": {
+   "tahlil": "XRP/USDT is currently in a bearish market structure with lower highs and lower lows, indicating a downtrend. The price is near support at 1.2865, but the RSI is neutral at 37.9, suggesting potential for a bounce but not strong enough to confirm a reversal. The ML forecast is slightly positive, but the market news score is negative, adding to the bearish sentiment. Overall, the trend and structure are not favorable for a long position.",
+   "qaror": "kutish",
+   "ishonch": 30,
+   "sabablar": [
+    "trend_past",
+    "sinish_past",
+    "qarshilik_yaqin",
+    "yangilik_salbiy"
+   ],
+   "narx": 1.2913
   }
  }
 }
