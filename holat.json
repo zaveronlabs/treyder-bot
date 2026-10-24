@@ -1,7 +1,7 @@
 {
  "chat_id": 8859413416,
  "update_id": 74030504,
- "oxirgi_sana": "2026-10-24 08:00",
+ "oxirgi_sana": "2026-10-24 12:00",
  "holat": {
   "BTC": 0,
   "ETH": 0,
@@ -10,30 +10,30 @@
   "XRP": 0
  },
  "narx": {
-  "BTC": 80599.41,
-  "ETH": 2365.74,
-  "SOL": 101.52,
-  "BNB": 731.76,
-  "XRP": 1.2817,
+  "BTC": 79803.75,
+  "ETH": 2306.41,
+  "SOL": 99.78,
+  "BNB": 721.63,
+  "XRP": 1.2683,
   "DOGE": 0.08007,
   "ADA": 0.2228,
   "AVAX": 9.897,
   "LINK": 12.074,
   "LTC": 59.36,
-  "PAXG": 4002.07
+  "PAXG": 3992.94
  },
  "rejim": "4h-5-avto3",
  "miya": {
-  "BTC": 0.2660792317387282,
-  "ETH": 0.017203924935634263,
-  "SOL": 0.3440342947484603,
-  "BNB": 0.33437207385727374,
-  "XRP": 0.17230644757368635,
-  "DOGE": -0.38489971781098187,
-  "ADA": -0.2071625735910667,
-  "AVAX": -0.2788042124553726,
-  "LINK": -0.02469512302612674,
-  "LTC": 0.3952075603330104
+  "BTC": 0.16890566741688567,
+  "ETH": -0.025476299183850956,
+  "SOL": 0.3234830535699498,
+  "BNB": 0.2501486422258437,
+  "XRP": 0.01314950094437937,
+  "DOGE": -0.47758220537908475,
+  "ADA": -0.3752854568065465,
+  "AVAX": -0.24078101280972478,
+  "LINK": -0.13032636961627375,
+  "LTC": 0.35684606982013206
  },
  "sinov_boshi": "2026-10-17 20:00",
  "oxirgi_hisobot": 1792281662.0175865,
@@ -136,11 +136,6 @@
      "miqdor": 0.547105810263705,
      "kirish_narx": 731.12,
      "kirish_sana": "2026-10-22 12:00"
-    },
-    "XRP": {
-     "miqdor": 305.4834275240568,
-     "kirish_narx": 1.3094,
-     "kirish_sana": "2026-10-22 20:00"
     },
     "SOL": {
      "miqdor": 3.8369304556354917,
@@ -247,10 +242,19 @@
      "chiqish_narx": 2365.74,
      "foyda": -3.8604238565924156,
      "sabab": "miya salbiy (+0.02)"
+    },
+    {
+     "belgi": "XRP",
+     "kirish_sana": "2026-10-22 20:00",
+     "kirish_narx": 1.3094,
+     "chiqish_sana": "2026-10-24 12:00",
+     "chiqish_narx": 1.2683,
+     "foyda": -12.74909118680309,
+     "sabab": "miya salbiy (+0.01)"
     }
    ],
-   "naqd": 258.21489107468824,
-   "komissiya": 5.23172330719094
+   "naqd": 445.46579988788517,
+   "komissiya": 5.425445622755321
   },
   "ai": {
    "portfel": {},
@@ -688,46 +692,46 @@
  },
  "ai_vaqt": "2026-10-24 12:21",
  "yangilik": {
-  "vaqt": "2026-10-24 11:24",
+  "vaqt": "2026-10-24 15:24",
   "soni": 50,
   "model": "qwen2.5:7b",
   "bozor": {
-   "baho": -0.21,
-   "izoh": "Umumiy bozor: 50 ta yangilik (8 yaxshi, 22 yomon). Kayfiyat salbiy."
+   "baho": -0.23,
+   "izoh": "Umumiy bozor: 50 ta yangilik (9 yaxshi, 26 yomon). Kayfiyat salbiy."
   },
   "tangalar": {
    "BTC": {
-    "baho": -0.13,
-    "izoh": "Bitcoin haqida 17 ta yangilik (4 yaxshi, 5 yomon). Kayfiyat betaraf."
+    "baho": -0.2,
+    "izoh": "Bitcoin haqida 12 ta yangilik (3 yaxshi, 7 yomon). Kayfiyat salbiy."
    },
    "ETH": {
-    "baho": -0.35,
-    "izoh": "Ethereum haqida 4 ta yangilik (0 yaxshi, 3 yomon). Kayfiyat salbiy."
+    "baho": -0.32,
+    "izoh": "Ethereum haqida 6 ta yangilik (1 yaxshi, 5 yomon). Kayfiyat salbiy."
    },
    "SOL": {
-    "baho": -0.21,
-    "izoh": "Alohida yangilik yo'q, umumiy bozorga qaraldi."
+    "baho": 0.14,
+    "izoh": "Solana haqida 1 ta yangilik (1 yaxshi, 0 yomon). Kayfiyat ijobiy."
    },
    "BNB": {
-    "baho": -0.1,
-    "izoh": "BNB haqida 1 ta yangilik (0 yaxshi, 0 yomon). Kayfiyat betaraf."
+    "baho": 0.14,
+    "izoh": "BNB haqida 1 ta yangilik (1 yaxshi, 0 yomon). Kayfiyat ijobiy."
    },
    "XRP": {
-    "baho": -0.1,
+    "baho": -0.12,
     "izoh": "XRP haqida 1 ta yangilik (0 yaxshi, 0 yomon). Kayfiyat betaraf."
    }
   }
  },
  "short_miya": {
-  "BTC": 0.09874566548853372,
-  "ETH": 0.10600054321132865,
-  "SOL": 0.03851276293926916,
-  "BNB": 0.05210645433939916,
-  "XRP": 0.043236476143902317,
-  "DOGE": 0.10808523538682482,
-  "ADA": 0.24994759904681604,
-  "AVAX": 0.5569242574037346,
-  "LINK": 0.19364029290031093,
-  "LTC": 0.04818898193624807
+  "BTC": 0.12271236770773275,
+  "ETH": 0.10909879356155135,
+  "SOL": 0.04984545607762484,
+  "BNB": 0.06229157721671517,
+  "XRP": 0.048392264967112304,
+  "DOGE": 0.08166079552174657,
+  "ADA": 0.19140919691663685,
+  "AVAX": 0.5564337628792498,
+  "LINK": 0.16814665344806692,
+  "LTC": 0.058766054200330924
  }
 }
