@@ -1,4 +1,4 @@
-name: Kriptodan tashqari bozorlar tarixini yig'ish
+name: Funding tarixini yig'ish
 permissions:
   contents: write
 on:
@@ -13,6 +13,6 @@ jobs:
           ref: orqaga-sinov
       - shell: bash {0}
         run: |
-          mkdir -p bozor; python3 bozor_ol.py > bozor/log.txt 2>&1; cat bozor/log.txt
+          mkdir -p funding; python3 funding_ol.py > funding/log.txt 2>&1; cat funding/log.txt
           git config user.name treyder-bot; git config user.email treyder-bot@users.noreply.github.com
-          git add bozor && git commit -qm "bozorlar tarixi [skip ci]" && git push -q origin HEAD:orqaga-sinov
+          git add funding && git commit -qm "funding tarixi [skip ci]" && git push -q origin HEAD:orqaga-sinov
