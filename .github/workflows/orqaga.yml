@@ -1,51 +1,18 @@
-name: Miya yangi belgilar sinovi 2 (bir martalik)
+name: Kriptodan tashqari bozorlar tarixini yig'ish
+permissions:
+  contents: write
 on:
   push:
     branches: [orqaga-sinov]
-permissions:
-  contents: write
 jobs:
-  sinov:
+  ol:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
-    strategy:
-      fail-fast: false
-      matrix:
-        variant: [nisbiy, oltin]
-        fold: [0, 1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v4
         with:
           ref: orqaga-sinov
-      - name: O'qitish
+      - shell: bash {0}
         run: |
-          pip install -q numpy pandas
-          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
-          python3 uzun_miya.py ${{ matrix.fold }} ${{ matrix.variant }}
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: uzun-${{ matrix.variant }}-${{ matrix.fold }}
-          path: uzun_${{ matrix.variant }}_${{ matrix.fold }}.json
-  yigish:
-    needs: sinov
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: orqaga-sinov
-      - uses: actions/download-artifact@v4
-        with:
-          path: natija
-      - run: |
-          python3 -c "
-          import json, glob
-          for v in ['nisbiy', 'oltin']:
-              d = {'ic': {}, 'p': []}
-              for f in sorted(glob.glob(f'natija/uzun-{v}-*/*.json')):
-                  x = json.load(open(f)); d['ic'][f] = [x['ic'], x['namuna']]; d['p'] += x['p']
-              json.dump(d, open(f'uzun_natija_{v}.json', 'w'))
-              print(v, d['ic'])"
+          python3 bozor_ol.py > bozor/log.txt 2>&1; cat bozor/log.txt
           git config user.name treyder-bot; git config user.email treyder-bot@users.noreply.github.com
-          git add uzun_natija_*.json && git commit -qm "yangi belgilar sinovi natijasi [skip ci]" && git pull -q --rebase origin orqaga-sinov && git push -q origin HEAD:orqaga-sinov
+          git add bozor && git commit -qm "bozorlar tarixi [skip ci]" && git push -q origin HEAD:orqaga-sinov
