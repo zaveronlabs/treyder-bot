@@ -13,6 +13,6 @@ jobs:
           ref: orqaga-sinov
       - shell: bash {0}
         run: |
-          python3 bozor_ol.py > bozor/log.txt 2>&1; cat bozor/log.txt
+          mkdir -p bozor; python3 bozor_ol.py > bozor/log.txt 2>&1; cat bozor/log.txt
           git config user.name treyder-bot; git config user.email treyder-bot@users.noreply.github.com
           git add bozor && git commit -qm "bozorlar tarixi [skip ci]" && git push -q origin HEAD:orqaga-sinov
