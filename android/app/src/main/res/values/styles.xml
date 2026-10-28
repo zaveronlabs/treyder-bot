@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Yodla" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/fon</item>
+        <item name="android:statusBarColor">@color/fon</item>
+        <item name="android:navigationBarColor">@color/fon</item>
+    </style>
+    <color name="fon">#07061A</color>
+</resources>

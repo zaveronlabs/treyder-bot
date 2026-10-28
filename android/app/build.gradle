@@ -1,0 +1,42 @@
+plugins {
+    id "com.android.application"
+}
+
+android {
+    namespace "uz.zaveron.yodla"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "uz.zaveron.yodla"
+        minSdk 24
+        targetSdk 34
+        versionCode (System.getenv("VERSIYA") ?: "1") as int
+        versionName "1." + (System.getenv("VERSIYA") ?: "1")
+    }
+
+    signingConfigs {
+        // har safar bir xil kalit: telefonda yangi versiya eskisining ustiga o'rnatiladi
+        yodla {
+            storeFile file("../yodla.keystore")
+            storePassword "yodla-ilova"
+            keyAlias "yodla"
+            keyPassword "yodla-ilova"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.yodla
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation "androidx.webkit:webkit:1.11.0"
+}
