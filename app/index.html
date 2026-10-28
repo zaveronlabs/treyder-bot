@@ -237,6 +237,31 @@ p { margin: 0; }
 .foot button { color: var(--soft); font-size: 14px; text-decoration: underline; text-underline-offset: 4px; }
 input[type=range] { width: 100%; accent-color: var(--cyan); }
 select { width: 100%; min-height: 48px; border-radius: 14px; background: var(--surface-2); color: var(--ink); border: 1px solid var(--line); padding: 0 12px; font: 600 15px var(--body); }
+/* speaking */
+.micwrap { display: flex; justify-content: center; padding: 4px 0; }
+.mic { width: 96px; height: 96px; border-radius: 50%; display: grid; place-items: center; background: var(--grad); color: var(--on-neon); box-shadow: 0 0 30px -4px rgba(255, 63, 208, .8); }
+.mic svg { width: 40px; height: 40px; }
+.mic:disabled { background: var(--surface-2); color: var(--dim); box-shadow: none; }
+.mic.on { background: var(--red); animation: pulse 1.1s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 77, 114, .75); } 50% { box-shadow: 0 0 0 18px rgba(255, 77, 114, 0); } }
+.spk span.hit { color: var(--lime); }
+.spk span.miss { color: var(--red); text-decoration: underline wavy; text-underline-offset: 6px; }
+.spk .hid { color: var(--dim); letter-spacing: .3em; }
+.uzline.big { font-size: 18px; color: var(--lime); }
+.heard { font-size: 14px; color: var(--soft); min-height: 20px; }
+.heard i { color: var(--ink); }
+.rpctl { position: sticky; bottom: 0; z-index: 3; display: flex; flex-direction: column; gap: 8px; margin-inline: -16px; padding: 22px 16px calc(6px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, rgba(7, 6, 26, .97) 75%, rgba(7, 6, 26, 0)); }
+.rpctl .mic { width: 80px; height: 80px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.chat { display: flex; flex-direction: column; gap: 10px; }
+.bub { max-width: 88%; padding: 10px 14px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 3px; }
+.bub.ai { align-self: flex-start; border-bottom-left-radius: 6px; }
+.bub.me { align-self: flex-end; border-color: rgba(45, 240, 255, .5); border-bottom-right-radius: 6px; }
+.bub.now { box-shadow: 0 0 20px -6px var(--cyan); }
+.bub .who { font: 700 11px var(--display); color: var(--pink); letter-spacing: .14em; text-transform: uppercase; }
+.bub b { font: 700 17px/1.35 var(--display); }
+.bub small { color: var(--soft); font-size: 13.5px; }
+.mode.v { color: var(--violet); } .mode.r { color: var(--red); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 
@@ -308,7 +333,7 @@ function clipUrl(text) {
   if (!URLS[k]) URLS[k] = URL.createObjectURL(new Blob([PACK.slice(e[0], e[0] + e[1])], { type: "audio/mpeg" }));
   return URLS[k];
 }
-function speak(text, rate) {
+function speak(text, rate, onend) {
   const r = rate || S.rate, url = clipUrl(text);
   if (url) {
     try { speechSynthesis.cancel(); } catch {}
@@ -317,20 +342,88 @@ function speak(text, rate) {
       const a = new Audio(url);
       a.playbackRate = Math.max(0.5, Math.min(1.4, r / 0.9));
       curAudio = a;
-      a.play().catch(() => ttsSpeak(text, r));
+      if (onend) { a.onended = onend; a.onerror = onend; }
+      a.play().catch(() => ttsSpeak(text, r, onend));
       return;
     } catch {}
   }
-  ttsSpeak(text, r);
+  ttsSpeak(text, r, onend);
 }
-function ttsSpeak(text, rate) {
+function ttsSpeak(text, rate, onend) {
   try {
     speechSynthesis.cancel();
     if (!VOICE || !VOICES.length) pickVoice();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = VOICE ? VOICE.lang : "en-US"; if (VOICE) u.voice = VOICE;
-    u.rate = rate || S.rate; speechSynthesis.speak(u);
-  } catch {}
+    u.rate = rate || S.rate; if (onend) u.onend = onend;
+    speechSynthesis.speak(u);
+  } catch { if (onend) setTimeout(onend, 600); }
+}
+// ---------- gapirish: mikrofon orqali eshitib tekshirish ----------
+// ilovada telefonning o'z ovoz tanish xizmati (YodlaNative), Chrome'da esa Web Speech API
+const NATIVE = window.YodlaNative || null;
+const SRC = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+const canHear = !!(NATIVE || SRC);
+let hearCb = null, srObj = null;
+window.yodlaEshitdi = (list) => { const c = hearCb; hearCb = null; if (c) c(null, list || []); };
+window.yodlaXato = (code) => { const c = hearCb; hearCb = null; if (c) c(String(code || "xato"), []); };
+function hear(cb) {
+  try { if (curAudio) curAudio.pause(); } catch {}
+  try { speechSynthesis.cancel(); } catch {}
+  hearCb = cb;
+  if (NATIVE) { NATIVE.tingla("en-US"); return; }
+  try {
+    const r = srObj = new SRC();
+    r.lang = "en-US"; r.maxAlternatives = 5; r.interimResults = false;
+    let got = false;
+    r.onresult = (e) => { got = true; window.yodlaEshitdi([...e.results[0]].map((x) => x.transcript)); };
+    r.onerror = (e) => window.yodlaXato(e.error);
+    r.onend = () => { if (!got) window.yodlaXato("no-speech"); };
+    r.start();
+  } catch { window.yodlaXato("mavjud-emas"); }
+}
+function stopHear() { hearCb = null; try { if (NATIVE) NATIVE.toxtat(); else if (srObj) srObj.abort(); } catch {} }
+function hearError(code) {
+  if (/^(6|7|no-speech|no-match|aborted)$/.test(code)) return "Eshitilmadi. Mikrofonni bosib, aniqroq va balandroq ayting.";
+  if (/^(9|ruxsat|not-allowed|service-not-allowed)$/.test(code)) return "Mikrofonga ruxsat kerak. Yana bosing va ruxsat bering.";
+  if (/^(1|2|network)$/.test(code)) return "Ovozni tanish uchun internet kerak bo'ldi. Internetni yoqing yoki telefon sozlamalarida inglizcha (US) ovoz paketini yuklab qo'ying.";
+  if (code === "mavjud-emas") return "Bu telefonda ovozni tanish xizmati topilmadi. Google ilovasini o'rnating yoki yangilang.";
+  return "Nimadir xato ketdi, yana bir bor bosib ko'ring.";
+}
+// solishtirish: qisqartmalar ochiladi, raqamlar so'zga aylanadi, bir xil eshitiladigan so'zlar tenglashtiriladi
+const CONTR = { "i'm": "i am", "you're": "you are", "he's": "he is", "she's": "she is", "it's": "it is", "we're": "we are", "they're": "they are", "that's": "that is", "what's": "what is", "there's": "there is", "where's": "where is", "who's": "who is", "how's": "how is", "let's": "let us", "don't": "do not", "doesn't": "does not", "didn't": "did not", "isn't": "is not", "aren't": "are not", "wasn't": "was not", "weren't": "were not", "can't": "can not", "cannot": "can not", "won't": "will not", "i'll": "i will", "you'll": "you will", "we'll": "we will", "it'll": "it will", "i've": "i have", "you've": "you have", "i'd": "i would", "gonna": "going to", "wanna": "want to", "gotta": "got to", "gimme": "give me", "lemme": "let me", "dunno": "do not know", "kinda": "kind of", "whatcha": "what are you" };
+const NUMW = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"];
+Object.assign(NUMW, { 30: "thirty", 40: "forty", 50: "fifty", 60: "sixty", 100: "hundred" });
+const SAME = { two: "to", too: "to", four: "for", write: "right", know: "no", hear: "here", their: "there", buy: "by", bye: "by", eight: "ate", won: "one", high: "hi", hey: "hi", sea: "see", eye: "i", weight: "wait", okay: "ok", u: "you", ya: "you", cuz: "because", mom: "mom", mum: "mom", oclock: "oclock" };
+function normWords(s) {
+  return String(s).toLowerCase().replace(/[’‘`]/g, "'").replace(/[^a-z0-9' ]+/g, " ").split(/\s+/).filter(Boolean)
+    .flatMap((w) => { w = w.replace(/^'+|'+$/g, ""); const n = /^\d+$/.test(w) ? NUMW[+w] : null; return (CONTR[w] || n || w).split(" "); })
+    .map((w) => { w = w.replace(/'/g, ""); return SAME[w] || w; }).filter(Boolean);
+}
+function speechCheck(target, alts) {
+  const toks = target.split(/\s+/).filter(Boolean);
+  const parts = toks.map((t) => normWords(t));
+  const T = parts.flat();
+  let best = null;
+  for (const a of alts.length ? alts : [""]) {
+    const H = normWords(a), n = T.length, m = H.length;
+    const L = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) L[i][j] = T[i] === H[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+    const hit = new Array(n).fill(false);
+    for (let i = 0, j = 0; i < n && j < m;) { if (T[i] === H[j]) { hit[i] = true; i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++; }
+    const score = n ? L[0][0] / n : 0;
+    if (!best || score > best.score) best = { score, hit, heard: a };
+  }
+  let k = 0;
+  const tokOk = parts.map((p) => { const ok = p.every((_, q) => best.hit[k + q]); k += p.length; return ok; });
+  return { score: best.score, ok: best.score >= 0.8, toks, tokOk, heard: best.heard };
+}
+const marked = (res) => res.toks.map((w, j) => `<span class="${res.tokOk[j] ? "hit" : "miss"}">${esc(w)}</span>`).join(" ");
+// ovoz tugagach davom etish (ovoz chiqmasa ham ko'pi bilan 9 soniyadan keyin)
+function speakThen(text, cb) {
+  let done = false;
+  const go = () => { if (!done) { done = true; cb(); } };
+  speak(text, null, go); later(go, 9000);
 }
 const sayable = (s) => s.replace(/\.\.\.|…|\(.*?\)/g, "").replace(/\s*(→|\/)\s*/g, ", ").replace(/\s+([?,.!])/g, "$1").replace(/\s+/g, " ").trim();
 
@@ -349,6 +442,8 @@ const T_PRAC = I('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/>
 const M_ORDER = I('<rect x="3" y="4" width="8" height="6" rx="1.5"/><rect x="13" y="4" width="8" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/>');
 const M_LISTEN = I('<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="5" height="7" rx="2"/><rect x="16" y="14" width="5" height="7" rx="2"/>');
 const M_SPEED = I('<circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.5 2M9.5 2.5h5"/>');
+const MIC = I('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>');
+const M_CHAT = I('<path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M17 9h3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1v3l-4-3h-3"/>');
 const M_VOCAB = I('<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>');
 
 // ---------- yordamchilar ----------
@@ -371,7 +466,7 @@ const $ = (id) => document.getElementById(id);
 
 const TABS = { words: () => home(), lessons: () => lessonsTab(), practice: () => practiceTab() };
 function html(s, tab) {
-  stopTimers();
+  stopTimers(); stopHear();
   document.querySelectorAll(".toast, .sheet").forEach((e) => e.remove());
   $app.innerHTML = s + (tab ? `<div class="tabs"><nav aria-label="Bo'limlar">
       <button class="tab ${tab === "words" ? "on" : ""}" data-t="words" type="button">${T_WORDS}So'zlar</button>
@@ -624,6 +719,7 @@ function runQueue(queue, cfg) {
         <span class="stage">${label}</span>
       </div>`;
     const finish = (ok, wid, correctText) => {
+      if (ok === null) { if (!task.retry) done++; i++; return next(); }
       if (ok) {
         if (!task.retry) { done++; firstOk++; }
         const xp = task.retry ? 5 : 10;
@@ -642,6 +738,7 @@ function runQueue(queue, cfg) {
     else if (t === "order") taskOrder(head, task, finish);
     else if (t === "tr") taskTr(head, task, finish);
     else if (t === "listen") taskListen(head, task, finish, cfg.pool || []);
+    else if (t === "speak") taskSpeak(head, task, finish);
     $("quit").onclick = cfg.back;
   }
   next();
@@ -853,6 +950,149 @@ function taskListen(head, t, finish, pool) {
   });
 }
 
+// ovoz chiqarib aytish (hide: faqat o'zbekchasi ko'rinadi, inglizchasini o'zi tuzib aytadi)
+function taskSpeak(head, t, finish) {
+  let tries = 0, busy = false, locked = false, shown = !t.hide;
+  html(`${head}
+    <div class="task-title">${t.hide ? "Inglizcha qanday aytiladi?" : "Tinglang va ovoz chiqarib ayting"}</div>
+    <div class="card">
+      <div class="uzline big">${esc(t.uz)}</div>
+      <div class="sent spk" id="tgt"></div>
+      <div class="row">${t.hide ? `<button class="yg" id="hint" type="button">Javobni ko'rish</button>` : `<button class="say" id="sw" type="button" aria-label="Tinglash">${SPK}</button>`}</div>
+    </div>
+    <div class="grow"></div>
+    <p class="center heard" id="msg">${canHear ? "Mikrofonni bosing va gapiring" : "Bu oynada mikrofon ishlamaydi. Yodla ilovasini telefonda oching."}</p>
+    <div class="micwrap"><button class="mic" id="mic" type="button" aria-label="Gapirish" ${canHear ? "" : "disabled"}>${MIC}</button></div>
+    <button class="btn ghost" id="skip" type="button">Hozir gapira olmayman</button>
+  `);
+  const tgt = $("tgt");
+  const draw = (res) => { tgt.innerHTML = res ? marked(res) : shown ? esc(t.en) : `<span class="hid">• • •</span>`; };
+  draw();
+  if ($("sw")) { $("sw").onclick = () => speak(t.en); later(() => speak(t.en), 300); }
+  if ($("hint")) $("hint").onclick = () => { shown = true; draw(); speak(t.en); $("hint").remove(); };
+  $("mic").onclick = () => {
+    if (locked) return;
+    if (busy) { stopHear(); busy = false; $("mic").classList.remove("on"); $("msg").textContent = "Mikrofonni bosing va gapiring"; return; }
+    busy = true; $("mic").classList.add("on"); $("msg").textContent = "Eshityapman... gapiring";
+    hear((err, alts) => {
+      busy = false;
+      if (!document.body.contains(tgt)) return;
+      $("mic").classList.remove("on");
+      if (err) { $("msg").textContent = hearError(err); return; }
+      const res = speechCheck(t.en, alts); tries++; shown = true;
+      draw(res);
+      const heard = `Eshitildi: <i>${esc(res.heard || "...")}</i>`;
+      if (res.ok) { locked = true; $("msg").innerHTML = heard; finish(true, t.wid, t.en); }
+      else if (tries >= 3) { locked = true; $("msg").innerHTML = heard; finish(false, t.wid, t.en); }
+      else { $("msg").innerHTML = `${heard}<br>Qizil so'zlarni yana bir bor aytib ko'ring.`; speak(t.en); }
+    });
+  };
+  $("skip").onclick = () => { if (!locked) { locked = true; finish(null); } };
+}
+
+// suhbat o'yini: Andrew bir tomonni gapiradi, sen ikkinchi tomonni aytasan
+function rolePlay(li, me, back) {
+  const L = LESSONS[li], rows = L.rows, ai = me === "A" ? "B" : "A";
+  let k = 0, good = 0, mine = 0, tries = 0, busy = false, cur = null;
+  html(`
+    <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>${esc(L.title.replace("Suhbat: ", ""))}</h2></div>
+    <p class="muted">Sen: <b>${me}</b>. Andrew: <b>${ai}</b>. Andrew gapirgach, mikrofonni bosib o'z gapingni ayt.</p>
+    <div class="chat" id="chat"></div>
+    <div class="grow"></div>
+    <div class="rpctl">
+      <p class="center heard" id="msg"></p>
+      <div class="micwrap"><button class="mic" id="mic" type="button" aria-label="Gapirish" disabled>${MIC}</button></div>
+      <div class="row2"><button class="btn ghost" id="hint" type="button" disabled>Tinglash</button><button class="btn ghost" id="skip" type="button" disabled>O'tkazish</button></div>
+    </div>
+  `);
+  $("quit").onclick = back;
+  const chat = $("chat");
+  const setBtns = (on) => ["mic", "hint", "skip"].forEach((id) => { $(id).disabled = !on || (id === "mic" && !canHear); });
+  function bubble(r, cls, text) {
+    const el = document.createElement("div");
+    el.className = `bub ${cls}`;
+    el.innerHTML = `<span class="who">${r[0] === me ? "Sen" : "Andrew"}</span><b class="spk">${text}</b><small>${esc(r[2])}</small>`;
+    chat.appendChild(el); el.scrollIntoView({ behavior: "smooth", block: "center" });
+    return el;
+  }
+  function step() {
+    if (!document.body.contains(chat)) return;
+    if (k >= rows.length) return finishRP();
+    const r = rows[k];
+    if (r[0] === ai) { bubble(r, "ai", esc(r[1])); setBtns(false); $("msg").textContent = "Andrew gapiryapti..."; speakThen(r[1], () => { k++; later(step, 350); }); return; }
+    mine++; tries = 0;
+    cur = bubble(r, "me now", esc(r[1]));
+    setBtns(true);
+    $("msg").textContent = canHear ? "Sening navbating: mikrofonni bosib ayt" : "Bu oynada mikrofon ishlamaydi. Yodla ilovasini telefonda oching.";
+  }
+  function next(ok) { if (ok) good++; cur.classList.remove("now"); setBtns(false); k++; later(step, ok ? 700 : 1200); }
+  $("hint").onclick = () => speak(rows[k][1]);
+  $("skip").onclick = () => { stopHear(); busy = false; $("mic").classList.remove("on"); next(false); };
+  $("mic").onclick = () => {
+    if (busy) { stopHear(); busy = false; $("mic").classList.remove("on"); $("msg").textContent = "Mikrofonni bosib ayt"; return; }
+    busy = true; $("mic").classList.add("on"); $("msg").textContent = "Eshityapman... gapir";
+    const r = rows[k];
+    hear((err, alts) => {
+      busy = false;
+      if (!document.body.contains(chat)) return;
+      $("mic").classList.remove("on");
+      if (err) { $("msg").textContent = hearError(err); return; }
+      const res = speechCheck(r[1], alts); tries++;
+      cur.querySelector("b").innerHTML = marked(res);
+      const heard = `Eshitildi: <i>${esc(res.heard || "...")}</i>`;
+      if (res.ok) { ding(true); $("msg").innerHTML = `${pick(PRAISE)} ${heard}`; next(true); }
+      else if (tries >= 2) { ding(false); $("msg").innerHTML = `${heard}<br>Mayli, Andrew to'g'risini aytadi, davom etamiz.`; setBtns(false); speakThen(r[1], () => next(false)); }
+      else { $("msg").innerHTML = `${heard}<br>Qizil so'zlarni yana bir bor ayt.`; }
+    });
+  };
+  function finishRP() {
+    const st = good === mine ? 3 : good >= mine * 0.6 ? 2 : 1;
+    addXP(15); bumpStreak(); save();
+    html(`
+      <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>Suhbat tugadi</h2></div>
+      <div class="big-stars" role="img" aria-label="${st} yulduz">${stars(st)}</div>
+      <div class="score">${good}/${mine}</div>
+      <p class="center muted">gapingni ilova birinchi yoki ikkinchi urinishda tushundi</p>
+      <p class="center"><span class="xpgain">+15 XP</span></p>
+      <div class="grow"></div>
+      <button class="btn main" id="sw2" type="button">Rollarni almashtirish (sen ${ai})</button>
+      <button class="btn ghost" id="ag" type="button">Yana bir marta</button>
+      <button class="btn ghost" id="bk" type="button">Orqaga</button>
+    `);
+    $("quit").onclick = back; $("bk").onclick = back;
+    $("sw2").onclick = () => rolePlay(li, ai, back);
+    $("ag").onclick = () => rolePlay(li, me, back);
+  }
+  later(step, 400);
+}
+
+// mashq zali: ovoz chiqarib gapirish
+function speakPool() {
+  const out = [];
+  learnedWords().forEach((w) => out.push({ en: w.ex, uz: w.exUz, wid: w.id }));
+  LESSONS.forEach((L) => {
+    if (!S.lessons[L.id]) return;
+    (L.ex || []).forEach((r) => out.push({ en: r[0], uz: r[1] }));
+    if (L.dialog) L.rows.forEach((r) => out.push({ en: r[1], uz: r[2] }));
+  });
+  if (out.length < 8) { PACKS[0].words.concat(PACKS[1].words).forEach((w) => out.push({ en: w.ex, uz: w.exUz })); LESSONS[0].ex.forEach((r) => out.push({ en: r[0], uz: r[1] })); }
+  return out;
+}
+function practiceSpeak() {
+  const pool = shuffle(speakPool()).slice(0, 8);
+  const queue = pool.map((t, j) => ({ ...t, type: "speak", hide: j >= 4 }));
+  runQueue(queue, { back: practiceTab, onDone: (m, ok, n) => practiceDone("Gapirish", ok, n, practiceSpeak) });
+}
+function dialogsList() {
+  html(`
+    <div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>Suhbat o'yini</h2></div>
+    <p class="muted">Andrew bir tomonni gapiradi, sen ikkinchisini aytasan. Keyin rollarni almashtirsa bo'ladi.</p>
+    <div class="list">${LESSONS.map((L, i) => L.dialog ? `<button class="item" data-l="${i}" type="button"><span class="num">${MIC}</span><span class="body"><span class="title">${esc(L.title.replace("Suhbat: ", ""))}</span><span class="sub">${esc(L.sub)}</span></span></button>` : "").join("")}</div>
+  `);
+  $("quit").onclick = practiceTab;
+  on(".item", (e) => rolePlay(+e.currentTarget.dataset.l, "B", dialogsList));
+}
+
 // ---------- natijalar ----------
 function finishPack(pi, marks, misses) {
   const st = misses === 0 ? 3 : misses <= 2 ? 2 : 1;
@@ -912,6 +1152,8 @@ function lessonsTab() {
   on(".item", (e) => lessonTheory(+e.currentTarget.dataset.l));
 }
 
+// har darsda 2 ta gapirish mashqi: misollar (suhbatda esa B qatorlari)
+const lessonSay = (L) => L.dialog ? L.rows.filter((r) => r[0] === "B").map((r) => ({ en: r[1], uz: r[2] })) : (L.ex || []).map((r) => ({ en: r[0], uz: r[1] }));
 function lessonTheory(li) {
   const L = LESSONS[li];
   const row = (r) => L.dialog
@@ -924,9 +1166,11 @@ function lessonTheory(li) {
     ${L.note ? `<div class="note">${esc(L.note)}</div>` : ""}
     ${L.ex ? `<div class="sec">Misollar</div><div class="tbl">${L.ex.map((r) => `<div class="tr"><b>${esc(r[0])}</b><span>${esc(r[1])}</span><button class="say" data-say="${esc(r[0])}" type="button" aria-label="Tinglash">${SPK}</button></div>`).join("")}</div>` : ""}
     <div class="grow"></div>
-    <button class="btn main" id="go" type="button">Mashqni boshlash · ${L.tasks.length}</button>
+    ${L.dialog ? `<button class="btn ghost" id="rp" type="button">Andrew bilan gaplashish</button>` : ""}
+    <button class="btn main" id="go" type="button">Mashqni boshlash · ${L.tasks.length + Math.min(2, lessonSay(L).length)}</button>
   `);
   $("quit").onclick = lessonsTab;
+  if ($("rp")) $("rp").onclick = () => rolePlay(li, "B", () => lessonTheory(li));
   on("[data-say]", (e) => speak(e.currentTarget.dataset.say));
   $("go").onclick = () => startLesson(li);
 }
@@ -934,6 +1178,7 @@ function lessonTheory(li) {
 function startLesson(li) {
   const L = LESSONS[li];
   const queue = L.tasks.map((t) => ({ ...t, type: t.k }));
+  shuffle(lessonSay(L)).slice(0, 2).forEach((t) => queue.push({ ...t, type: "speak" }));
   runQueue(queue, { back: lessonsTab, pool: L.tasks.filter((t) => t.uz).map((t) => t.uz), onDone: (misses) => lessonResult(li, misses) });
 }
 
@@ -964,6 +1209,8 @@ function practiceTab() {
       <div><h2>Mashq zali</h2><p>${ok ? `O'rgangan ${n} ta so'zingiz va ularning misol gaplari bilan mashq qiling.` : "Mashqlar o'rgangan so'zlaringizdan tuziladi. Avval So'zlar bo'limida 1-paketni tugating."}</p></div>
     </section>
     <div class="modes">
+      <button class="mode v" id="m5" type="button"><span class="ic">${MIC}</span><b>Gapirish</b><span>Gaplarni ovoz chiqarib ayting, ilova tekshiradi</span></button>
+      <button class="mode r" id="m6" type="button"><span class="ic">${M_CHAT}</span><b>Suhbat o'yini</b><span>Andrew bilan navbatma-navbat gaplashing</span></button>
       <button class="mode c" id="m1" type="button" ${ok ? "" : 'aria-disabled="true"'}><span class="ic">${M_ORDER}</span><b>Gap tuzish</b><span>So'zlardan to'liq gap yig'ing</span></button>
       <button class="mode p" id="m2" type="button" ${ok ? "" : 'aria-disabled="true"'}><span class="ic">${M_LISTEN}</span><b>Tinglab tushunish</b><span>Gapni eshitib, ma'nosini toping</span></button>
       <button class="mode g" id="m3" type="button" ${ok ? "" : 'aria-disabled="true"'}><span class="ic">${M_SPEED}</span><b>Tezkor sinov</b><span>60 soniya · rekord: ${S.best.speed || 0}</span></button>
@@ -973,6 +1220,7 @@ function practiceTab() {
   bindTop();
   if (ok) { $("m1").onclick = practiceOrder; $("m2").onclick = practiceListen; $("m3").onclick = speedQuiz; }
   $("m4").onclick = vocab;
+  $("m5").onclick = practiceSpeak; $("m6").onclick = dialogsList;
 }
 
 function practiceOrder() {
