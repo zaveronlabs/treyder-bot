@@ -10,7 +10,7 @@ android {
         applicationId "uz.zaveron.yodla"
         minSdk 24
         targetSdk 34
-        versionCode (System.getenv("VERSIYA") ?: "1") as int
+        versionCode Integer.parseInt(System.getenv("VERSIYA") ?: "1")
         versionName "1." + (System.getenv("VERSIYA") ?: "1")
     }
 
