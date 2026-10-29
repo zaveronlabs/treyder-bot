@@ -98,8 +98,8 @@ p { margin: 0; }
 
 /* tab bar */
 .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, var(--bg) 55%, transparent); }
-.tabs nav { max-width: 448px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 6px; border-radius: 20px; background: var(--bar); border: 1px solid var(--line); }
-.tab { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; border-radius: 14px; color: var(--dim); font: 600 11.5px var(--display); letter-spacing: .1em; text-transform: uppercase; }
+.tabs nav { max-width: 448px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 6px; border-radius: 20px; background: var(--bar); border: 1px solid var(--line); }
+.tab { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; border-radius: 14px; color: var(--dim); font: 600 11.5px var(--display); letter-spacing: .06em; text-transform: uppercase; }
 .tab svg { width: 22px; height: 22px; }
 .tab.on { color: var(--cyan); background: rgba(45, 240, 255, .09); text-shadow: 0 0 10px rgba(45, 240, 255, .7); }
 .tab.on svg { filter: drop-shadow(0 0 6px var(--cyan)); }
@@ -176,6 +176,40 @@ p { margin: 0; }
 /* feedback */
 .toast { position: fixed; left: 50%; top: calc(64px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); z-index: 20; padding: 12px 22px; border-radius: 999px; background: var(--bar); border: 1px solid var(--lime); color: var(--lime); font: 700 18px var(--display); letter-spacing: .06em; box-shadow: 0 0 28px -4px var(--lime); display: flex; gap: 10px; align-items: center; white-space: nowrap; animation: pop .25s ease-out; }
 .toast small { color: var(--cyan); font-size: 13px; }
+/* 6 oylik reja */
+.mission { gap: 8px; }
+.mhead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.mhead b { font: 700 16px var(--display); letter-spacing: .04em; }
+.mrow { display: flex; align-items: center; gap: 12px; text-align: left; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); color: inherit; font: inherit; }
+.mrow.on { opacity: .6; } .mrow.on span:last-child { text-decoration: line-through; }
+.mchk { width: 24px; height: 24px; flex: none; border-radius: 8px; border: 1.5px solid var(--cyan); display: grid; place-items: center; color: var(--on-neon); }
+.mrow.on .mchk { background: var(--lime); border-color: var(--lime); }
+.mchk svg { width: 16px; height: 16px; }
+.plancta { text-align: left; color: inherit; font: inherit; border-color: rgba(255, 79, 216, .5); }
+.chap { gap: 12px; }
+.chead { display: flex; align-items: center; gap: 14px; }
+.chead > div { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.chead .num { width: 44px; height: 44px; flex: none; border-radius: 13px; display: grid; place-items: center; font: 700 17px var(--display); background: var(--surface-2); border: 1px solid var(--line); }
+.chead .num svg { width: 20px; height: 20px; }
+.chead .cnt { font: 700 14px var(--display); color: var(--soft); font-variant-numeric: tabular-nums; }
+.chap.open { border-color: rgba(45, 240, 255, .65); box-shadow: 0 0 20px -8px var(--cyan); }
+.chap.open .num { background: var(--grad); color: var(--on-neon); border-color: transparent; }
+.chap.done .num { color: var(--lime); border-color: var(--lime); }
+.chap.locked { opacity: .42; }
+.quest { display: flex; flex-direction: column; gap: 6px; }
+.qrow { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; }
+.qrow small { color: var(--soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.quest.ok .qrow span { color: var(--lime); }
+.meter.sm { height: 6px; }
+.badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+.badge { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; padding: 12px 8px; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); opacity: .45; }
+.badge.on { opacity: 1; border-color: rgba(255, 200, 60, .6); box-shadow: 0 0 18px -8px var(--gold); }
+.badge span { font-size: 26px; } .badge b { font-size: 13px; } .badge small { font-size: 11px; color: var(--soft); }
+.cando { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
+.cando-box summary { cursor: pointer; color: var(--cyan); font-weight: 600; }
+.cando-box .cando { margin-top: 10px; }
+.toast.gold { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 28px -4px var(--gold); white-space: normal; text-align: center; max-width: calc(100vw - 32px); }
+
 @keyframes pop { from { transform: translate(-50%, -12px) scale(.9); opacity: 0 } }
 .sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--sheet); border-top: 1px solid var(--red); box-shadow: 0 -12px 40px -12px rgba(255, 77, 114, .7); animation: up .22s ease-out; }
 .sheet .in { max-width: 448px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
@@ -305,7 +339,7 @@ function addXP(n) { const t = todayStr(); if (S.day.d !== t) S.day = { d: t, xp:
 function bumpStreak() {
   const t = todayStr(), y = todayStr(Date.now() - DAY);
   if (S.streak.last === t) return;
-  S.streak.n = S.streak.last === y ? S.streak.n + 1 : 1; S.streak.last = t; save();
+  S.streak.n = S.streak.last === y ? S.streak.n + 1 : 1; S.streak.last = t; S.bestStreak = Math.max(S.bestStreak || 0, S.streak.n); save();
 }
 function streakNow() { return (S.streak.last === todayStr() || S.streak.last === todayStr(Date.now() - DAY)) ? S.streak.n : 0; }
 
@@ -442,6 +476,7 @@ const LOCK = I('<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V
 const CHECK = I('<path d="M5 12.5l4.5 4.5L19 7.5"/>');
 const T_WORDS = I('<rect x="3" y="7" width="13" height="14" rx="2.5"/><path d="M8 3.5h10.5A2.5 2.5 0 0 1 21 6v11"/>');
 const T_LESS = I('<path d="M2 9.5 12 4.5l10 5-10 5z"/><path d="M6 11.5v4.8c3.2 2.6 8.8 2.6 12 0v-4.8M22 9.5v5"/>');
+const T_PLAN = I('<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>');
 const T_PRAC = I('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/>');
 const M_ORDER = I('<rect x="3" y="4" width="8" height="6" rx="1.5"/><rect x="13" y="4" width="8" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/>');
 const M_LISTEN = I('<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="5" height="7" rx="2"/><rect x="16" y="14" width="5" height="7" rx="2"/>');
@@ -470,7 +505,7 @@ function stopTimers() { TIMERS.forEach((t) => { clearTimeout(t); clearInterval(t
 function on(sel, fn) { $app.querySelectorAll(sel).forEach((el) => el.addEventListener("click", fn)); }
 const $ = (id) => document.getElementById(id);
 
-const TABS = { words: () => home(), lessons: () => lessonsTab(), practice: () => practiceTab() };
+const TABS = { words: () => home(), lessons: () => lessonsTab(), practice: () => practiceTab(), plan: () => planTab() };
 function html(s, tab) {
   stopTimers(); stopHear();
   document.querySelectorAll(".toast, .sheet").forEach((e) => e.remove());
@@ -478,6 +513,7 @@ function html(s, tab) {
       <button class="tab ${tab === "words" ? "on" : ""}" data-t="words" type="button">${T_WORDS}So'zlar</button>
       <button class="tab ${tab === "lessons" ? "on" : ""}" data-t="lessons" type="button">${T_LESS}Darslar</button>
       <button class="tab ${tab === "practice" ? "on" : ""}" data-t="practice" type="button">${T_PRAC}Mashq</button>
+      <button class="tab ${tab === "plan" ? "on" : ""}" data-t="plan" type="button">${T_PLAN}Reja</button>
     </nav></div>` : "");
   $app.classList.toggle("has-tabs", !!tab);
   window.scrollTo(0, 0);
@@ -559,6 +595,7 @@ function home() {
         ${nextPack >= 0 ? `<button class="btn ${due ? "ghost" : "main"}" id="nxt" type="button">${due ? "Yangi paket" : "Boshlash"}</button>` : ""}
       </div>
     </section>
+    ${S.plan ? missionCard() : `<button class="card plancta" id="pcta" type="button"><span class="tag pink">Yangi</span><b>6 oylik reja</b><span class="muted">O'yindagidek boblar, vazifalar va yutuqlar. Oxirida bir daraja yuqoriga chiqasan.</span></button>`}
     <div class="sec">So'z paketlari</div>
     <div class="list">
       ${PACKS.map((p, i) => {
@@ -577,6 +614,8 @@ function home() {
   bindTop();
   if ($("rev")) $("rev").onclick = review;
   if ($("lvt")) $("lvt").onclick = levelIntro;
+  if ($("pcta")) $("pcta").onclick = planTab;
+  bindMission();
   if ($("nxt")) $("nxt").onclick = () => learn(nextPack);
   on(".item", (e) => { if (!e.currentTarget.getAttribute("aria-disabled")) learn(+e.currentTarget.dataset.p); });
   $("howb").onclick = howto;
@@ -1002,7 +1041,7 @@ function taskSpeak(head, t, finish) {
       const res = speechCheck(t.en, alts); tries++; shown = true;
       draw(res);
       const heard = `Eshitildi: <i>${esc(res.heard || "...")}</i>`;
-      if (res.ok) { locked = true; $("msg").innerHTML = heard; finish(true, t.wid, t.en); }
+      if (res.ok) { locked = true; $("msg").innerHTML = heard; stat("spoken"); finish(true, t.wid, t.en); }
       else if (tries >= 3) { locked = true; $("msg").innerHTML = heard; finish(false, t.wid, t.en); }
       else { $("msg").innerHTML = `${heard}<br>Qizil so'zlarni yana bir bor aytib ko'ring.`; speak(t.en); }
     });
@@ -1060,14 +1099,14 @@ function rolePlay(li, me, back) {
       const res = speechCheck(r[1], alts); tries++;
       cur.querySelector("b").innerHTML = marked(res);
       const heard = `Eshitildi: <i>${esc(res.heard || "...")}</i>`;
-      if (res.ok) { ding(true); $("msg").innerHTML = `${pick(PRAISE)} ${heard}`; next(true); }
+      if (res.ok) { ding(true); $("msg").innerHTML = `${pick(PRAISE)} ${heard}`; stat("spoken"); next(true); }
       else if (tries >= 2) { ding(false); $("msg").innerHTML = `${heard}<br>Mayli, Andrew to'g'risini aytadi, davom etamiz.`; setBtns(false); speakThen(r[1], () => next(false)); }
       else { $("msg").innerHTML = `${heard}<br>Qizil so'zlarni yana bir bor ayt.`; }
     });
   };
   function finishRP() {
     const st = good === mine ? 3 : good >= mine * 0.6 ? 2 : 1;
-    addXP(15); bumpStreak(); save();
+    addXP(15); bumpStreak(); save(); markSet("dlg", L.id); dayMark("lesson");
     html(`
       <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>Suhbat tugadi</h2></div>
       <div class="big-stars" role="img" aria-label="${st} yulduz">${stars(st)}</div>
@@ -1215,7 +1254,7 @@ function taskAnswer(head, t, finish) {
       if (err) { msg.textContent = hearError(err); return; }
       const heard = alts[0] || "";
       if (normWords(heard).length >= 3) {
-        locked = true; ding(true); showModel();
+        locked = true; ding(true); showModel(); stat("answers"); stat("spoken");
         msg.innerHTML = `${pick(PRAISE)} Sen aytding: <i>${esc(heard)}</i>`;
         const sk = $("skip"); sk.textContent = "Keyingi"; sk.className = "btn main";
         sk.onclick = () => finish(true);
@@ -1244,7 +1283,160 @@ function storiesList() {
 function shadow(k) {
   const h = HIKOYALAR[k];
   const queue = h.lines.map((l) => ({ type: "speak", en: l[0], uz: l[1], auto: true }));
-  runQueue(queue, { back: storiesList, onDone: (m, ok, n) => practiceDone(`Soya: ${h.title}`, ok, n, () => shadow(k)) });
+  runQueue(queue, { back: storiesList, onDone: (m, ok, n) => { markSet("sh", k); practiceDone(`Soya: ${h.title}`, ok, n, () => shadow(k)); } });
+}
+
+// ---------- 6 oylik reja: boblar, vazifalar, bugungi missiya va yutuqlar ----------
+function todayRec() {
+  const t = todayStr();
+  if (!S.today || S.today.d !== t) S.today = { d: t, spoken: 0, lesson: false, words: false, bonus: false };
+  return S.today;
+}
+// hisoblagichlar: spoken (to'g'ri aytilgan gaplar), answers (O'zim haqimda javoblari)
+function stat(k, n = 1) {
+  S.stats = S.stats || {};
+  S.stats[k] = (S.stats[k] || 0) + n;
+  if (k === "spoken") todayRec().spoken += n;
+  save(); afterProgress();
+}
+function dayMark(k) { todayRec()[k] = true; save(); afterProgress(); }
+function markSet(k, id) { S.stats = S.stats || {}; (S.stats[k] = S.stats[k] || {})[id] = Date.now(); save(); afterProgress(); }
+const stv = (k) => (S.stats && S.stats[k]) || 0;
+const cnt = (k) => Object.keys((S.stats && S.stats[k]) || {}).length;
+const P = {
+  words: () => Object.keys(S.words).length,
+  spoken: () => stv("spoken"),
+  answers: () => stv("answers"),
+  dialogs: () => cnt("dlg"),
+  shadow: () => cnt("sh"),
+  street: () => PACKS.filter((p) => p.free && S.packs[p.title]).length,
+  streak: () => Math.max(S.bestStreak || 0, streakNow()),
+  lessons: (lv) => LESSONS.filter((l) => l.lv === lv && S.lessons[l.id]).length,
+};
+const missionItems = () => {
+  const d = todayRec();
+  return [
+    { id: "words", label: "So'zlar: takrorlash yoki yangi paket", done: d.words, go: () => { if (dueWords().length) return review(); const wr = lvRank(workLv()); let i = PACKS.findIndex((p) => !S.packs[p.title] && !p.free && lvRank(p.lv) >= wr); if (i < 0) i = PACKS.findIndex((p) => !S.packs[p.title]); i >= 0 ? learn(i) : home(); } },
+    { id: "spoken", label: `10 ta gapni ovoz chiqarib ayt (${Math.min(d.spoken, 10)}/10)`, done: d.spoken >= 10, go: practiceSpeak },
+    { id: "lesson", label: "Bitta dars yoki suhbat", done: d.lesson, go: lessonsTab },
+  ];
+};
+let toastQ = 0;
+function lateToast(text) {
+  const k = ++toastQ;
+  setTimeout(() => {
+    const el = document.createElement("div");
+    el.className = "toast gold"; el.setAttribute("role", "status"); el.innerHTML = text;
+    document.body.appendChild(el); ding(true);
+    setTimeout(() => el.remove(), 2200);
+  }, 1300 * k);
+  setTimeout(() => { toastQ = Math.max(0, toastQ - 1); }, 1300 * k + 100);
+}
+function afterProgress() {
+  const d = todayRec();
+  if (!d.bonus && missionItems().every((m) => m.done)) { d.bonus = true; addXP(30); save(); lateToast("Bugungi missiya bajarildi! <small>+30 XP</small>"); }
+  S.badges = S.badges || {};
+  for (const b of BADGES) if (!S.badges[b.id] && b.ok()) { S.badges[b.id] = Date.now(); save(); lateToast(`🏅 Yutuq: ${esc(b.t)}`); }
+}
+
+const GOAL_OF = { A1: "A2", A2: "B1", B1: "B2", B2: "B2" };
+const CAN_DO = {
+  A2: ["O'zing, oilang va ishing haqida bemalol gapira olasan", "Do'konda, kafeda, yo'lda kerakli gapni o'zing aytasan", "Kecha nima qilganing va rejalaring haqida gapirib bera olasan", "Sekin va aniq gapirilgan inglizchani tushunasan"],
+  B1: ["Amerikalik bilan oddiy mavzularda 10–15 daqiqa suhbatlasha olasan", "Fikringni aytib, sababini tushuntira olasan", "Sayohatda, shifokorda, mehmonxonada va telefonda o'zing hal qila olasan", "Qo'shiq va filmlardagi ko'p gaplarni tushuna boshlaysan"],
+  B2: ["Ko'p mavzularda erkin va ravon gapirasan", "Filmlarni inglizcha subtitr bilan bemalol tushunasan", "Ishga kirish suhbatidan inglizcha o'ta olasan", "Ko'cha inglizchasini ham, rasmiy tilni ham ajrata olasan"],
+};
+function planChapters() {
+  const from = S.plan.from, goal = S.plan.goal;
+  const L1 = from === "B2" ? "B1" : from;
+  const L2 = LESSONS.some((l) => l.lv === goal && goal !== L1) ? goal : null;
+  const tot = (lv) => LESSONS.filter((l) => l.lv === lv).length;
+  const q = (label, f, need) => ({ label, f, need });
+  const less = (lv, need) => q(`${lv} darslaridan ${need} tasini tugat`, () => P.lessons(lv), need);
+  const l2 = (part, alt) => (L2 ? less(L2, Math.ceil(tot(L2) * part)) : alt);
+  return [
+    { t: "1-bob: Poydevor", sub: "Har kuni mashq qilishga o'rganish", quests: [
+      q("40 ta so'z o'rgan", P.words, 40), less(L1, Math.min(4, tot(L1))), q("50 ta gapni ovoz chiqarib to'g'ri ayt", P.spoken, 50), q("5 kun ketma-ket mashq qil", P.streak, 5)] },
+    { t: "2-bob: Birinchi gaplar", sub: "O'zing haqingda gapirishni boshlash", quests: [
+      q("80 ta so'z o'rgan", P.words, 80), less(L1, tot(L1)), q("\"O'zim haqimda\"da 10 ta savolga javob ber", P.answers, 10), q("2 xil suhbatni Andrew bilan o'tka", P.dialogs, 2)] },
+    { t: "3-bob: Suhbatdosh", sub: "Kundalik suhbatlarni o'zlashtirish", quests: [
+      q("120 ta so'z o'rgan", P.words, 120), l2(1 / 3, q("250 ta gapni to'g'ri ayt", P.spoken, 250)), q("4 xil suhbatni Andrew bilan o'tka", P.dialogs, 4), q("2 ta \"Soya\" hikoyasini tugat", P.shadow, 2), q("3 ta ko'cha inglizchasi paketini o'rgan", P.street, 3)] },
+    { t: "4-bob: Ravonlik", sub: "To'xtamasdan gapirish", quests: [
+      q("160 ta so'z o'rgan", P.words, 160), l2(2 / 3, q("\"O'zim haqimda\"da 40 ta javob", P.answers, 40)), q("400 ta gapni to'g'ri ayt", P.spoken, 400), q("\"O'zim haqimda\"da 25 ta javob ber", P.answers, 25), q("14 kun ketma-ket mashq qil", P.streak, 14)] },
+    { t: "5-bob: Erkin gapirish", sub: "Har qanday kundalik vaziyatda gapira olish", quests: [
+      q("200 ta so'z o'rgan", P.words, 200), l2(1, q("600 ta gapni to'g'ri ayt", P.spoken, 600)), q("7 xil suhbatni Andrew bilan o'tka", P.dialogs, 7), q("4 ta \"Soya\" hikoyasini tugat", P.shadow, 4), q("8 ta ko'cha inglizchasi paketini o'rgan", P.street, 8)] },
+    { t: "6-bob: Yakuniy jang", sub: `Boss: daraja testida ${goal} ni olish`, boss: true, quests: [
+      q("800 ta gapni to'g'ri ayt", P.spoken, 800), q("\"O'zim haqimda\"da 50 ta javob ber", P.answers, 50), q("30 kun ketma-ket mashq qil", P.streak, 30),
+      q(`Daraja testini qayta topshirib, ${goal} ni ol`, () => (S.testAt > S.plan.start && lvRank(S.level) >= lvRank(goal) ? 1 : 0), 1)] },
+  ];
+}
+const BADGES = [
+  { id: "s1", t: "Birinchi gap", d: "Birinchi gapni to'g'ri ayt", ok: () => P.spoken() >= 1 },
+  { id: "s100", t: "100 gap", d: "100 ta gapni to'g'ri ayt", ok: () => P.spoken() >= 100 },
+  { id: "s500", t: "500 gap", d: "500 ta gapni to'g'ri ayt", ok: () => P.spoken() >= 500 },
+  { id: "s1000", t: "Ming gap", d: "1000 ta gapni to'g'ri ayt", ok: () => P.spoken() >= 1000 },
+  { id: "w100", t: "So'z ovchisi", d: "100 ta so'z o'rgan", ok: () => P.words() >= 100 },
+  { id: "w250", t: "So'z ustasi", d: "250 ta so'z o'rgan", ok: () => P.words() >= 250 },
+  { id: "k7", t: "Olovli hafta", d: "7 kun ketma-ket mashq", ok: () => P.streak() >= 7 },
+  { id: "k30", t: "Temir iroda", d: "30 kun ketma-ket mashq", ok: () => P.streak() >= 30 },
+  { id: "d5", t: "Suhbatdosh", d: "5 xil suhbatni o'tka", ok: () => P.dialogs() >= 5 },
+  { id: "sh", t: "Soya ustasi", d: "Hamma \"Soya\" hikoyalarini tugat", ok: () => P.shadow() >= HIKOYALAR.length },
+  { id: "street", t: "Ko'cha boshlig'i", d: "Hamma ko'cha inglizchasi paketlari", ok: () => P.street() >= PACKS.filter((p) => p.free).length },
+  { id: "a2", t: "A2 grammatikasi", d: "Hamma A2 darslarini tugat", ok: () => P.lessons("A2") >= LESSONS.filter((l) => l.lv === "A2").length },
+  { id: "b1", t: "B1 grammatikasi", d: "Hamma B1 darslarini tugat", ok: () => P.lessons("B1") >= LESSONS.filter((l) => l.lv === "B1").length },
+  { id: "boss", t: "6 oylik reja g'olibi", d: "Rejaning hamma boblarini tugat", ok: () => !!S.plan && planChapters().every((c) => c.quests.every((x) => x.f() >= x.need)) },
+];
+
+function missionCard() {
+  const items = missionItems(), n = items.filter((m) => m.done).length;
+  return `<section class="card mission">
+    <div class="mhead"><b>Bugungi missiya</b><span class="muted">${n}/3 · bajarsang +30 XP</span></div>
+    ${items.map((m) => `<button class="mrow ${m.done ? "on" : ""}" data-m="${m.id}" type="button"><span class="mchk">${m.done ? CHECK : ""}</span><span>${esc(m.label)}</span></button>`).join("")}
+  </section>`;
+}
+function bindMission() { on("[data-m]", (e) => { const m = missionItems().find((x) => x.id === e.currentTarget.dataset.m); if (m && !m.done) m.go(); }); }
+
+function planTab() {
+  if (!S.level || !S.plan) {
+    html(`${topBar()}
+      <section class="panel hero">
+        <div><h2>6 oylik reja</h2><p>O'yindagidek: 6 ta bob, har birida aniq vazifalar. Hammasini bajarsang, 6 oyda bir daraja yuqoriga chiqasan. Kuniga 20–30 daqiqa yetarli.</p></div>
+        ${S.level
+          ? `<div class="card"><span class="tag pink">Darajang: ${S.level}</span><b>Maqsad: ${GOAL_OF[S.level]} · ${LV_NAME[GOAL_OF[S.level]]}</b><span class="muted">6 oydan keyin:</span><ul class="cando">${CAN_DO[GOAL_OF[S.level]].map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>
+             <button class="btn main" id="ps" type="button">Rejani boshlash</button>`
+          : `<span class="muted">Reja darajangga qarab tuziladi. Avval qisqa daraja testini topshir.</span><button class="btn main" id="pt" type="button">Daraja testi</button>`}
+      </section>
+    `, "plan");
+    bindTop();
+    if ($("pt")) $("pt").onclick = levelIntro;
+    if ($("ps")) $("ps").onclick = () => { S.plan = { from: S.level, goal: GOAL_OF[S.level], start: Date.now() }; save(); afterProgress(); planTab(); };
+    return;
+  }
+  const ch = planChapters();
+  const doneQ = (c) => c.quests.filter((x) => x.f() >= x.need).length;
+  const cur = ch.findIndex((c) => doneQ(c) < c.quests.length);
+  const allQ = ch.reduce((s, c) => s + c.quests.length, 0), allDone = ch.reduce((s, c) => s + doneQ(c), 0);
+  const day = Math.min(180, Math.floor((Date.now() - S.plan.start) / DAY) + 1);
+  html(`${topBar()}
+    <section class="panel hero">
+      <div><h2>${S.plan.from} → ${S.plan.goal}</h2><p>${cur < 0 ? "Reja tugadi! Sen g'olibsan." : `${day}-kun / 180 · hozir ${cur + 1}-bob`}</p></div>
+      <div class="meter"><i style="width:${(allDone / allQ) * 100}%"></i></div>
+      <span class="muted">${allDone} / ${allQ} vazifa bajarildi</span>
+      <details class="cando-box"><summary>6 oydan keyin nima qila olasan?</summary><ul class="cando">${CAN_DO[S.plan.goal].map((x) => `<li>${esc(x)}</li>`).join("")}</ul></details>
+    </section>
+    ${missionCard()}
+    <div class="sec">Boblar</div>
+    ${ch.map((c, i) => {
+      const dq = doneQ(c), done = dq === c.quests.length, open = i === cur, locked = cur >= 0 && i > cur;
+      return `<section class="card chap ${done ? "done" : open ? "open" : locked ? "locked" : ""}">
+        <div class="chead"><span class="num">${done ? CHECK : locked ? LOCK : i + 1}</span><div><b>${esc(c.t)}</b><span class="muted">${esc(c.sub)} · tavsiya: ${i + 1}-oy</span></div><span class="cnt">${dq}/${c.quests.length}</span></div>
+        ${open ? c.quests.map((x) => { const v = Math.min(x.f(), x.need), ok = v >= x.need;
+          return `<div class="quest ${ok ? "ok" : ""}"><div class="qrow"><span>${ok ? "✓ " : ""}${esc(x.label)}</span><small>${x.need === 1 ? (ok ? "bajarildi" : "") : `${v}/${x.need}`}</small></div>${x.need > 1 ? `<div class="meter sm"><i style="width:${(v / x.need) * 100}%"></i></div>` : ""}</div>`; }).join("") : ""}
+      </section>`;
+    }).join("")}
+    <div class="sec">Yutuqlar · ${BADGES.filter((b) => S.badges && S.badges[b.id]).length}/${BADGES.length}</div>
+    <div class="badges">${BADGES.map((b) => { const on = S.badges && S.badges[b.id]; return `<div class="badge ${on ? "on" : ""}"><span>${on ? "🏅" : "🔒"}</span><b>${esc(b.t)}</b><small>${esc(b.d)}</small></div>`; }).join("")}</div>
+  `, "plan");
+  bindTop(); bindMission();
 }
 
 // ---------- natijalar ----------
@@ -1253,7 +1445,7 @@ function finishPack(pi, marks, misses) {
   const prev = S.packs[PACKS[pi].title];
   S.packs[PACKS[pi].title] = { stars: Math.max(st, prev ? prev.stars : 0), at: Date.now() };
   PACKS[pi].words.forEach((w) => { if (!S.words[w.id]) S.words[w.id] = { box: 0, due: startOfDay() + INTERVALS[0] * DAY }; });
-  addXP(20); bumpStreak(); save();
+  addXP(20); bumpStreak(); save(); dayMark("words");
   html(`
     <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>Natija</h2></div>
     <div class="big-stars" role="img" aria-label="${st} yulduz">${stars(st)}</div>
@@ -1267,6 +1459,7 @@ function finishPack(pi, marks, misses) {
 }
 
 function reviewDone(ids, missed) {
+  dayMark("words");
   html(`
     <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>Takrorlash tugadi</h2></div>
     <div class="score">${ids.length - missed.size}/${ids.length}</div>
@@ -1345,7 +1538,7 @@ function lessonResult(li, misses) {
   const st = misses === 0 ? 3 : misses <= 2 ? 2 : 1;
   const prev = S.lessons[L.id];
   S.lessons[L.id] = { stars: Math.max(st, prev ? prev.stars : 0), at: Date.now() };
-  addXP(20); bumpStreak(); save();
+  addXP(20); bumpStreak(); save(); dayMark("lesson");
   html(`
     <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>Dars tugadi</h2></div>
     <div class="big-stars" role="img" aria-label="${st} yulduz">${stars(st)}</div>
