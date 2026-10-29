@@ -33,8 +33,16 @@ const TEST = [
     { k: "tr", uz: "Uning kelishi dargumon.", a: "He is unlikely to come.", o: ["He is unlike to come.", "He unlikely comes to."] },
     { k: "fill", s: "I'm not used to ___ up so early.", a: "getting", o: ["getting", "get", "got"], uz: "Bunchalik erta turishga o'rganmaganman." },
   ]},
+  { lv: "C1", tasks: [
+    { k: "fill", s: "Never ___ I seen such a beautiful place.", a: "have", o: ["have", "did", "had been"], uz: "Bunday go'zal joyni hech qachon ko'rmaganman." },
+    { k: "fill", s: "If I had taken that job, I ___ be living in Dubai now.", a: "would", o: ["would", "will", "would have"], uz: "O'sha ishni olganimda, hozir Dubayda yashayotgan bo'lardim." },
+    { k: "fill", s: "He is said ___ been a famous singer.", a: "to have", o: ["to have", "that he has", "having"], uz: "Aytishlaricha, u mashhur qo'shiqchi bo'lgan." },
+    { k: "fill", s: "___ I need is a bit more time.", a: "What", o: ["What", "That", "Which"], uz: "Menga kerak bo'lgani – biroz ko'proq vaqt." },
+    { k: "tr", uz: "Biz kutganimizdan ko'ra natija ancha yaxshi bo'ldi.", a: "The result was far better than we had expected.", o: ["The result was much more better than we expected.", "The result was far better than we have expected it."] },
+    { k: "fill", s: "The benefits of the plan far ___ the risks.", a: "outweigh", o: ["outweigh", "overcome", "overtake"], uz: "Rejaning foydasi xavfidan ancha ko'p." },
+  ]},
 ];
-const LV_NAME = { A1: "Boshlang'ich", A2: "Asosiy", B1: "O'rta", B2: "O'rtadan yuqori" };
+const LV_NAME = { A1: "Boshlang'ich", A2: "Asosiy", B1: "O'rta", B2: "O'rtadan yuqori", C1: "Ilg'or" };
 
 // O'zim haqimda: Andrew savol beradi, sen o'zing haqingda erkin javob berasan; keyin namunaviy javobni tinglaysan
 const SAVOLLAR = [
@@ -56,6 +64,18 @@ const SAVOLLAR = [
   { lv: "B1", q: "What did you use to do when you were a child?", uz: "Bolaligingda nima qilarding?", m: "I used to play outside with my friends all day.", mUz: "Kun bo'yi do'stlarim bilan tashqarida o'ynardim." },
   { lv: "B1", q: "What is your biggest goal?", uz: "Eng katta maqsading nima?", m: "My biggest goal is to speak English fluently and get a good job.", mUz: "Eng katta maqsadim inglizcha ravon gapirish va yaxshi ish topish." },
   { lv: "B1", q: "Describe your best friend.", uz: "Eng yaqin do'stingni ta'riflab ber.", m: "My best friend is funny and kind. We've known each other since school.", mUz: "Eng yaqin do'stim quvnoq va mehribon. Maktabdan beri bir-birimizni taniymiz." },
+  { lv: "B2", q: "What's the best decision you've ever made?", uz: "Hayotingdagi eng to'g'ri qaroring qaysi?", m: "I think the best decision I've ever made was to start learning English seriously, because it opened a lot of doors for me.", mUz: "Menimcha, eng to'g'ri qarorim ingliz tilini jiddiy o'rganishni boshlash bo'ldi, chunki bu menga ko'p eshiklarni ochdi." },
+  { lv: "B2", q: "If you could change one thing in your city, what would it be?", uz: "Shahringda bitta narsani o'zgartira olsang, nima bo'lardi?", m: "I'd probably improve public transport, because the traffic is terrible and people waste hours on the road.", mUz: "Balki jamoat transportini yaxshilardim, chunki tirbandlik dahshat va odamlar yo'lda soatlab vaqt yo'qotadi." },
+  { lv: "B2", q: "Do you prefer working alone or in a team? Why?", uz: "Yolg'iz ishlashni afzal ko'rasanmi yoki jamoada? Nega?", m: "It depends on the task, but generally I prefer working in a team, because you can learn from other people.", mUz: "Vazifaga bog'liq, lekin umuman jamoada ishlashni afzal ko'raman, chunki boshqalardan o'rganish mumkin." },
+  { lv: "B2", q: "Tell me about a time you had to solve a difficult problem.", uz: "Qiyin muammoni hal qilishingga to'g'ri kelgan vaziyat haqida gapirib ber.", m: "Last year my laptop broke right before a deadline, so I borrowed my friend's and worked all night to finish on time.", mUz: "O'tgan yili noutbukim muddatdan oldin buzildi, shuning uchun do'stimnikini olib, vaqtida tugatish uchun tun bo'yi ishladim." },
+  { lv: "B2", q: "What kind of music do you listen to, and why do you like it?", uz: "Qanaqa musiqa tinglaysan va nega yoqadi?", m: "I mostly listen to American rap. I love the flow and the energy, and honestly, it's helped me a lot with my English.", mUz: "Asosan amerika repini tinglayman. Oqimi va energiyasi yoqadi, rostini aytsam, ingliz tilimga ham juda yordam bergan." },
+  { lv: "B2", q: "What would you have done differently in the past?", uz: "O'tmishda nimani boshqacha qilgan bo'larding?", m: "If I could go back, I would have started learning English much earlier, and I wouldn't have wasted so much time.", mUz: "Orqaga qaytsam, ingliz tilini ancha ertaroq boshlagan bo'lardim va shuncha vaqtni behuda o'tkazmagan bo'lardim." },
+  { lv: "C1", q: "Some people say technology makes us less social. What's your view?", uz: "Ba'zilar texnologiya bizni kamroq muloqotga kirishadigan qiladi deydi. Sening fikring qanday?", m: "To some extent I agree. Having said that, technology also lets us stay in touch with people we would otherwise lose contact with.", mUz: "Ma'lum darajada qo'shilaman. Shunday bo'lsa-da, texnologiya aks holda aloqani yo'qotadigan odamlar bilan bog'lanib turishga ham imkon beradi." },
+  { lv: "C1", q: "How important is it for young people to learn foreign languages?", uz: "Yoshlar uchun chet tillarini o'rganish qanchalik muhim?", m: "I'd say it's crucial. Not only does it open up job opportunities, but it also changes the way you see the world.", mUz: "Menimcha, bu hal qiluvchi ahamiyatga ega. Bu nafaqat ish imkoniyatlarini ochadi, balki dunyoga qarashingni ham o'zgartiradi." },
+  { lv: "C1", q: "What do you think success really means?", uz: "Sening fikringcha, muvaffaqiyat aslida nima?", m: "For me, success isn't just about money. What really matters is doing something you love and growing as a person.", mUz: "Men uchun muvaffaqiyat faqat pul emas. Eng muhimi – sevgan ishingni qilish va inson sifatida o'sish." },
+  { lv: "C1", q: "Should governments spend more money on education or on healthcare?", uz: "Davlat ko'proq pulni ta'limga sarflashi kerakmi yoki sog'liqni saqlashga?", m: "That's a tough one. Both are essential, but I'd argue that education is a long-term investment that eventually improves healthcare too.", mUz: "Qiyin savol. Ikkalasi ham zarur, lekin menimcha ta'lim uzoq muddatli sarmoya, oxir-oqibat u sog'liqni saqlashni ham yaxshilaydi." },
+  { lv: "C1", q: "Describe a challenge that changed you as a person.", uz: "Seni inson sifatida o'zgartirgan qiyinchilikni ta'riflab ber.", m: "Learning English on my own was a real struggle at first, but overcoming it taught me that consistency matters more than talent.", mUz: "Ingliz tilini o'zim o'rganish avvaliga chinakam qiyin edi, lekin uni yengib, izchillik iste'doddan muhimroq ekanini angladim." },
+  { lv: "C1", q: "How do you think the world will change in the next twenty years?", uz: "Sening fikringcha, keyingi yigirma yilda dunyo qanday o'zgaradi?", m: "It's hard to predict, but I suspect artificial intelligence will transform almost every job, so people will need to keep learning all their lives.", mUz: "Oldindan aytish qiyin, lekin sun'iy intellekt deyarli har bir kasbni o'zgartiradi deb o'ylayman, shuning uchun odamlar butun umr o'rganishda davom etishi kerak bo'ladi." },
 ];
 
 // Soya (shadowing): Andrew gapni aytadi, sen darhol uning ohangida takrorlaysan
@@ -91,5 +111,29 @@ const HIKOYALAR = [
     ["If I keep going like this, I'll be able to speak fluently.", "Shunday davom etsam, ravon gapira olaman."],
     ["My dream is to travel to America and talk to people there.", "Orzuim Amerikaga borib, u yerdagi odamlar bilan gaplashish."],
     ["I know it takes time, but I'm not going to give up.", "Bilaman, bu vaqt oladi, lekin taslim bo'lmayman."],
+  ]},
+  { lv: "B2", title: "Birinchi intervyu", lines: [
+    ["I'd been preparing for that interview for weeks.", "O'sha intervyuga haftalab tayyorlangan edim."],
+    ["Although I was nervous, I tried to stay calm.", "Hayajonlangan bo'lsam ham, xotirjam bo'lishga harakat qildim."],
+    ["The manager asked me why I wanted the job.", "Menejer nega bu ishni xohlashimni so'radi."],
+    ["I told him I was looking for a place where I could grow.", "Unga o'sa oladigan joy qidirayotganimni aytdim."],
+    ["If I hadn't practiced so much, I would have panicked.", "Bunchalik ko'p mashq qilmaganimda, vahimaga tushgan bo'lardim."],
+    ["A week later, they called and offered me the position.", "Bir haftadan keyin qo'ng'iroq qilib, menga lavozimni taklif qilishdi."],
+  ]},
+  { lv: "B2", title: "Ko'cha: studiyada bir kecha", lines: [
+    ["We'd been in the studio since like ten p.m.", "Kechki o'ndan beri studiyada edik."],
+    ["My boy had this crazy beat, and I couldn't stop writing.", "Oshnamning aqldan ozdiradigan biti bor edi, yozishdan to'xtay olmadim."],
+    ["Every time I messed up, I just ran it back.", "Har safar adashganimda, boshidan qaytarardim."],
+    ["Around four a.m., we finally figured out the hook.", "Tungi to'rtlarda nihoyat naqoratni topdik."],
+    ["Honestly, I was exhausted, but it was so worth it.", "Rostini aytsam, holdan toygandim, lekin bunga to'liq arzidi."],
+    ["That night I realized I'm never giving up on music.", "O'sha kecha musiqadan hech qachon voz kechmasligimni angladim."],
+  ]},
+  { lv: "C1", title: "Muvaffaqiyat nima", lines: [
+    ["What most people don't realize is that success takes time.", "Ko'pchilik anglamaydigan narsa shuki, muvaffaqiyat vaqt talab qiladi."],
+    ["Never have I met anyone who became fluent overnight.", "Bir kechada ravon gapira boshlagan odamni hech qachon uchratmaganman."],
+    ["Mistakes are inevitable, but they're also how we learn.", "Xatolar muqarrar, lekin biz aynan ular orqali o'rganamiz."],
+    ["Having said that, consistency matters more than talent.", "Shunday bo'lsa-da, izchillik iste'doddan muhimroq."],
+    ["If I hadn't kept going on the hard days, I wouldn't be where I am now.", "Qiyin kunlarda davom etmaganimda, hozir shu yerda bo'lmasdim."],
+    ["The bottom line is: show up every day, and the results will follow.", "Eng asosiysi: har kuni harakat qil, natija o'zi keladi."],
   ]},
 ];

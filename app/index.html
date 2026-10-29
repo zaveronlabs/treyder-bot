@@ -207,7 +207,10 @@ p { margin: 0; }
 .badge span { font-size: 26px; } .badge b { font-size: 13px; } .badge small { font-size: 11px; color: var(--soft); }
 .cando { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
 .cando-box summary { cursor: pointer; color: var(--cyan); font-weight: 600; }
-.cando-box .cando { margin-top: 10px; }
+.cando-box .cando { margin-top: 10px; margin-bottom: 8px; }
+.lrow { flex-wrap: nowrap; }
+.lrow .btn { flex: 1 1 0; width: auto; padding: 0 6px; letter-spacing: .03em; white-space: nowrap; }
+.c1card { border-color: rgba(255, 63, 208, .55); box-shadow: 0 0 24px -10px var(--pink); }
 .toast.gold { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 28px -4px var(--gold); white-space: normal; text-align: center; max-width: calc(100vw - 32px); }
 
 @keyframes pop { from { transform: translate(-50%, -12px) scale(.9); opacity: 0 } }
@@ -1154,9 +1157,9 @@ function dialogsList() {
 }
 
 // ---------- daraja: test natijasi bo'yicha darslar va mashqlar moslanadi ----------
-const LVS = ["A1", "A2", "B1", "B2"];
+const LVS = ["A1", "A2", "B1", "B2", "C1"];
 const lvRank = (v) => Math.max(0, LVS.indexOf(v || "A1"));
-const workLv = () => (S.level === "B2" ? "B1" : S.level || "A1");   // ilovadagi eng yuqori kontent B1
+const workLv = () => S.level || "A1";
 // darslar ro'yxati daraja bo'yicha tartiblangan
 const LORDER = LESSONS.map((_, i) => i).sort((a, b) => lvRank(LESSONS[a].lv) - lvRank(LESSONS[b].lv) || a - b);
 const nextLessonOf = (li) => LORDER[LORDER.indexOf(li) + 1];
@@ -1167,7 +1170,7 @@ function levelIntro() {
     ${S.level ? `<div class="card"><span class="tag pink">Hozirgi daraja</span><div class="word">${S.level} <span class="muted" style="font-size:18px">${LV_NAME[S.level]}</span></div></div>` : ""}
     <div class="card">
       <b>Qanday o'tadi?</b>
-      <span class="muted">Oddiy savollardan boshlanadi va asta qiyinlashadi: bo'sh joyni to'ldirish, tarjima va tinglash. Savollar qiyin bo'lib qolsa, test o'zi to'xtaydi. Ko'pi bilan 24 ta savol, 5 daqiqacha.</span>
+      <span class="muted">Oddiy savollardan boshlanadi va asta qiyinlashadi: bo'sh joyni to'ldirish, tarjima va tinglash. Savollar qiyin bo'lib qolsa, test o'zi to'xtaydi. Ko'pi bilan 30 ta savol, 5–7 daqiqa.</span>
       <span class="muted">Bilmasang taxmin qilma, "eng to'g'ri tuyulgan"ini tanla. Natijaga qarab darslar, so'zlar va gapirish mashqlari senga moslanadi.</span>
     </div>
     <div class="grow"></div>
@@ -1197,10 +1200,11 @@ const LV_TEXT = {
   A1: "Asoslardan boshlaymiz. Darslar va so'zlar boshidan ketadi, gapirish mashqlari oddiy gaplardan boshlanadi.",
   A2: "Asoslarni bilasan. Boshlang'ich darslar takrorlash uchun ochiq, sen A2 darslaridan boshlaysan: o'tgan zamon, kelajak, maslahat va majburiyat.",
   B1: "Yaxshi daraja! Boshlang'ich va asosiy darslar ochiq, sen B1 darslaridan boshlaysan: shart gaplar, passiv, for va since. Gapirish mashqlarida murakkabroq gaplar chiqadi.",
-  B2: "Zo'r daraja! Ilovadagi hamma darslar ochiq. Senga eng foydalisi gapirish mashqlari: O'zim haqimda, Suhbat o'yini va Soya.",
+  B2: "Zo'r daraja! Pastki darslar ochiq, sen B2 darslaridan boshlaysan: davomli zamonlar, o'zgalar gapi, taxmin va idiomalar.",
+  C1: "Ajoyib! Bu ilg'or daraja. C1 darslari, akademik so'zlar va IELTS iboralari bilan nutqingni sayqallaymiz.",
 };
 function testResult(passed) {
-  const lv = ["A1", "A2", "B1", "B1", "B2"][passed + 1];
+  const lv = ["A1", "A2", "B1", "B1", "B2", "C1"][passed + 1];
   S.level = lv; S.testAt = Date.now(); addXP(20); save();
   html(`
     <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>Natija</h2></div>
@@ -1283,7 +1287,7 @@ function storiesList() {
 function shadow(k) {
   const h = HIKOYALAR[k];
   const queue = h.lines.map((l) => ({ type: "speak", en: l[0], uz: l[1], auto: true }));
-  runQueue(queue, { back: storiesList, onDone: (m, ok, n) => { markSet("sh", k); practiceDone(`Soya: ${h.title}`, ok, n, () => shadow(k)); } });
+  runQueue(queue, { back: storiesList, onDone: (m, ok, n) => { stat("shadows"); markSet("sh", k); practiceDone(`Soya: ${h.title}`, ok, n, () => shadow(k)); } });
 }
 
 // ---------- 6 oylik reja: boblar, vazifalar, bugungi missiya va yutuqlar ----------
@@ -1319,7 +1323,7 @@ const missionItems = () => {
     { id: "words", label: "So'zlar: takrorlash yoki yangi paket", done: d.words, go: () => { if (dueWords().length) return review(); const wr = lvRank(workLv()); let i = PACKS.findIndex((p) => !S.packs[p.title] && !p.free && lvRank(p.lv) >= wr); if (i < 0) i = PACKS.findIndex((p) => !S.packs[p.title]); i >= 0 ? learn(i) : home(); } },
     { id: "spoken", label: `10 ta gapni ovoz chiqarib ayt (${Math.min(d.spoken, 10)}/10)`, done: d.spoken >= 10, go: practiceSpeak },
     { id: "lesson", label: "Bitta dars yoki suhbat", done: d.lesson, go: lessonsTab },
-  ];
+  ].concat(S.plan && S.plan.c1 ? [{ id: "listen", label: `${LISTEN_GOAL} daqiqa inglizcha tingla (${Math.min(listenToday(), LISTEN_GOAL)}/${LISTEN_GOAL})`, done: listenToday() >= LISTEN_GOAL, go: planTab }] : []);
 };
 let toastQ = 0;
 function lateToast(text) {
@@ -1339,13 +1343,57 @@ function afterProgress() {
   for (const b of BADGES) if (!S.badges[b.id] && b.ok()) { S.badges[b.id] = Date.now(); save(); lateToast(`🏅 Yutuq: ${esc(b.t)}`); }
 }
 
-const GOAL_OF = { A1: "A2", A2: "B1", B1: "B2", B2: "B2" };
+const GOAL_OF = { A1: "A2", A2: "B1", B1: "B2", B2: "C1", C1: "C1" };
 const CAN_DO = {
   A2: ["O'zing, oilang va ishing haqida bemalol gapira olasan", "Do'konda, kafeda, yo'lda kerakli gapni o'zing aytasan", "Kecha nima qilganing va rejalaring haqida gapirib bera olasan", "Sekin va aniq gapirilgan inglizchani tushunasan"],
   B1: ["Amerikalik bilan oddiy mavzularda 10–15 daqiqa suhbatlasha olasan", "Fikringni aytib, sababini tushuntira olasan", "Sayohatda, shifokorda, mehmonxonada va telefonda o'zing hal qila olasan", "Qo'shiq va filmlardagi ko'p gaplarni tushuna boshlaysan"],
+  C1: ["Deyarli har qanday mavzuda erkin va ravon gapirasan", "Filmlar, podkastlar va rep qo'shiqlarning ko'pini subtitrsiz tushunasan", "IELTS'dan 7 atrofida ball olishga tayyor bo'lasan", "Fikringni chuqur, misol va sabablar bilan isbotlab bera olasan"],
   B2: ["Ko'p mavzularda erkin va ravon gapirasan", "Filmlarni inglizcha subtitr bilan bemalol tushunasan", "Ishga kirish suhbatidan inglizcha o'ta olasan", "Ko'cha inglizchasini ham, rasmiy tilni ham ajrata olasan"],
 };
+// tinglash daqiqalari (serial, YouTube, podkast, qo'shiq: ilovadan tashqarida)
+function listenRec() { S.listen = S.listen || { min: 0, days: {} }; return S.listen; }
+const listenToday = () => listenRec().days[todayStr()] || 0;
+const listenH = () => Math.floor(listenRec().min / 60);
+function addListen(m) {
+  m = Math.max(0, Math.min(240, Math.round(m)));
+  if (!m) return;
+  const r = listenRec(), t = todayStr();
+  r.min += m; r.days[t] = (r.days[t] || 0) + m;
+  addXP(Math.min(30, Math.round(m / 3))); bumpStreak(); save(); afterProgress();
+}
+const LISTEN_GOAL = 90;
+const LISTEN_TIPS = {
+  A2: ["YouTube: \"English with Lucy\", \"Learn English with TV Series\" (inglizcha subtitr bilan)", "Seriallar: Friends, Modern Family (inglizcha subtitr bilan)", "Sevimli rep qo'shiqlaringni matni bilan tingla: Juice WRLD, XXXTentacion"],
+  B1: ["Seriallar: Friends, The Office, Brooklyn Nine-Nine (inglizcha subtitr)", "Juice WRLD va boshqa reperlarning intervyulari (YouTube)", "Podkast: \"6 Minute English\" (BBC), \"All Ears English\""],
+  B2: ["Seriallar: Breaking Bad, Stranger Things, Atlanta (inglizcha subtitr)", "Podkastlar: \"The Joe Budden Podcast\", \"Drink Champs\" (rep olami)", "YouTube: hujjatli filmlar va intervyular, subtitrsiz sinab ko'r"],
+  C1: ["Filmlarni subtitrsiz ko'r, tushunmagan joyingni qaytarib eshit", "Podkastlar: \"Lex Fridman\", \"Huberman Lab\", \"TED Talks Daily\"", "IELTS speaking namunalari: YouTube'da \"IELTS speaking band 8\""],
+};
+function c1Chapters() {
+  const steps = LVS.slice(Math.min(lvRank(S.plan.from) + 1, LVS.length - 1));
+  const tgtOf = (i) => steps[Math.min(steps.length - 1, Math.floor((i * steps.length) / 6))];
+  const tot = (lv) => LESSONS.filter((l) => l.lv === lv).length;
+  const nW = ALL.length, nD = LESSONS.filter((l) => l.dialog).length;
+  const q = (label, f, need) => ({ label, f, need });
+  const NAMES = ["Tez start", "Birinchi darvoza", "Quloq ochiladi", "Ikkinchi darvoza", "Ravon nutq", "Yakuniy jang"];
+  const STREAK = [7, 14, 21, 30, 45, 60];
+  return NAMES.map((nm, i) => {
+    const m = i + 1, tgt = tgtOf(i), boss = i === 5 || tgtOf(i + 1) !== tgt;
+    const same = [0, 1, 2, 3, 4, 5].filter((j) => tgtOf(j) === tgt), k = same.indexOf(i);
+    const ln = Math.ceil((tot(tgt) * (k + 1)) / same.length);
+    const quests = [
+      q(`${45 * m} soat inglizcha tingla (serial, YouTube, podkast)`, listenH, 45 * m),
+      q(`${tgt} darslaridan ${ln} tasini tugat`, () => P.lessons(tgt), ln),
+      q(`${Math.min(nW, 50 * m)} ta so'z o'rgan`, P.words, Math.min(nW, 50 * m)),
+      q(`${200 * m} ta gapni ovoz chiqarib to'g'ri ayt`, P.spoken, 200 * m),
+      [q(`"O'zim haqimda"da ${15 * m} ta javob ber`, P.answers, 15 * m), q(`${8 * m} marta "Soya" mashqini qil`, () => stv("shadows"), 8 * m), q(`${Math.min(nD, 2 * m)} xil suhbatni Andrew bilan o'tka`, P.dialogs, Math.min(nD, 2 * m))][i % 3],
+      q(`${STREAK[i]} kun ketma-ket mashq qil`, P.streak, STREAK[i]),
+    ];
+    if (boss) quests.push(q(`Boss: daraja testini qayta topshirib, ${tgt} ni ol`, () => (S.testAt > S.plan.start && lvRank(S.level) >= lvRank(tgt) ? 1 : 0), 1));
+    return { t: `${m}-bob: ${nm}`, sub: boss ? `Boss jang: ${tgt}` : `Yo'nalish: ${tgt}`, boss, quests };
+  });
+}
 function planChapters() {
+  if (S.plan.c1) return c1Chapters();
   const from = S.plan.from, goal = S.plan.goal;
   const L1 = from === "B2" ? "B1" : from;
   const L2 = LESSONS.some((l) => l.lv === goal && goal !== L1) ? goal : null;
@@ -1383,32 +1431,72 @@ const BADGES = [
   { id: "street", t: "Ko'cha boshlig'i", d: "Hamma ko'cha inglizchasi paketlari", ok: () => P.street() >= PACKS.filter((p) => p.free).length },
   { id: "a2", t: "A2 grammatikasi", d: "Hamma A2 darslarini tugat", ok: () => P.lessons("A2") >= LESSONS.filter((l) => l.lv === "A2").length },
   { id: "b1", t: "B1 grammatikasi", d: "Hamma B1 darslarini tugat", ok: () => P.lessons("B1") >= LESSONS.filter((l) => l.lv === "B1").length },
+  { id: "l50", t: "Quloq", d: "50 soat inglizcha tingla", ok: () => listenH() >= 50 },
+  { id: "l300", t: "Katta quloq", d: "300 soat inglizcha tingla", ok: () => listenH() >= 300 },
+  { id: "b2", t: "B2 grammatikasi", d: "Hamma B2 darslarini tugat", ok: () => P.lessons("B2") >= LESSONS.filter((l) => l.lv === "B2").length },
+  { id: "c1", t: "C1 grammatikasi", d: "Hamma C1 darslarini tugat", ok: () => P.lessons("C1") >= LESSONS.filter((l) => l.lv === "C1").length },
   { id: "boss", t: "6 oylik reja g'olibi", d: "Rejaning hamma boblarini tugat", ok: () => !!S.plan && planChapters().every((c) => c.quests.every((x) => x.f() >= x.need)) },
 ];
 
 function missionCard() {
   const items = missionItems(), n = items.filter((m) => m.done).length;
   return `<section class="card mission">
-    <div class="mhead"><b>Bugungi missiya</b><span class="muted">${n}/3 · bajarsang +30 XP</span></div>
+    <div class="mhead"><b>Bugungi missiya</b><span class="muted">${n}/${items.length} · bajarsang +30 XP</span></div>
     ${items.map((m) => `<button class="mrow ${m.done ? "on" : ""}" data-m="${m.id}" type="button"><span class="mchk">${m.done ? CHECK : ""}</span><span>${esc(m.label)}</span></button>`).join("")}
   </section>`;
 }
 function bindMission() { on("[data-m]", (e) => { const m = missionItems().find((x) => x.id === e.currentTarget.dataset.m); if (m && !m.done) m.go(); }); }
 
+function listenCard() {
+  const t = listenToday(), lv = S.plan && S.plan.c1 ? (c1Chapters().find((c) => c.quests.some((x) => x.f() < x.need)) || {}).sub : workLv();
+  const tipLv = ["A2", "B1", "B2", "C1"].find((x) => String(lv).includes(x)) || (lvRank(workLv()) < 1 ? "A2" : workLv());
+  const run = S.lt ? new Date(S.lt) : null;
+  return `<section class="card lcard" id="lcard">
+    <div class="mhead"><b>Tinglash</b><span class="muted">Jami: ${listenH()} soat ${listenRec().min % 60} daq</span></div>
+    <div class="qrow"><span>Bugun: ${t} / ${LISTEN_GOAL} daqiqa</span><small>${t >= LISTEN_GOAL ? "bajarildi ✓" : ""}</small></div>
+    <div class="meter sm"><i style="width:${Math.min(100, (t / LISTEN_GOAL) * 100)}%"></i></div>
+    <span class="muted">Serial, YouTube, podkast yoki qo'shiq tinglagan bo'lsang, shu yerga yoz. Taymerni yoqib, boshqa ilovaga o'tsang ham vaqt sanaladi.</span>
+    <button class="btn ${run ? "main" : "ghost"}" id="ltm" type="button">${run ? `To'xtatish · ${String(run.getHours()).padStart(2, "0")}:${String(run.getMinutes()).padStart(2, "0")} dan beri` : "Taymerni yoqish"}</button>
+    <div class="row lrow">${[15, 30, 60].map((m) => `<button class="btn ghost" data-lm="${m}" type="button">+${m} daq</button>`).join("")}</div>
+    <details class="cando-box"><summary>Nimani tinglash kerak?</summary><ul class="cando">${LISTEN_TIPS[tipLv].map((x) => `<li>${esc(x)}</li>`).join("")}</ul><span class="muted">Qoida: gaplarning ko'pini tushunadigan narsani tanla. Bitta serial yoki bitta odamni ko'p tinglash eng yaxshi ishlaydi.</span></details>
+  </section>`;
+}
+function bindListen() {
+  const redo = () => { const el = $("lcard"); if (!el) return; el.outerHTML = listenCard(); bindListen(); const mc = document.querySelector(".mission"); if (mc) { mc.outerHTML = missionCard(); bindMission(); } };
+  $("ltm").onclick = () => {
+    if (S.lt) { const m = (Date.now() - S.lt) / 60000; S.lt = 0; save(); addListen(m); }
+    else { S.lt = Date.now(); save(); }
+    redo();
+  };
+  document.querySelectorAll("[data-lm]").forEach((b) => (b.onclick = () => { addListen(+b.dataset.lm); redo(); }));
+}
+
 function planTab() {
   if (!S.level || !S.plan) {
+    const g = GOAL_OF[S.level];
     html(`${topBar()}
       <section class="panel hero">
-        <div><h2>6 oylik reja</h2><p>O'yindagidek: 6 ta bob, har birida aniq vazifalar. Hammasini bajarsang, 6 oyda bir daraja yuqoriga chiqasan. Kuniga 20–30 daqiqa yetarli.</p></div>
-        ${S.level
-          ? `<div class="card"><span class="tag pink">Darajang: ${S.level}</span><b>Maqsad: ${GOAL_OF[S.level]} · ${LV_NAME[GOAL_OF[S.level]]}</b><span class="muted">6 oydan keyin:</span><ul class="cando">${CAN_DO[GOAL_OF[S.level]].map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>
-             <button class="btn main" id="ps" type="button">Rejani boshlash</button>`
-          : `<span class="muted">Reja darajangga qarab tuziladi. Avval qisqa daraja testini topshir.</span><button class="btn main" id="pt" type="button">Daraja testi</button>`}
+        <div><h2>6 oylik reja</h2><p>O'yindagidek: 6 ta bob, har birida aniq vazifalar va boss jang. Rejani tanla.</p></div>
+        ${!S.level ? `<span class="muted">Reja darajangga qarab tuziladi. Avval qisqa daraja testini topshir.</span><button class="btn main" id="pt" type="button">Daraja testi</button>` : ""}
       </section>
+      ${S.level && S.level !== "C1" ? `<section class="card c1card">
+        <span class="tag pink">Darajang: ${S.level} · eng tez yo'l</span>
+        <b>C1 yo'li: ${S.level} → C1</b>
+        <span class="muted">Kuniga taxminan 3 soat: 1,5 soat tinglash (serial, YouTube, podkast), 30 daqiqa soya, 30 daqiqa Yodla, 15–30 daqiqa o'zing bilan gaplashish. Har darvozada boss: daraja testi.</span>
+        <span class="muted">6 oydan keyin:</span><ul class="cando">${CAN_DO.C1.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
+        <button class="btn main" id="pc1" type="button">C1 yo'lini boshlash</button>
+      </section>` : ""}
+      ${S.level && g !== "C1" ? `<section class="card">
+        <b>Yengil reja: ${S.level} → ${g}</b>
+        <span class="muted">Kuniga 20–30 daqiqa. 6 oyda bir daraja yuqoriga.</span>
+        <button class="btn ghost" id="ps" type="button">Yengil rejani boshlash</button>
+      </section>` : ""}
+      ${S.level === "C1" ? `<section class="card"><b>Sen allaqachon C1 dasan!</b><span class="muted">C1 darslari, akademik so'zlar va Soya mashqlari bilan darajangni ushlab tur.</span></section>` : ""}
     `, "plan");
     bindTop();
     if ($("pt")) $("pt").onclick = levelIntro;
-    if ($("ps")) $("ps").onclick = () => { S.plan = { from: S.level, goal: GOAL_OF[S.level], start: Date.now() }; save(); afterProgress(); planTab(); };
+    if ($("pc1")) $("pc1").onclick = () => { S.plan = { from: S.level, goal: "C1", c1: true, start: Date.now() }; save(); afterProgress(); planTab(); };
+    if ($("ps")) $("ps").onclick = () => { S.plan = { from: S.level, goal: g, start: Date.now() }; save(); afterProgress(); planTab(); };
     return;
   }
   const ch = planChapters();
@@ -1416,14 +1504,17 @@ function planTab() {
   const cur = ch.findIndex((c) => doneQ(c) < c.quests.length);
   const allQ = ch.reduce((s, c) => s + c.quests.length, 0), allDone = ch.reduce((s, c) => s + doneQ(c), 0);
   const day = Math.min(180, Math.floor((Date.now() - S.plan.start) / DAY) + 1);
+  const canC1 = !S.plan.c1 && S.plan.from !== "C1";
   html(`${topBar()}
     <section class="panel hero">
-      <div><h2>${S.plan.from} → ${S.plan.goal}</h2><p>${cur < 0 ? "Reja tugadi! Sen g'olibsan." : `${day}-kun / 180 · hozir ${cur + 1}-bob`}</p></div>
+      <div><h2>${S.plan.c1 ? "C1 yo'li: " : ""}${S.plan.from} → ${S.plan.goal}</h2><p>${cur < 0 ? "Reja tugadi! Sen g'olibsan." : `${day}-kun / 180 · hozir ${cur + 1}-bob`}</p></div>
       <div class="meter"><i style="width:${(allDone / allQ) * 100}%"></i></div>
       <span class="muted">${allDone} / ${allQ} vazifa bajarildi</span>
       <details class="cando-box"><summary>6 oydan keyin nima qila olasan?</summary><ul class="cando">${CAN_DO[S.plan.goal].map((x) => `<li>${esc(x)}</li>`).join("")}</ul></details>
+      ${canC1 ? `<button class="btn ghost" id="toc1" type="button">C1 yo'liga o'tish</button>` : ""}
     </section>
     ${missionCard()}
+    ${listenCard()}
     <div class="sec">Boblar</div>
     ${ch.map((c, i) => {
       const dq = doneQ(c), done = dq === c.quests.length, open = i === cur, locked = cur >= 0 && i > cur;
@@ -1436,7 +1527,8 @@ function planTab() {
     <div class="sec">Yutuqlar · ${BADGES.filter((b) => S.badges && S.badges[b.id]).length}/${BADGES.length}</div>
     <div class="badges">${BADGES.map((b) => { const on = S.badges && S.badges[b.id]; return `<div class="badge ${on ? "on" : ""}"><span>${on ? "🏅" : "🔒"}</span><b>${esc(b.t)}</b><small>${esc(b.d)}</small></div>`; }).join("")}</div>
   `, "plan");
-  bindTop(); bindMission();
+  bindTop(); bindMission(); bindListen();
+  if ($("toc1")) $("toc1").onclick = () => { S.plan = { ...S.plan, goal: "C1", c1: true }; save(); afterProgress(); planTab(); };
 }
 
 // ---------- natijalar ----------
