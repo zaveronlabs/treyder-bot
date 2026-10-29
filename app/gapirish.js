@@ -76,6 +76,14 @@ const HIKOYALAR = [
     ["In the evening we ate plov at a small cafe.", "Kechqurun kichkina kafeda palov yedik."],
     ["It was the best trip of my life.", "Bu hayotimdagi eng zo'r sayohat edi."],
   ]},
+  { lv: "A2", title: "Ko'cha: shanba kechasi", lines: [
+    ["Yo, let me tell you about last Saturday.", "Hey, o'tgan shanba haqida aytib beray."],
+    ["Me and the squad went to a party at my homie's crib.", "Jamoa bilan oshnamning uyidagi bazmga bordik."],
+    ["The music was fire, and the vibe was crazy.", "Musiqa zo'r, muhit esa aqldan ozdiradigan edi."],
+    ["My boy dropped a freestyle, and everybody went wild.", "Oshnam tayyorlanmasdan rep o'qidi, hamma jinni bo'lib ketdi."],
+    ["I was broke, but it didn't even matter.", "Cho'ntagim bo'sh edi, lekin bu umuman muhim emasdi."],
+    ["Real talk, it was the best night ever.", "Rostini aytsam, eng zo'r kecha bo'ldi."],
+  ]},
   { lv: "B1", title: "Nega ingliz tili", lines: [
     ["I've been learning English for a few months now.", "Bir necha oydan beri ingliz tilini o'rganyapman."],
     ["At first it was hard, because I was afraid to speak.", "Avvaliga qiyin edi, chunki gapirishdan qo'rqardim."],
