@@ -261,6 +261,9 @@ select { width: 100%; min-height: 48px; border-radius: 14px; background: var(--s
 .bub .who { font: 700 11px var(--display); color: var(--pink); letter-spacing: .14em; text-transform: uppercase; }
 .bub b { font: 700 17px/1.35 var(--display); }
 .bub small { color: var(--soft); font-size: 13.5px; }
+.lvt { font: 700 11px var(--display); color: var(--pink); border: 1px solid currentColor; border-radius: 6px; padding: 1px 5px; margin-left: 4px; vertical-align: 2px; }
+.chip.lv { color: var(--pink); }
+.lvcard { border-color: rgba(255, 63, 208, .55); box-shadow: 0 0 24px -10px var(--pink); }
 .mode.v { color: var(--violet); } .mode.r { color: var(--red); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
@@ -270,6 +273,7 @@ select { width: 100%; min-height: 48px; border-radius: 14px; background: var(--s
 
 <script src="words.js"></script>
 <script src="lessons.js"></script>
+<script src="gapirish.js"></script>
 <script src="audio.js"></script>
 <script>
 "use strict";
@@ -444,6 +448,8 @@ const M_LISTEN = I('<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" widt
 const M_SPEED = I('<circle cx="12" cy="13.5" r="7.5"/><path d="M12 10v3.5l2.5 2M9.5 2.5h5"/>');
 const MIC = I('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>');
 const M_CHAT = I('<path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M17 9h3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1v3l-4-3h-3"/>');
+const M_ME = I('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>');
+const M_SHADOW = I('<path d="M3 12h3l3-7 4 14 3-7h5"/>');
 const M_VOCAB = I('<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>');
 
 // ---------- yordamchilar ----------
@@ -481,13 +487,14 @@ function topBar() {
   return `<div class="top">
     <div class="brand">Yodla</div>
     <div class="chips">
+      <button class="chip lv" id="lvb" type="button" title="Darajang">${S.level || "?"}</button>
       <span class="chip fire" title="Ketma-ket kunlar">${FIRE}${streakNow()}</span>
       <span class="chip xp" title="Jami XP">${BOLT}${S.xp}</span>
       <button class="icon-btn" id="setb" type="button" aria-label="Sozlamalar">${GEAR}</button>
     </div>
   </div>`;
 }
-function bindTop() { $("setb").onclick = settings; }
+function bindTop() { $("setb").onclick = settings; $("lvb").onclick = levelIntro; }
 function ring(a, b) {
   const C = 2 * Math.PI * 36, p = Math.min(1, a / b);
   return `<div class="ring" role="img" aria-label="Bugungi maqsad: ${a} / ${b} XP"><svg viewBox="0 0 84 84">
@@ -530,13 +537,16 @@ function sheet(correctText, cont) {
 function home() {
   const due = dueWords().length;
   const doneN = Object.keys(S.packs).length;
-  let nextPack = PACKS.findIndex((p) => !S.packs[p.title] && !p.free);
+  const wr = lvRank(workLv());
+  let nextPack = PACKS.findIndex((p) => !S.packs[p.title] && !p.free && lvRank(p.lv) >= wr);
+  if (nextPack < 0) nextPack = PACKS.findIndex((p) => !S.packs[p.title] && !p.free);
   if (nextPack < 0) nextPack = PACKS.findIndex((p) => !S.packs[p.title]);
   const learned = Object.keys(S.words).length, tx = todayXP();
   const head = due ? "Takrorlash vaqti" : tx >= S.goal ? "Bugungi maqsad bajarildi" : nextPack >= 0 ? "Yangi so'zlar kutyapti" : "Hammasi o'rganildi";
   const sub = due ? `${due} ta so'zni eslash vaqti keldi. Avval takrorlang.` : tx >= S.goal ? "Zo'r! Xohlasangiz yana mashq qiling." : nextPack >= 0 ? `Keyingi paket: ${esc(PACKS[nextPack].title)}` : "Takrorlash va darslarni davom ettiring.";
   html(`${topBar()}
     ${!("speechSynthesis" in window) && !AUD ? `<div class="card" style="border-color:var(--red)"><b style="color:var(--red)">Bu oynada ovoz ishlamaydi</b><span class="muted">Ilovani Chrome brauzerida oching: havolani nusxalab, Chrome'ning manzil qatoriga qo'ying.</span></div>` : ""}
+    ${!S.level ? `<section class="card lvcard"><span class="tag pink">Yangi</span><b>Darajangni aniqlaymiz</b><span class="muted">Qisqa test, 5 daqiqacha. Natijaga qarab darslar, so'zlar va gapirish mashqlari senga moslanadi.</span><button class="btn main" id="lvt" type="button">Testni boshlash</button></section>` : ""}
     <section class="panel hero">
       <div class="hero-top">${ring(tx, S.goal)}<div><h2>${head}</h2><p>${sub}</p></div></div>
       <div class="stats">
@@ -552,12 +562,12 @@ function home() {
     <div class="sec">So'z paketlari</div>
     <div class="list">
       ${PACKS.map((p, i) => {
-        const st = S.packs[p.title], locked = !p.free && i > nextPack && nextPack >= 0 && !st;
+        const st = S.packs[p.title], locked = !p.free && i > nextPack && nextPack >= 0 && !st && lvRank(p.lv) >= wr;
         const head = p.free && !(PACKS[i - 1] || {}).free ? `</div><div class="sec">Ko'cha inglizchasi · istalgan payt ochiq</div><div class="list">` : "";
         const cls = st ? "done" : i === nextPack ? "next" : locked ? "locked" : "";
         return `${head}<button class="item ${cls}" data-p="${i}" type="button" ${locked ? 'aria-disabled="true"' : ""}>
           <span class="num">${st ? CHECK : i + 1}</span>
-          <span class="body"><span class="title">${esc(p.title)}</span><span class="sub">${p.words.map((w) => esc(w.en)).join(" · ")}</span></span>
+          <span class="body"><span class="title">${esc(p.title)}${p.lv && p.lv !== "A1" ? ` <small class="lvt">${p.lv}</small>` : ""}</span><span class="sub">${p.words.map((w) => esc(w.en)).join(" · ")}</span></span>
           <span class="end">${st ? stars(st.stars) : locked ? LOCK : ""}</span>
         </button>`;
       }).join("")}
@@ -566,6 +576,7 @@ function home() {
   `, "words");
   bindTop();
   if ($("rev")) $("rev").onclick = review;
+  if ($("lvt")) $("lvt").onclick = levelIntro;
   if ($("nxt")) $("nxt").onclick = () => learn(nextPack);
   on(".item", (e) => { if (!e.currentTarget.getAttribute("aria-disabled")) learn(+e.currentTarget.dataset.p); });
   $("howb").onclick = howto;
@@ -603,7 +614,7 @@ function settings() {
       <label for="voice"><b>Ovoz</b></label>
       ${AUD ? `<span class="muted">Asosiy ovoz: <b style="color:var(--cyan)">${esc(AUD.name)}</b> (AQSH, yozib olingan). Quyidagi telefon ovozi faqat yozib olinmagan gaplar uchun ishlatiladi.</span>` : ""}
       ${VOICES.length ? `<select id="voice">${VOICES.map((v) => `<option value="${esc(v.name)}" ${VOICE && v.name === VOICE.name ? "selected" : ""}>${esc(v.name)} · ${isUS(v) ? "AQSH" : esc(v.lang)}</option>`).join("")}</select>`
-        : `<span class="muted">Telefonda ingliz ovozi topilmadi. Telefon sozlamalaridagi "Matnni nutqqa aylantirish" bo'limidan ingliz (AQSH) ovozini o'rnating.</span>`}
+        : AUD ? "" : `<span class="muted">Telefonda ingliz ovozi topilmadi. Telefon sozlamalaridagi "Matnni nutqqa aylantirish" bo'limidan ingliz (AQSH) ovozini o'rnating.</span>`}
       <label for="rate"><b>Tezlik</b> <span class="muted" id="rv">${S.rate.toFixed(2)}</span></label>
       <input id="rate" type="range" min="0.5" max="1.2" step="0.05" value="${S.rate}">
       <button class="btn ghost" id="test" type="button">${SPK} Sinab ko'rish</button>
@@ -611,6 +622,11 @@ function settings() {
     <div class="card">
       <b>Kunlik maqsad</b>
       <div class="grid3">${GOALS.map((g) => `<button class="opt ${S.goal === g ? "sel" : ""}" data-g="${g}" type="button">${g} XP</button>`).join("")}</div>
+    </div>
+    <div class="card">
+      <b>Daraja: ${S.level ? `${S.level} · ${LV_NAME[S.level]}` : "aniqlanmagan"}</b>
+      <span class="muted">Darslar, so'zlar va gapirish mashqlari shu darajaga moslanadi.</span>
+      <button class="btn ghost" id="lvs" type="button">${S.level ? "Testni qayta topshirish" : "Daraja testini topshirish"}</button>
     </div>
     <div class="card">
       <b>Natijalarni nolga tushirish</b>
@@ -625,6 +641,7 @@ function settings() {
   $("test").onclick = () => speak("Nice to meet you. I'm learning English.");
   on("[data-g]", (e) => { S.goal = +e.currentTarget.dataset.g; save(); settings(); });
   $("reset").onclick = () => { $("reset2").hidden = false; };
+  $("lvs").onclick = levelIntro;
   $("reset2").onclick = () => { const keep = { rate: S.rate, voice: S.voice, goal: S.goal }; S = Object.assign({ packs: {}, words: {}, lessons: {}, xp: 0, day: { d: "", xp: 0 }, best: {}, streak: { last: "", n: 0 } }, keep); save(); home(); };
 }
 
@@ -739,6 +756,7 @@ function runQueue(queue, cfg) {
     else if (t === "tr") taskTr(head, task, finish);
     else if (t === "listen") taskListen(head, task, finish, cfg.pool || []);
     else if (t === "speak") taskSpeak(head, task, finish);
+    else if (t === "answer") taskAnswer(head, task, finish);
     $("quit").onclick = cfg.back;
   }
   next();
@@ -930,7 +948,7 @@ function taskTr(head, t, finish) {
 
 // eshitib tushunish
 function taskListen(head, t, finish, pool) {
-  const opts = shuffle([t.uz, ...shuffle([...new Set(pool.filter((u) => u !== t.uz))]).slice(0, 3)]);
+  const opts = shuffle([t.uz, ...(t.o || shuffle([...new Set(pool.filter((u) => u !== t.uz))])).slice(0, 3)]);
   html(`${head}
     <div class="task-title">Eshiting va ma'nosini tanlang</div>
     <div class="listen"><button class="say big" id="sw" type="button" aria-label="Qayta tinglash">${SPK}</button><button class="slow" id="slow" type="button" aria-label="Sekin tinglash">0.6×</button></div>
@@ -954,7 +972,7 @@ function taskListen(head, t, finish, pool) {
 function taskSpeak(head, t, finish) {
   let tries = 0, busy = false, locked = false, shown = !t.hide;
   html(`${head}
-    <div class="task-title">${t.hide ? "Inglizcha qanday aytiladi?" : "Tinglang va ovoz chiqarib ayting"}</div>
+    <div class="task-title">${t.auto ? "Andrew'dan keyin darhol takrorla" : t.hide ? "Inglizcha qanday aytiladi?" : "Tinglang va ovoz chiqarib ayting"}</div>
     <div class="card">
       <div class="uzline big">${esc(t.uz)}</div>
       <div class="sent spk" id="tgt"></div>
@@ -968,7 +986,9 @@ function taskSpeak(head, t, finish) {
   const tgt = $("tgt");
   const draw = (res) => { tgt.innerHTML = res ? marked(res) : shown ? esc(t.en) : `<span class="hid">• • •</span>`; };
   draw();
-  if ($("sw")) { $("sw").onclick = () => speak(t.en); later(() => speak(t.en), 300); }
+  if ($("sw")) $("sw").onclick = () => speak(t.en);
+  if (t.auto) later(() => speakThen(t.en, () => { if (document.body.contains(tgt) && !busy && !locked && canHear) $("mic").click(); }), 300);
+  else if ($("sw")) later(() => speak(t.en), 300);
   if ($("hint")) $("hint").onclick = () => { shown = true; draw(); speak(t.en); $("hint").remove(); };
   $("mic").onclick = () => {
     if (locked) return;
@@ -1068,10 +1088,11 @@ function rolePlay(li, me, back) {
 
 // mashq zali: ovoz chiqarib gapirish
 function speakPool() {
-  const out = [];
+  const out = [], wr = lvRank(workLv());
   learnedWords().forEach((w) => out.push({ en: w.ex, uz: w.exUz, wid: w.id }));
   LESSONS.forEach((L) => {
-    if (!S.lessons[L.id]) return;
+    // o'z darajangdagi darslar (o'tilmagan bo'lsa ham) va o'tilgan darslar
+    if (!S.lessons[L.id] && lvRank(L.lv) !== wr) return;
     (L.ex || []).forEach((r) => out.push({ en: r[0], uz: r[1] }));
     if (L.dialog) L.rows.forEach((r) => out.push({ en: r[1], uz: r[2] }));
   });
@@ -1091,6 +1112,139 @@ function dialogsList() {
   `);
   $("quit").onclick = practiceTab;
   on(".item", (e) => rolePlay(+e.currentTarget.dataset.l, "B", dialogsList));
+}
+
+// ---------- daraja: test natijasi bo'yicha darslar va mashqlar moslanadi ----------
+const LVS = ["A1", "A2", "B1", "B2"];
+const lvRank = (v) => Math.max(0, LVS.indexOf(v || "A1"));
+const workLv = () => (S.level === "B2" ? "B1" : S.level || "A1");   // ilovadagi eng yuqori kontent B1
+// darslar ro'yxati daraja bo'yicha tartiblangan
+const LORDER = LESSONS.map((_, i) => i).sort((a, b) => lvRank(LESSONS[a].lv) - lvRank(LESSONS[b].lv) || a - b);
+const nextLessonOf = (li) => LORDER[LORDER.indexOf(li) + 1];
+
+function levelIntro() {
+  html(`
+    <div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>Daraja testi</h2></div>
+    ${S.level ? `<div class="card"><span class="tag pink">Hozirgi daraja</span><div class="word">${S.level} <span class="muted" style="font-size:18px">${LV_NAME[S.level]}</span></div></div>` : ""}
+    <div class="card">
+      <b>Qanday o'tadi?</b>
+      <span class="muted">Oddiy savollardan boshlanadi va asta qiyinlashadi: bo'sh joyni to'ldirish, tarjima va tinglash. Savollar qiyin bo'lib qolsa, test o'zi to'xtaydi. Ko'pi bilan 24 ta savol, 5 daqiqacha.</span>
+      <span class="muted">Bilmasang taxmin qilma, "eng to'g'ri tuyulgan"ini tanla. Natijaga qarab darslar, so'zlar va gapirish mashqlari senga moslanadi.</span>
+    </div>
+    <div class="grow"></div>
+    <button class="btn main" id="go" type="button">${S.level ? "Testni qayta topshirish" : "Testni boshlash"}</button>
+  `);
+  $("quit").onclick = home;
+  $("go").onclick = placementTest;
+}
+
+function placementTest() {
+  let b = 0, j = 0, ok = 0, passed = -1, n = 0;
+  const total = TEST.reduce((s, x) => s + x.tasks.length, 0);
+  function next() {
+    const band = TEST[b];
+    if (j - ok > band.tasks.length - 4) return testResult(passed);          // bu darajadan o'tib bo'lmaydi
+    if (j >= band.tasks.length) { passed = b; b++; j = 0; ok = 0; return b < TEST.length ? next() : testResult(passed); }
+    const t = band.tasks[j];
+    const head = `<div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><div class="prog"><i style="width:${(n / total) * 100}%"></i></div><span class="stage">${band.lv}</span></div>`;
+    const fin = (good) => { if (good) ok++; j++; n++; later(next, 750); };
+    if (t.k === "fill") taskFill(head, t, fin); else if (t.k === "tr") taskTr(head, t, fin); else taskListen(head, t, fin, []);
+    $("quit").onclick = home;
+  }
+  next();
+}
+
+const LV_TEXT = {
+  A1: "Asoslardan boshlaymiz. Darslar va so'zlar boshidan ketadi, gapirish mashqlari oddiy gaplardan boshlanadi.",
+  A2: "Asoslarni bilasan. Boshlang'ich darslar takrorlash uchun ochiq, sen A2 darslaridan boshlaysan: o'tgan zamon, kelajak, maslahat va majburiyat.",
+  B1: "Yaxshi daraja! Boshlang'ich va asosiy darslar ochiq, sen B1 darslaridan boshlaysan: shart gaplar, passiv, for va since. Gapirish mashqlarida murakkabroq gaplar chiqadi.",
+  B2: "Zo'r daraja! Ilovadagi hamma darslar ochiq. Senga eng foydalisi gapirish mashqlari: O'zim haqimda, Suhbat o'yini va Soya.",
+};
+function testResult(passed) {
+  const lv = ["A1", "A2", "B1", "B1", "B2"][passed + 1];
+  S.level = lv; S.testAt = Date.now(); addXP(20); save();
+  html(`
+    <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>Natija</h2></div>
+    <div class="score">${lv}</div>
+    <p class="center"><b>${LV_NAME[lv]}</b></p>
+    <div class="card"><span class="muted">${LV_TEXT[lv]}</span></div>
+    <p class="center"><span class="xpgain">+20 XP</span></p>
+    <div class="grow"></div>
+    <button class="btn main" id="sp" type="button">Gapirishni boshlash</button>
+    <button class="btn ghost" id="ls" type="button">Darslarga o'tish</button>
+  `);
+  $("quit").onclick = home; $("ls").onclick = lessonsTab; $("sp").onclick = practiceTab;
+}
+
+// O'zim haqimda: savolga erkin javob, keyin namunaviy javob
+function taskAnswer(head, t, finish) {
+  let busy = false, locked = false;
+  html(`${head}
+    <div class="task-title">Savolga o'zing haqingda javob ber</div>
+    <div class="card">
+      <span class="tag en">Andrew so'rayapti</span>
+      <div class="word sm">${esc(t.q)} <button class="say" id="sw" type="button" aria-label="Tinglash">${SPK}</button></div>
+      <div class="uzline">${esc(t.uz)}</div>
+    </div>
+    <div class="card" id="model" hidden>
+      <span class="tag uz">Namunaviy javob</span>
+      <div class="sent spk" style="font-size:20px">${esc(t.m)}</div>
+      <div class="uzline">${esc(t.mUz)}</div>
+      <div class="row"><button class="say" id="ms" type="button" aria-label="Tinglash">${SPK}</button></div>
+    </div>
+    <div class="grow"></div>
+    <p class="center heard" id="msg">${canHear ? "Mikrofonni bosib, to'liq gap bilan javob ber" : "Bu oynada mikrofon ishlamaydi. Yodla ilovasini telefonda oching."}</p>
+    <div class="micwrap"><button class="mic" id="mic" type="button" aria-label="Gapirish" ${canHear ? "" : "disabled"}>${MIC}</button></div>
+    <div class="row2"><button class="btn ghost" id="hint" type="button">Namuna</button><button class="btn ghost" id="skip" type="button">O'tkazish</button></div>
+  `);
+  const msg = $("msg");
+  const showModel = () => { $("model").hidden = false; };
+  $("sw").onclick = () => speak(t.q);
+  $("ms").onclick = () => speak(t.m);
+  later(() => speak(t.q), 300);
+  $("hint").onclick = () => { showModel(); speak(t.m); };
+  $("skip").onclick = () => { if (!locked) { locked = true; finish(null); } };
+  $("mic").onclick = () => {
+    if (locked) return;
+    if (busy) { stopHear(); busy = false; $("mic").classList.remove("on"); msg.textContent = "Mikrofonni bosib javob ber"; return; }
+    busy = true; $("mic").classList.add("on"); msg.textContent = "Eshityapman... gapir";
+    hear((err, alts) => {
+      busy = false;
+      if (!document.body.contains(msg)) return;
+      $("mic").classList.remove("on");
+      if (err) { msg.textContent = hearError(err); return; }
+      const heard = alts[0] || "";
+      if (normWords(heard).length >= 3) {
+        locked = true; ding(true); showModel();
+        msg.innerHTML = `${pick(PRAISE)} Sen aytding: <i>${esc(heard)}</i>`;
+        const sk = $("skip"); sk.textContent = "Keyingi"; sk.className = "btn main";
+        sk.onclick = () => finish(true);
+        $("hint").textContent = "Namunani tinglash"; $("hint").onclick = () => speak(t.m);
+      } else {
+        msg.innerHTML = `Eshitildi: <i>${esc(heard || "...")}</i><br>Qisqa bo'ldi. Kamida 3 so'zli to'liq gap bilan javob ber.`;
+      }
+    });
+  };
+}
+function aboutMe() {
+  const r = lvRank(workLv());
+  const mine = shuffle(SAVOLLAR.filter((q) => lvRank(q.lv) === r)), low = shuffle(SAVOLLAR.filter((q) => lvRank(q.lv) < r));
+  const queue = [...mine.slice(0, 4), ...low.slice(0, 1), ...mine.slice(4)].slice(0, 5).map((q) => ({ ...q, type: "answer" }));
+  runQueue(queue, { back: practiceTab, onDone: (m, ok, n) => practiceDone("O'zim haqimda", ok, n, aboutMe) });
+}
+function storiesList() {
+  html(`
+    <div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>Soya</h2></div>
+    <p class="muted">Andrew gapni aytadi, mikrofon o'zi yoqiladi, sen esa darhol uning ohangida takrorlaysan. Bu usul talaffuz va ravon gapirishni tez yaxshilaydi.</p>
+    <div class="list">${HIKOYALAR.map((h, k) => `<button class="item ${h.lv === workLv() ? "next" : ""}" data-h="${k}" type="button"><span class="num">${h.lv}</span><span class="body"><span class="title">${esc(h.title)}</span><span class="sub">${h.lines.length} ta gap${h.lv === workLv() ? " · sening darajang" : ""}</span></span></button>`).join("")}</div>
+  `);
+  $("quit").onclick = practiceTab;
+  on(".item", (e) => shadow(+e.currentTarget.dataset.h));
+}
+function shadow(k) {
+  const h = HIKOYALAR[k];
+  const queue = h.lines.map((l) => ({ type: "speak", en: l[0], uz: l[1], auto: true }));
+  runQueue(queue, { back: storiesList, onDone: (m, ok, n) => practiceDone(`Soya: ${h.title}`, ok, n, () => shadow(k)) });
 }
 
 // ---------- natijalar ----------
@@ -1128,7 +1282,10 @@ function reviewDone(ids, missed) {
 // ---------- 2-bo'lim: Darslar ----------
 function lessonsTab() {
   const done = LESSONS.filter((l) => S.lessons[l.id]).length;
-  const nextL = LESSONS.findIndex((l) => !S.lessons[l.id]);
+  const wr = lvRank(workLv());
+  let nextL = LORDER.find((i) => !S.lessons[LESSONS[i].id] && lvRank(LESSONS[i].lv) >= wr);
+  if (nextL === undefined) nextL = LORDER.find((i) => !S.lessons[LESSONS[i].id]);
+  if (nextL === undefined) nextL = -1;
   html(`${topBar()}
     <section class="panel hero">
       <div><h2>Grammatika darslari</h2><p>Qisqa qoida, jadval va misollar, keyin mashq. Bitta dars 5 daqiqacha.</p></div>
@@ -1136,15 +1293,16 @@ function lessonsTab() {
       <span class="muted">${done} / ${LESSONS.length} dars tugatildi</span>
       ${nextL >= 0 ? `<div class="row"><button class="btn main" id="nl" type="button">${done ? "Davom ettirish" : "Birinchi dars"}</button></div>` : ""}
     </section>
-    <div class="list">
-      ${LESSONS.map((l, i) => {
-        const st = S.lessons[l.id];
-        return `<button class="item ${st ? "done" : i === nextL ? "next" : ""}" data-l="${i}" type="button">
-          <span class="num">${st ? CHECK : i + 1}</span>
+    <div>
+      ${LORDER.map((i, p) => {
+        const l = LESSONS[i], st = S.lessons[l.id];
+        const sec = p === 0 || LESSONS[LORDER[p - 1]].lv !== l.lv ? `${p ? "</div>" : ""}<div class="sec">${l.lv} · ${LV_NAME[l.lv]}${l.lv === workLv() ? " · sening darajang" : ""}</div><div class="list">` : "";
+        return `${sec}<button class="item ${st ? "done" : i === nextL ? "next" : ""}" data-l="${i}" type="button">
+          <span class="num">${st ? CHECK : p + 1}</span>
           <span class="body"><span class="title">${esc(l.title)}</span><span class="sub">${esc(l.sub)}</span></span>
           <span class="end">${st ? stars(st.stars) : ""}</span>
         </button>`;
-      }).join("")}
+      }).join("")}</div>
     </div>
   `, "lessons");
   bindTop();
@@ -1194,11 +1352,11 @@ function lessonResult(li, misses) {
     <p class="center"><span class="xpgain">+20 XP bonus</span></p>
     <p class="center muted">"${esc(L.title)}": ${misses === 0 ? "bitta ham xatosiz!" : `${misses} ta xato. Qoidani yana bir ko'rib chiqing.`}</p>
     <div class="grow"></div>
-    ${li + 1 < LESSONS.length ? `<button class="btn main" id="nx" type="button">Keyingi dars</button>` : ""}
+    ${nextLessonOf(li) !== undefined ? `<button class="btn main" id="nx" type="button">Keyingi dars</button>` : ""}
     <button class="btn ghost" id="bk" type="button">Darslar ro'yxati</button>
   `);
   $("quit").onclick = lessonsTab; $("bk").onclick = lessonsTab;
-  if ($("nx")) $("nx").onclick = () => lessonTheory(li + 1);
+  if ($("nx")) $("nx").onclick = () => lessonTheory(nextLessonOf(li));
 }
 
 // ---------- 3-bo'lim: Mashq ----------
@@ -1211,6 +1369,8 @@ function practiceTab() {
     <div class="modes">
       <button class="mode v" id="m5" type="button"><span class="ic">${MIC}</span><b>Gapirish</b><span>Gaplarni ovoz chiqarib ayting, ilova tekshiradi</span></button>
       <button class="mode r" id="m6" type="button"><span class="ic">${M_CHAT}</span><b>Suhbat o'yini</b><span>Andrew bilan navbatma-navbat gaplashing</span></button>
+      <button class="mode g" id="m7" type="button"><span class="ic">${M_ME}</span><b>O'zim haqimda</b><span>Savollarga o'zing haqingda javob ber</span></button>
+      <button class="mode p" id="m8" type="button"><span class="ic">${M_SHADOW}</span><b>Soya</b><span>Andrew'dan keyin darhol takrorla</span></button>
       <button class="mode c" id="m1" type="button" ${ok ? "" : 'aria-disabled="true"'}><span class="ic">${M_ORDER}</span><b>Gap tuzish</b><span>So'zlardan to'liq gap yig'ing</span></button>
       <button class="mode p" id="m2" type="button" ${ok ? "" : 'aria-disabled="true"'}><span class="ic">${M_LISTEN}</span><b>Tinglab tushunish</b><span>Gapni eshitib, ma'nosini toping</span></button>
       <button class="mode g" id="m3" type="button" ${ok ? "" : 'aria-disabled="true"'}><span class="ic">${M_SPEED}</span><b>Tezkor sinov</b><span>60 soniya · rekord: ${S.best.speed || 0}</span></button>
@@ -1220,7 +1380,7 @@ function practiceTab() {
   bindTop();
   if (ok) { $("m1").onclick = practiceOrder; $("m2").onclick = practiceListen; $("m3").onclick = speedQuiz; }
   $("m4").onclick = vocab;
-  $("m5").onclick = practiceSpeak; $("m6").onclick = dialogsList;
+  $("m5").onclick = practiceSpeak; $("m6").onclick = dialogsList; $("m7").onclick = aboutMe; $("m8").onclick = storiesList;
 }
 
 function practiceOrder() {

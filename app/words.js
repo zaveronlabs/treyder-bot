@@ -1,4 +1,4 @@
-// Yodla — 170 ta so'z, 34 ta paket (har birida 5 ta so'z)
+// Yodla — so'z va ibora paketlari (har birida 5 ta); lv: daraja (yozilmasa A1)
 // t: so'z turkumi, ipa: amerikacha transkripsiya, ex/exUz: misol gap va tarjimasi
 const PACKS = [
   { title: "Tanishuv", words: [
@@ -14,6 +14,20 @@ const PACKS = [
     { en: "please", uz: "iltimos", t: "Undov", ipa: "/pliːz/", ex: "Water, please.", exUz: "Suv, iltimos." },
     { en: "thank you", uz: "rahmat", t: "Ibora", ipa: "/θæŋk juː/", ex: "Thank you very much.", exUz: "Katta rahmat." },
     { en: "sorry", uz: "kechirasiz (uzr)", t: "Undov", ipa: "/ˈsɑːri/", ex: "Sorry, I'm late.", exUz: "Kechirasiz, kechikdim." },
+  ]},
+  { title: "Suhbat boshlash", words: [
+    { en: "What's up?", uz: "Nima gap?", t: "Ibora", ipa: "/wʌts ˈʌp/", ex: "Hey, what's up? Long time no see!", exUz: "Hey, nima gap? Ko'rinmay ketding!" },
+    { en: "How's it going?", uz: "Ishlar qalay?", t: "Ibora", ipa: "/haʊz ɪt ˈɡoʊɪŋ/", ex: "How's it going, man?", exUz: "Ishlar qalay, do'stim?" },
+    { en: "Where are you from?", uz: "Qayerliksan?", t: "Ibora", ipa: "/wɛr ɑːr juː frʌm/", ex: "Where are you from? I'm from Uzbekistan.", exUz: "Qayerliksan? Men O'zbekistondanman." },
+    { en: "What do you do?", uz: "Nima ish qilasan?", t: "Ibora", ipa: "/wʌt də juː duː/", ex: "What do you do? I'm a student.", exUz: "Nima ish qilasan? Men talabaman." },
+    { en: "Nice talking to you", uz: "Gaplashganimdan xursandman", t: "Ibora", ipa: "/naɪs ˈtɔːkɪŋ tə juː/", ex: "Nice talking to you. See you!", exUz: "Gaplashganimdan xursandman. Ko'rishguncha!" },
+  ]},
+  { title: "Tushunmaganda", words: [
+    { en: "Sorry?", uz: "Kechirasiz, nima dedingiz?", t: "Ibora", ipa: "/ˈsɑːri/", ex: "Sorry? I didn't hear you.", exUz: "Kechirasiz? Eshitmadim." },
+    { en: "Can you repeat that?", uz: "Takrorlay olasizmi?", t: "Ibora", ipa: "/kən juː rɪˈpiːt ðæt/", ex: "Can you repeat that, please?", exUz: "Takrorlay olasizmi, iltimos?" },
+    { en: "Can you speak slowly?", uz: "Sekinroq gapira olasizmi?", t: "Ibora", ipa: "/kən juː spiːk ˈsloʊli/", ex: "Can you speak slowly, please? My English is not very good.", exUz: "Sekinroq gapira olasizmi? Inglizcham unchalik yaxshi emas." },
+    { en: "What does it mean?", uz: "Bu nima degani?", t: "Ibora", ipa: "/wʌt dʌz ɪt miːn/", ex: "What does this word mean?", exUz: "Bu so'z nima degani?" },
+    { en: "How do you say", uz: "qanday deyiladi", t: "Ibora", ipa: "/haʊ də juː seɪ/", ex: "How do you say it in English?", exUz: "Buni inglizcha qanday deyiladi?" },
   ]},
   { title: "Olmoshlar", words: [
     { en: "he", uz: "u (erkak)", t: "Olmosh", ipa: "/hiː/", ex: "He is my brother.", exUz: "U mening akam." },
@@ -197,20 +211,6 @@ const PACKS = [
     { en: "sleep", uz: "uxlamoq", t: "Fe'l", ipa: "/sliːp/", ex: "I sleep eight hours.", exUz: "Men sakkiz soat uxlayman." },
     { en: "play", uz: "o'ynamoq", t: "Fe'l", ipa: "/pleɪ/", ex: "Let's play football.", exUz: "Keling, futbol o'ynaymiz." },
   ]},
-  { title: "Sifatlar 2", words: [
-    { en: "easy", uz: "oson", t: "Sifat", ipa: "/ˈiːzi/", ex: "English is easy!", exUz: "Ingliz tili oson!" },
-    { en: "hard", uz: "qiyin", t: "Sifat", ipa: "/hɑːrd/", ex: "This test is hard.", exUz: "Bu test qiyin." },
-    { en: "cheap", uz: "arzon", t: "Sifat", ipa: "/tʃiːp/", ex: "This phone is cheap.", exUz: "Bu telefon arzon." },
-    { en: "expensive", uz: "qimmat", t: "Sifat", ipa: "/ɪkˈspɛnsɪv/", ex: "Taxis are expensive here.", exUz: "Bu yerda taksi qimmat." },
-    { en: "beautiful", uz: "chiroyli, go'zal", t: "Sifat", ipa: "/ˈbjuːtɪfəl/", ex: "What a beautiful city!", exUz: "Qanday go'zal shahar!" },
-  ]},
-  { title: "Internet", words: [
-    { en: "message", uz: "xabar", t: "Ot", ipa: "/ˈmɛsɪdʒ/", ex: "I got your message.", exUz: "Xabaringni oldim." },
-    { en: "send", uz: "yubormoq", t: "Fe'l", ipa: "/sɛnd/", ex: "Send me a photo.", exUz: "Menga rasm yubor." },
-    { en: "video", uz: "video", t: "Ot", ipa: "/ˈvɪdioʊ/", ex: "Watch this video.", exUz: "Bu videoni ko'r." },
-    { en: "password", uz: "parol", t: "Ot", ipa: "/ˈpæswɝːd/", ex: "I forgot my password.", exUz: "Parolimni unutdim." },
-    { en: "online", uz: "onlayn, internetda", t: "Ravish", ipa: "/ˌɑːnˈlaɪn/", ex: "Are you online?", exUz: "Internetdamisan?" },
-  ]},
   { title: "Do'konda", words: [
     { en: "price", uz: "narx", t: "Ot", ipa: "/praɪs/", ex: "What's the price?", exUz: "Narxi qancha?" },
     { en: "pay", uz: "to'lamoq", t: "Fe'l", ipa: "/peɪ/", ex: "Can I pay by card?", exUz: "Karta bilan to'lasam bo'ladimi?" },
@@ -218,12 +218,69 @@ const PACKS = [
     { en: "how much", uz: "qancha (narx, miqdor)", t: "Ibora", ipa: "/haʊ ˈmʌtʃ/", ex: "How much is this?", exUz: "Bu qancha turadi?" },
     { en: "cash", uz: "naqd pul", t: "Ot", ipa: "/kæʃ/", ex: "I only have cash.", exUz: "Menda faqat naqd pul bor." },
   ]},
-  { title: "Harakatlar 5", words: [
+  { title: "Suhbatni davom ettirish", lv: "A2", words: [
+    { en: "Really?", uz: "Rostdanmi?", t: "Ibora", ipa: "/ˈrɪəli/", ex: "Really? That's amazing!", exUz: "Rostdanmi? Bu ajoyib-ku!" },
+    { en: "What about you?", uz: "O'zingchi?", t: "Ibora", ipa: "/wʌt əˈbaʊt juː/", ex: "I'm fine. What about you?", exUz: "Yaxshiman. O'zingchi?" },
+    { en: "That sounds good", uz: "Yaxshi fikr ekan", t: "Ibora", ipa: "/ðæt saʊndz ɡʊd/", ex: "Pizza tonight? That sounds good.", exUz: "Bugun kechqurun pitsami? Yaxshi fikr." },
+    { en: "I see", uz: "Tushundim", t: "Ibora", ipa: "/aɪ siː/", ex: "Oh, I see. Thanks for explaining.", exUz: "Ha, tushundim. Tushuntirganing uchun rahmat." },
+    { en: "Me too", uz: "Men ham", t: "Ibora", ipa: "/miː tuː/", ex: "I love this song. Me too!", exUz: "Men bu qo'shiqni yaxshi ko'raman. Men ham!" },
+  ]},
+  { title: "Sifatlar 2", lv: "A2", words: [
+    { en: "easy", uz: "oson", t: "Sifat", ipa: "/ˈiːzi/", ex: "English is easy!", exUz: "Ingliz tili oson!" },
+    { en: "hard", uz: "qiyin", t: "Sifat", ipa: "/hɑːrd/", ex: "This test is hard.", exUz: "Bu test qiyin." },
+    { en: "cheap", uz: "arzon", t: "Sifat", ipa: "/tʃiːp/", ex: "This phone is cheap.", exUz: "Bu telefon arzon." },
+    { en: "expensive", uz: "qimmat", t: "Sifat", ipa: "/ɪkˈspɛnsɪv/", ex: "Taxis are expensive here.", exUz: "Bu yerda taksi qimmat." },
+    { en: "beautiful", uz: "chiroyli, go'zal", t: "Sifat", ipa: "/ˈbjuːtɪfəl/", ex: "What a beautiful city!", exUz: "Qanday go'zal shahar!" },
+  ]},
+  { title: "Internet", lv: "A2", words: [
+    { en: "message", uz: "xabar", t: "Ot", ipa: "/ˈmɛsɪdʒ/", ex: "I got your message.", exUz: "Xabaringni oldim." },
+    { en: "send", uz: "yubormoq", t: "Fe'l", ipa: "/sɛnd/", ex: "Send me a photo.", exUz: "Menga rasm yubor." },
+    { en: "video", uz: "video", t: "Ot", ipa: "/ˈvɪdioʊ/", ex: "Watch this video.", exUz: "Bu videoni ko'r." },
+    { en: "password", uz: "parol", t: "Ot", ipa: "/ˈpæswɝːd/", ex: "I forgot my password.", exUz: "Parolimni unutdim." },
+    { en: "online", uz: "onlayn, internetda", t: "Ravish", ipa: "/ˌɑːnˈlaɪn/", ex: "Are you online?", exUz: "Internetdamisan?" },
+  ]},
+  { title: "Harakatlar 5", lv: "A2", words: [
     { en: "start", uz: "boshlamoq", t: "Fe'l", ipa: "/stɑːrt/", ex: "The movie starts at eight.", exUz: "Kino soat sakkizda boshlanadi." },
     { en: "finish", uz: "tugatmoq", t: "Fe'l", ipa: "/ˈfɪnɪʃ/", ex: "I finish work at six.", exUz: "Ishni soat oltida tugataman." },
     { en: "remember", uz: "eslamoq, esda tutmoq", t: "Fe'l", ipa: "/rɪˈmɛmbər/", ex: "Do you remember me?", exUz: "Meni eslaysanmi?" },
     { en: "forget", uz: "unutmoq", t: "Fe'l", ipa: "/fərˈɡɛt/", ex: "Don't forget your phone.", exUz: "Telefoningni unutma." },
     { en: "try", uz: "urinib ko'rmoq, tatib ko'rmoq", t: "Fe'l", ipa: "/traɪ/", ex: "Try this, it's good.", exUz: "Buni tatib ko'r, mazali." },
+  ]},
+  // ---- B1: o'rta daraja ----
+  { title: "Fikr aytish", lv: "B1", words: [
+    { en: "I think", uz: "menimcha", t: "Ibora", ipa: "/aɪ θɪŋk/", ex: "I think it's a good idea.", exUz: "Menimcha, bu yaxshi fikr." },
+    { en: "in my opinion", uz: "mening fikrimcha", t: "Ibora", ipa: "/ɪn maɪ əˈpɪnjən/", ex: "In my opinion, this movie is boring.", exUz: "Mening fikrimcha, bu kino zerikarli." },
+    { en: "I agree", uz: "qo'shilaman", t: "Ibora", ipa: "/aɪ əˈɡriː/", ex: "I agree with you.", exUz: "Senga qo'shilaman." },
+    { en: "I'm not sure", uz: "aniq bilmayman", t: "Ibora", ipa: "/aɪm nɑːt ʃʊr/", ex: "I'm not sure, let me check.", exUz: "Aniq bilmayman, tekshirib ko'ray." },
+    { en: "actually", uz: "aslida", t: "Ravish", ipa: "/ˈæktʃuəli/", ex: "Actually, I've changed my mind.", exUz: "Aslida, fikrimni o'zgartirdim." },
+  ]},
+  { title: "Ish va o'qish", lv: "B1", words: [
+    { en: "experience", uz: "tajriba", t: "Ot", ipa: "/ɪkˈspɪriəns/", ex: "Do you have any work experience?", exUz: "Ish tajribangiz bormi?" },
+    { en: "skill", uz: "ko'nikma, mahorat", t: "Ot", ipa: "/skɪl/", ex: "Speaking is an important skill.", exUz: "Gapirish muhim ko'nikma." },
+    { en: "improve", uz: "yaxshilamoq", t: "Fe'l", ipa: "/ɪmˈpruːv/", ex: "I practice every day to improve.", exUz: "Yaxshilash uchun har kuni mashq qilaman." },
+    { en: "goal", uz: "maqsad", t: "Ot", ipa: "/ɡoʊl/", ex: "My goal is to speak English fluently.", exUz: "Maqsadim inglizcha ravon gapirish." },
+    { en: "succeed", uz: "muvaffaqiyatga erishmoq", t: "Fe'l", ipa: "/səkˈsiːd/", ex: "If you work hard, you will succeed.", exUz: "Qattiq mehnat qilsang, muvaffaqiyatga erishasan." },
+  ]},
+  { title: "His-tuyg'ular", lv: "B1", words: [
+    { en: "worried", uz: "xavotirda", t: "Sifat", ipa: "/ˈwɝːid/", ex: "I'm worried about the exam.", exUz: "Imtihon haqida xavotirdaman." },
+    { en: "excited", uz: "hayajonda, intiq", t: "Sifat", ipa: "/ɪkˈsaɪtɪd/", ex: "I'm so excited about the trip!", exUz: "Safarni juda intiqlik bilan kutyapman!" },
+    { en: "bored", uz: "zerikkan", t: "Sifat", ipa: "/bɔːrd/", ex: "I'm bored. Let's do something.", exUz: "Zerikdim. Biror narsa qilaylik." },
+    { en: "proud", uz: "faxrlanadigan", t: "Sifat", ipa: "/praʊd/", ex: "I'm proud of you.", exUz: "Sen bilan faxrlanaman." },
+    { en: "nervous", uz: "hayajonlangan, asabiy", t: "Sifat", ipa: "/ˈnɝːvəs/", ex: "I always get nervous before a test.", exUz: "Testdan oldin doim hayajonlanaman." },
+  ]},
+  { title: "Muhim fe'llar", lv: "B1", words: [
+    { en: "decide", uz: "qaror qilmoq", t: "Fe'l", ipa: "/dɪˈsaɪd/", ex: "I can't decide what to wear.", exUz: "Nima kiyishni hal qila olmayapman." },
+    { en: "explain", uz: "tushuntirmoq", t: "Fe'l", ipa: "/ɪkˈspleɪn/", ex: "Can you explain this again?", exUz: "Buni yana tushuntira olasizmi?" },
+    { en: "borrow", uz: "qarzga olmoq, olib turmoq", t: "Fe'l", ipa: "/ˈbɑːroʊ/", ex: "Can I borrow your charger?", exUz: "Zaryadlovchingni olib tursam bo'ladimi?" },
+    { en: "happen", uz: "sodir bo'lmoq", t: "Fe'l", ipa: "/ˈhæpən/", ex: "What happened?", exUz: "Nima bo'ldi?" },
+    { en: "choose", uz: "tanlamoq", t: "Fe'l", ipa: "/tʃuːz/", ex: "Choose one, please.", exUz: "Bittasini tanlang, iltimos." },
+  ]},
+  { title: "Ravishlar", lv: "B1", words: [
+    { en: "already", uz: "allaqachon", t: "Ravish", ipa: "/ɔːlˈrɛdi/", ex: "I've already eaten.", exUz: "Allaqachon ovqatlanib bo'ldim." },
+    { en: "still", uz: "hali ham", t: "Ravish", ipa: "/stɪl/", ex: "Are you still at work?", exUz: "Hali ham ishdamisan?" },
+    { en: "maybe", uz: "balki", t: "Ravish", ipa: "/ˈmeɪbi/", ex: "Maybe we can meet tomorrow.", exUz: "Balki ertaga uchrasharmiz." },
+    { en: "usually", uz: "odatda", t: "Ravish", ipa: "/ˈjuːʒuəli/", ex: "I usually wake up at seven.", exUz: "Odatda soat yettida uyg'onaman." },
+    { en: "almost", uz: "deyarli", t: "Ravish", ipa: "/ˈɔːlmoʊst/", ex: "I'm almost ready.", exUz: "Deyarli tayyorman." },
   ]},
   // ---- ko'cha inglizchasi: istalgan payt ochiq (free) ----
   { title: "Ko'cha inglizchasi 1", free: true, words: [
