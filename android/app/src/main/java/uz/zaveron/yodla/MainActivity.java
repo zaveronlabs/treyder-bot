@@ -2,6 +2,11 @@ package uz.zaveron.yodla;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.DownloadManager;
+import android.content.Context;
+import android.database.Cursor;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
@@ -22,7 +27,9 @@ import androidx.webkit.WebViewAssetLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Locale;
 
 // Yodla: ilova ichidagi (assets) veb-sahifani internetsiz ochadi; gapirish mashqi uchun telefonning ovoz tanish xizmati
 public class MainActivity extends Activity {
@@ -35,6 +42,12 @@ public class MainActivity extends Activity {
     private SpeechRecognizer sr;
     private String kutilganTil = null;
     private boolean eshityapti = false;
+    // AI suhbatdosh: model fayli, yuklab olish va telefon ovozi (AI javoblari oldindan yozilmagan)
+    private static final String MODEL_URL = "https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm";
+    private static final String MODEL_FAYL = "gemma-4-E2B-it.litertlm";
+    private Miya miya;
+    private TextToSpeech tts;
+    private boolean ttsTayyor = false;
 
     @Override
     protected void onCreate(Bundle saved) {
@@ -76,7 +89,93 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void toxtat() { runOnUiThread(() -> { eshityapti = false; if (sr != null) sr.cancel(); }); }
+
+        // --- AI suhbatdosh ---
+        @JavascriptInterface
+        public String aiHolat() { return modelHolati(); }
+
+        @JavascriptInterface
+        public void aiYukla() { runOnUiThread(() -> modelniYukla()); }
+
+        @JavascriptInterface
+        public void aiBoshla(String tizim) {
+            File f = modelFayli();
+            if (!f.exists()) { aiXabar("{\"t\":\"xato\",\"s\":\"model yo'q\"}"); return; }
+            if (miya == null) miya = new Miya(getCacheDir().getAbsolutePath(), j -> aiXabar(j));
+            miya.boshla(f.getAbsolutePath(), tizim);
+        }
+
+        @JavascriptInterface
+        public void aiYoz(String matn) { if (miya != null) miya.yoz(matn); }
+
+        @JavascriptInterface
+        public void gapir(String matn, float tezlik) { runOnUiThread(() -> ovozChiqar(matn, tezlik)); }
+
+        @JavascriptInterface
+        public void gapirToxtat() { runOnUiThread(() -> { if (tts != null) tts.stop(); }); }
     }
+
+    private void aiXabar(String json) { runOnUiThread(() -> js("window.yodlaAI&&window.yodlaAI(" + json + ")")); }
+
+    private File modelFayli() { return new File(getExternalFilesDir(null), MODEL_FAYL); }
+
+    private String modelHolati() {
+        try {
+            JSONObject o = new JSONObject();
+            File f = modelFayli();
+            o.put("bor", f.exists() && f.length() > 100_000_000L);
+            long id = getPreferences(MODE_PRIVATE).getLong("yuk", -1);
+            if (id >= 0 && !(f.exists() && f.length() > 100_000_000L)) {
+                DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                try (Cursor c = dm.query(new DownloadManager.Query().setFilterById(id))) {
+                    if (c != null && c.moveToFirst()) {
+                        int st = c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
+                        long got = c.getLong(c.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR));
+                        long all = c.getLong(c.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES));
+                        o.put("holat", st == DownloadManager.STATUS_FAILED ? "xato" : st == DownloadManager.STATUS_SUCCESSFUL ? "tayyor" : "yuklanmoqda");
+                        o.put("olindi", got); o.put("jami", all);
+                        o.put("sabab", c.getInt(c.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON)));
+                    }
+                }
+            }
+            return o.toString();
+        } catch (Exception e) { return "{\"bor\":false,\"holat\":\"xato\"}"; }
+    }
+
+    private void modelniYukla() {
+        DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        long eski = getPreferences(MODE_PRIVATE).getLong("yuk", -1);
+        if (eski >= 0) dm.remove(eski);
+        File f = modelFayli();
+        if (f.exists()) f.delete();
+        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(MODEL_URL))
+                .setTitle("Yodla: Andrew miyasi")
+                .setDescription("AI suhbatdosh modeli")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setDestinationInExternalFilesDir(this, null, MODEL_FAYL);
+        long id = dm.enqueue(r);
+        getPreferences(MODE_PRIVATE).edit().putLong("yuk", id).apply();
+    }
+
+    private void ovozChiqar(String matn, float tezlik) {
+        if (tts == null) {
+            tts = new TextToSpeech(this, st -> {
+                ttsTayyor = st == TextToSpeech.SUCCESS;
+                if (ttsTayyor) { tts.setLanguage(Locale.US); ovozChiqar(matn, tezlik); }
+                else js("window.yodlaGapirdi&&window.yodlaGapirdi()");
+            });
+            tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                @Override public void onStart(String id) { }
+                @Override public void onDone(String id) { runOnUiThread(() -> js("window.yodlaGapirdi&&window.yodlaGapirdi()")); }
+                @Override public void onError(String id) { runOnUiThread(() -> js("window.yodlaGapirdi&&window.yodlaGapirdi()")); }
+            });
+            return;
+        }
+        if (!ttsTayyor) return;
+        tts.setSpeechRate(tezlik);
+        tts.speak(matn, TextToSpeech.QUEUE_FLUSH, null, "yodla");
+    }
+
 
     private void js(String kod) { web.evaluateJavascript(kod, null); }
 
@@ -137,6 +236,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         if (sr != null) sr.destroy();
+        if (miya != null) miya.yop();
+        if (tts != null) tts.shutdown();
         super.onDestroy();
     }
 
