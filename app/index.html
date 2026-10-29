@@ -186,6 +186,9 @@ p { margin: 0; }
 .aicta .ic svg { width: 24px; height: 24px; }
 .fix { align-self: flex-start; max-width: 88%; padding: 8px 12px; border-radius: 14px; background: rgba(180, 255, 74, .08); border: 1px solid rgba(180, 255, 74, .5); color: var(--lime); font-size: 15px; display: flex; flex-direction: column; gap: 2px; }
 .fix .who { font: 700 11px var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--lime); }
+.bub.tap { cursor: pointer; }
+.bub .uz { display: none; color: var(--lime); font-size: 14px; border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 4px; }
+.bub.open .uz { display: block; }
 .bub.sum { border-color: var(--gold); box-shadow: 0 0 20px -8px var(--gold); max-width: 100%; }
 .aitype { flex-wrap: nowrap; }
 .aitype input { flex: 1; min-width: 0; height: 46px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 0 14px; font: inherit; font-size: 16px; }
@@ -1664,8 +1667,10 @@ function aiSystem(tp) {
 This conversation is ${tp.p}.
 Rules:
 - Speak natural, casual American English that fits level ${lv}. Keep every reply short: 1 to 3 sentences, then ask one follow-up question to keep him talking.
-- If his last message has a grammar or word mistake, start your reply with exactly one line: "Fix: <his sentence, corrected>". If it was fine, do not write that line.
-- No emojis, no lists, no markdown. Never switch to another language.`;
+- If his last message has a grammar or word mistake, start with his corrected sentence inside square brackets, like this: [Fix: I went to the gym yesterday.] Put only his corrected sentence inside the brackets, nothing else. If his message was fine, skip this.
+- Then write your reply to him.
+- At the very end, on a new line, add the Uzbek translation of your reply inside square brackets, like this: [Uz: ...]
+- No emojis, no lists, no markdown.`;
 }
 const aiAvail = () => !!(NATIVE && NATIVE.aiHolat);
 function aiState() { try { return JSON.parse(NATIVE.aiHolat()); } catch { return { bor: false }; } }
@@ -1678,7 +1683,7 @@ function aiHome() {
   const st = aiState();
   if (!st.bor) return aiDownload(st);
   html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>AI suhbatdosh</h2></div>
-    <p class="muted">Andrew seni tushunadi, javob beradi va xatolaringni tuzatadi. Internetsiz ishlaydi. Mavzuni tanla:</p>
+    <p class="muted">Andrew seni tushunadi, javob beradi va xatolaringni tuzatadi. Andrew'ning gapiga bir marta bossang, o'zbekcha tarjimasi chiqadi. Internetsiz ishlaydi. Mavzuni tanla:</p>
     <div class="list">${AI_TOPICS.map((tp, i) => `<button class="item" data-ai="${i}" type="button"><span class="num">${M_CHAT}</span><span class="body"><span class="title">${esc(tp.t)}</span><span class="sub">${esc(tp.d)}</span></span></button>`).join("")}</div>`);
   $("quit").onclick = practiceTab;
   on("[data-ai]", (e) => aiChat(AI_TOPICS[+e.currentTarget.dataset.ai]));
@@ -1733,14 +1738,30 @@ function aiChat(tp) {
     return el;
   }
   // "Fix: ..." qatori tuzatish sifatida alohida ko'rsatiladi
-  const split = (s) => { const m = s.match(/^\s*\**fix\**:\s*(.+?)(\n|$)/i); return m ? { fix: m[1].trim(), rest: s.slice(m[0].length).trim() } : { fix: "", rest: s.trim() }; };
+  // javob: [Fix: tuzatilgan gap] + Andrew'ning gapi + [Uz: tarjima]
+  function split(s) {
+    let fix = "", uz = "", t = s;
+    const f = t.match(/^\s*\[?\s*\**fix\**\s*:\s*([^\]\n]*)(\]|\n|$)/i);
+    if (f) { fix = f[1].trim(); t = t.slice(f[0].length); if (!f[2] && !t.trim()) { const k = fix.search(/[.!?]\s+\S/); if (k > 0) { t = fix.slice(k + 1); fix = fix.slice(0, k + 1); } } }
+    const u = t.search(/\[\s*(uz|uzbek|o'zbekcha)\b/i);
+    if (u >= 0) { uz = t.slice(u).replace(/^\[\s*[^:]*:\s*/, "").replace(/\]\s*$/, "").trim(); t = t.slice(0, u); }
+    else { const p = t.lastIndexOf("["); if (p >= 0 && t.length - p < 6) t = t.slice(0, p); }
+    return { fix, rest: t.replace(/[*_#`\[\]]/g, "").trim(), uz };
+  }
   function render(final) {
-    const { fix, rest } = split(AI.buf);
-    const clean = rest.replace(/[*_#`]/g, "");
-    AI.bub.querySelector("b").textContent = clean || "...";
+    let { fix, rest, uz } = split(AI.buf);
+    if (final && !rest && fix) { rest = fix; fix = ""; }
+    AI.bub.querySelector("b").textContent = rest || "...";
     if (fix && !AI.fixEl) { AI.fixEl = document.createElement("div"); AI.fixEl.className = "fix"; AI.bub.before(AI.fixEl); }
     if (fix) AI.fixEl.innerHTML = `<span class="who">To'g'risi</span>${esc(fix)}`;
-    if (final) AI.last = clean;
+    if (final) {
+      AI.last = rest;
+      const el = AI.bub, sm = document.createElement("small");
+      sm.className = "uz"; sm.textContent = uz || "Tarjima yo'q";
+      el.appendChild(sm);
+      el.classList.add("tap");
+      el.onclick = () => el.classList.toggle("open");
+    }
     AI.bub.scrollIntoView({ block: "end" });
   }
   function send(text, hidden) {
