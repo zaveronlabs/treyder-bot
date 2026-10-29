@@ -176,6 +176,21 @@ p { margin: 0; }
 /* feedback */
 .toast { position: fixed; left: 50%; top: calc(64px + env(safe-area-inset-top, 0px)); transform: translateX(-50%); z-index: 20; padding: 12px 22px; border-radius: 999px; background: var(--bar); border: 1px solid var(--lime); color: var(--lime); font: 700 18px var(--display); letter-spacing: .06em; box-shadow: 0 0 28px -4px var(--lime); display: flex; gap: 10px; align-items: center; white-space: nowrap; animation: pop .25s ease-out; }
 .toast small { color: var(--cyan); font-size: 13px; }
+/* miya: aqlli o'qituvchi va AI suhbatdosh */
+.brain { border-color: rgba(143, 99, 255, .55); box-shadow: 0 0 24px -12px var(--violet); }
+.brain .cando li b { color: var(--cyan); font-weight: 600; }
+.aicta { flex-direction: row; align-items: center; gap: 14px; text-align: left; color: inherit; font: inherit; border-color: rgba(45, 240, 255, .55); box-shadow: 0 0 24px -12px var(--cyan); }
+.aicta > span:last-child { display: flex; flex-direction: column; gap: 4px; }
+.aicta b { font: 700 17px var(--display); }
+.aicta .ic { width: 48px; height: 48px; flex: none; border-radius: 14px; display: grid; place-items: center; color: var(--cyan); border: 1px solid currentColor; box-shadow: 0 0 14px -6px currentColor; }
+.aicta .ic svg { width: 24px; height: 24px; }
+.fix { align-self: flex-start; max-width: 88%; padding: 8px 12px; border-radius: 14px; background: rgba(180, 255, 74, .08); border: 1px solid rgba(180, 255, 74, .5); color: var(--lime); font-size: 15px; display: flex; flex-direction: column; gap: 2px; }
+.fix .who { font: 700 11px var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--lime); }
+.bub.sum { border-color: var(--gold); box-shadow: 0 0 20px -8px var(--gold); max-width: 100%; }
+.aitype { flex-wrap: nowrap; }
+.aitype input { flex: 1; min-width: 0; height: 46px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 0 14px; font: inherit; font-size: 16px; }
+.aitype .btn { width: 56px; min-height: 46px; padding: 0; flex: none; }
+
 /* 6 oylik reja */
 .mission { gap: 8px; }
 .mhead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
@@ -488,6 +503,7 @@ const MIC = I('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 
 const M_CHAT = I('<path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M17 9h3a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1v3l-4-3h-3"/>');
 const M_ME = I('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/>');
 const M_SHADOW = I('<path d="M3 12h3l3-7 4 14 3-7h5"/>');
+const M_BRAIN = I('<path d="M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 6 1V5a2 2 0 0 0-3-1z"/><path d="M15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-6 1"/>');
 const M_VOCAB = I('<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>');
 
 // ---------- yordamchilar ----------
@@ -779,6 +795,7 @@ function runQueue(queue, cfg) {
       </div>`;
     const finish = (ok, wid, correctText) => {
       if (ok === null) { if (!task.retry) done++; i++; return next(); }
+      noteResult(task, !!ok);
       if (ok) {
         if (!task.retry) { done++; firstOk++; }
         const xp = task.retry ? 5 : 10;
@@ -1041,7 +1058,7 @@ function taskSpeak(head, t, finish) {
       if (!document.body.contains(tgt)) return;
       $("mic").classList.remove("on");
       if (err) { $("msg").textContent = hearError(err); return; }
-      const res = speechCheck(t.en, alts); tries++; shown = true;
+      const res = speechCheck(t.en, alts); tries++; shown = true; pronLog(res);
       draw(res);
       const heard = `Eshitildi: <i>${esc(res.heard || "...")}</i>`;
       if (res.ok) { locked = true; $("msg").innerHTML = heard; stat("spoken"); finish(true, t.wid, t.en); }
@@ -1099,7 +1116,7 @@ function rolePlay(li, me, back) {
       if (!document.body.contains(chat)) return;
       $("mic").classList.remove("on");
       if (err) { $("msg").textContent = hearError(err); return; }
-      const res = speechCheck(r[1], alts); tries++;
+      const res = speechCheck(r[1], alts); tries++; pronLog(res);
       cur.querySelector("b").innerHTML = marked(res);
       const heard = `Eshitildi: <i>${esc(res.heard || "...")}</i>`;
       if (res.ok) { ding(true); $("msg").innerHTML = `${pick(PRAISE)} ${heard}`; stat("spoken"); next(true); }
@@ -1531,6 +1548,243 @@ function planTab() {
   if ($("toc1")) $("toc1").onclick = () => { S.plan = { ...S.plan, goal: "C1", c1: true }; save(); afterProgress(); planTab(); };
 }
 
+// ---------- aqlli o'qituvchi: xatolar, talaffuz va grammatikadagi zaif joylarni kuzatadi ----------
+const MIST_TYPES = ["fill", "order", "tr", "listen", "speak"];
+const mistKey = (t) => t.type + "|" + (t.s || t.en || t.uz || "");
+function noteMiss(task) {
+  if (task.fromMist || !MIST_TYPES.includes(task.type)) return;
+  S.mist = S.mist || {};
+  const k = mistKey(task), old = S.mist[k];
+  const { retry, hide, auto, ...t } = task;
+  S.mist[k] = { t, n: (old ? old.n : 0) + 1, at: Date.now() };
+  const keys = Object.keys(S.mist);
+  if (keys.length > 80) { keys.sort((a, b) => S.mist[a].at - S.mist[b].at); delete S.mist[keys[0]]; }
+  save();
+}
+function noteResult(task, ok) {
+  if (task.lid) { S.gram = S.gram || {}; const g = (S.gram[task.lid] = S.gram[task.lid] || { m: 0, ok: 0 }); ok ? g.ok++ : g.m++; }
+  if (!ok) noteMiss(task);
+  else if (task.fromMist && S.mist && !task.retry) delete S.mist[mistKey(task)];
+  save();
+}
+// talaffuz: qaysi so'zlar ko'p xato eshitilganini yozib boradi
+function pronLog(res) {
+  S.pron = S.pron || {};
+  res.toks.forEach((w, j) => {
+    const k = normWords(w).join(" ");
+    if (!k || k.length < 3) return;
+    const p = (S.pron[k] = S.pron[k] || { m: 0, ok: 0 });
+    res.tokOk[j] ? p.ok++ : p.m++;
+  });
+}
+const mistList = () => Object.values(S.mist || {}).sort((a, b) => b.n - a.n || a.at - b.at);
+function weakLessons() {
+  return Object.entries(S.gram || {}).map(([id, g]) => ({ L: LESSONS.find((l) => l.id === id), g, sc: g.m - g.ok * 0.34 }))
+    .filter((x) => x.L && x.g.m >= 2 && x.sc > 0).sort((a, b) => b.sc - a.sc);
+}
+const weakPron = () => Object.entries(S.pron || {}).filter(([, p]) => p.m >= 2 && p.m > p.ok * 0.5).sort((a, b) => b[1].m - a[1].m).map(([w]) => w);
+// rejadagi qaysi vazifa vaqtdan eng ko'p ortda qolyapti
+function planLag() {
+  if (!S.plan) return null;
+  const ch = planChapters(), cur = ch.find((c) => c.quests.some((x) => x.f() < x.need));
+  if (!cur) return null;
+  const i = ch.indexOf(cur), day = (Date.now() - S.plan.start) / DAY, part = Math.max(0.05, Math.min(1, (day - i * 30) / 30));
+  const prev = i ? ch[i - 1] : null;
+  let worst = null;
+  for (const x of cur.quests) {
+    if (x.need === 1) continue;
+    const base = prev ? (prev.quests.find((p) => p.f === x.f) || { need: 0 }).need : 0;
+    const want = base + (x.need - base) * part, have = x.f();
+    const r = have / Math.max(1, want);
+    if (r < 1 && (!worst || r < worst.r)) worst = { x, r };
+  }
+  return worst;
+}
+function brainTips() {
+  const tips = [], m = mistList().length, wl = weakLessons(), wp = weakPron(), lag = planLag();
+  if (lag) tips.push(`Rejada ortda qolyapsan: <b>${esc(lag.x.label)}</b> (${lag.x.f()}/${lag.x.need}). Bugun shunga ko'proq vaqt ajrat.`);
+  if (dueWords().length) tips.push(`${dueWords().length} ta so'zni takrorlash vaqti keldi.`);
+  if (m) tips.push(`Xatolar daftarida ${m} ta gap bor. To'g'ri aytsang, daftardan o'chadi.`);
+  if (wl.length) tips.push(`Eng qiyin mavzu: <b>${esc(wl[0].L.title)}</b> (${wl[0].g.m} ta xato).`);
+  if (wp.length) tips.push(`Talaffuzi qiyin so'zlar: <b>${wp.slice(0, 5).map(esc).join(", ")}</b>`);
+  if (!tips.length) tips.push("Hozircha zaif joy topilmadi. Mashq qilaver, miya kuzatib boradi.");
+  return tips;
+}
+// aqlli mashq: zaif joylardan yig'ilgan 10–12 ta vazifa
+function smartQueue() {
+  const q = [], seen = new Set();
+  const push = (t) => { const k = mistKey(t); if (!seen.has(k)) { seen.add(k); q.push(t); } };
+  mistList().slice(0, 4).forEach((x) => push({ ...x.t, fromMist: true }));
+  shuffle(dueWords()).slice(0, 3).forEach((id) => q.push({ type: Math.random() < 0.5 ? "choose" : "build", w: BY[id] }));
+  const wl = weakLessons()[0];
+  if (wl) shuffle(wl.L.tasks.filter((t) => t.k !== "listen")).slice(0, 3).forEach((t) => push({ ...t, type: t.k, lid: wl.L.id }));
+  const pool = speakPool(), wp = weakPron();
+  const hard = shuffle(pool.filter((p) => wp.some((w) => normWords(p.en).join(" ").includes(w))));
+  hard.slice(0, 2).forEach((p) => push({ ...p, type: "speak" }));
+  const nl = LORDER.find((i) => !S.lessons[LESSONS[i].id] && lvRank(LESSONS[i].lv) >= lvRank(workLv()));
+  if (q.length < 10 && nl !== undefined) shuffle(LESSONS[nl].tasks.filter((t) => t.k === "fill" || t.k === "tr")).slice(0, 2).forEach((t) => push({ ...t, type: t.k, lid: LESSONS[nl].id }));
+  shuffle(pool).forEach((p) => { if (q.length < 10) push({ ...p, type: "speak" }); });
+  return q.slice(0, 12);
+}
+function smartPractice() {
+  runQueue(smartQueue(), { back: practiceTab, pool: ALL.map((w) => w.exUz), onDone: (m, ok, n) => practiceDone("Aqlli mashq", ok, n, smartPractice) });
+}
+function mistPractice() {
+  const q = mistList().slice(0, 10).map((x) => ({ ...x.t, fromMist: true }));
+  if (!q.length) return practiceTab();
+  runQueue(q, { back: practiceTab, pool: ALL.map((w) => w.exUz), onDone: (m, ok, n) => practiceDone("Xatolar daftari", ok, n, mistPractice) });
+}
+function brainCard() {
+  const m = mistList().length;
+  return `<section class="card brain">
+    <div class="mhead"><b>🧠 Miya tavsiyasi</b><span class="muted">zaif joylaringni kuzatadi</span></div>
+    <ul class="cando">${brainTips().map((t) => `<li>${t}</li>`).join("")}</ul>
+    <button class="btn main" id="smart" type="button">Aqlli mashq</button>
+    ${m ? `<button class="btn ghost" id="mist" type="button">Xatolar daftari · ${m}</button>` : ""}
+  </section>`;
+}
+function bindBrain() { if ($("smart")) $("smart").onclick = smartPractice; if ($("mist")) $("mist").onclick = mistPractice; }
+
+// ---------- AI suhbatdosh: telefonning o'zida ishlaydigan Gemma 4 modeli ----------
+const AI_TOPICS = [
+  { id: "free", t: "Erkin suhbat", d: "Istagan mavzuda gaplash", p: "a casual friendly chat about anything the learner wants" },
+  { id: "day", t: "Kuning haqida", d: "Bugun nima qilding, rejalaring", p: "a chat about the learner's day, routine and plans" },
+  { id: "music", t: "Musiqa va rep", d: "Sevimli reperlar, qo'shiqlar", p: "a chat about music, especially American rap (Juice WRLD, XXXTentacion and others)" },
+  { id: "job", t: "Ishga suhbat", d: "Sen nomzod, Andrew ish beruvchi", p: "a job interview role-play: you are the interviewer at a tech company, the learner is the candidate" },
+  { id: "ielts", t: "IELTS Speaking", d: "Imtihondagidek savollar", p: "an IELTS Speaking test: you are the examiner. Ask Part 1 questions first, later Part 3 discussion questions. Do not give scores during the test" },
+  { id: "debate", t: "Bahs", d: "Fikringni himoya qil", p: "a friendly debate: pick a common topic, take the opposite side of the learner's opinion and push them to give reasons" },
+  { id: "cafe", t: "Kafe va do'kon", d: "Buyurtma berish, sotib olish", p: "a role-play in an American cafe: you are the barista, the learner is the customer" },
+  { id: "travel", t: "Sayohat", d: "Aeroport, mehmonxona, yo'l so'rash", p: "a travel role-play in the USA: airport, hotel and asking for directions" },
+];
+const AI_MB = 2583;
+let AI = null; // joriy suhbat holati
+function aiSystem(tp) {
+  const lv = workLv();
+  return `You are Andrew, a friendly American English speaking partner from California. You are talking with Gojo, a young man from Uzbekistan who is learning English (CEFR level ${lv}, goal C1). He loves American rap.
+This conversation is ${tp.p}.
+Rules:
+- Speak natural, casual American English that fits level ${lv}. Keep every reply short: 1 to 3 sentences, then ask one follow-up question to keep him talking.
+- If his last message has a grammar or word mistake, start your reply with exactly one line: "Fix: <his sentence, corrected>". If it was fine, do not write that line.
+- No emojis, no lists, no markdown. Never switch to another language.`;
+}
+const aiAvail = () => !!(NATIVE && NATIVE.aiHolat);
+function aiState() { try { return JSON.parse(NATIVE.aiHolat()); } catch { return { bor: false }; } }
+function aiHome() {
+  if (!aiAvail()) {
+    html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>AI suhbatdosh</h2></div>
+      <div class="card"><b>Bu faqat telefondagi ilovada ishlaydi</b><span class="muted">Andrew'ning miyasi telefonning o'zida ishlaydi. Yodla ilovasini yangilab, o'sha yerdan och.</span></div>`);
+    $("quit").onclick = practiceTab; return;
+  }
+  const st = aiState();
+  if (!st.bor) return aiDownload(st);
+  html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>AI suhbatdosh</h2></div>
+    <p class="muted">Andrew seni tushunadi, javob beradi va xatolaringni tuzatadi. Internetsiz ishlaydi. Mavzuni tanla:</p>
+    <div class="list">${AI_TOPICS.map((tp, i) => `<button class="item" data-ai="${i}" type="button"><span class="num">${M_CHAT}</span><span class="body"><span class="title">${esc(tp.t)}</span><span class="sub">${esc(tp.d)}</span></span></button>`).join("")}</div>`);
+  $("quit").onclick = practiceTab;
+  on("[data-ai]", (e) => aiChat(AI_TOPICS[+e.currentTarget.dataset.ai]));
+}
+function aiDownload(st) {
+  const busy = st.holat === "yuklanmoqda", fail = st.holat === "xato";
+  const pct = st.jami > 0 ? Math.floor((st.olindi / st.jami) * 100) : 0;
+  html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>AI suhbatdosh</h2></div>
+    <div class="card">
+      <span class="tag pink">Bir martalik</span>
+      <b>Andrew'ning miyasini yuklab ol</b>
+      <span class="muted">Bu telefonda ishlaydigan Gemma 4 AI modeli, hajmi ${(AI_MB / 1024).toFixed(1)} GB. Bir marta yuklab olinadi, keyin internetsiz ishlaydi. Wi-Fi'da yuklash yaxshiroq.</span>
+      ${busy ? `<div class="meter"><i style="width:${pct}%"></i></div><span class="muted" id="aipct">${pct}% · ${Math.round((st.olindi || 0) / 1048576)} / ${Math.round((st.jami || AI_MB * 1048576) / 1048576)} MB. Ilovadan chiqib ketsang ham yuklanaveradi.</span>` : ""}
+      ${fail ? `<span class="muted" style="color:var(--red)">Yuklash to'xtadi. Internetni tekshirib, qaytadan bos.</span>` : ""}
+      ${busy ? "" : `<button class="btn main" id="aidl" type="button">${fail ? "Qaytadan yuklash" : "Yuklab olish"}</button>`}
+    </div>`);
+  $("quit").onclick = practiceTab;
+  if ($("aidl")) $("aidl").onclick = () => { NATIVE.aiYukla(); later(aiHome, 800); };
+  if (busy) later(aiHome, 1500);
+}
+window.yodlaAI = (m) => { if (AI && AI.on) AI.on(m); };
+window.yodlaGapirdi = () => { const c = AI && AI.spoke; if (AI) AI.spoke = null; if (c) c(); };
+function aiSay(text, cb) {
+  if (!AI) return;
+  AI.spoke = cb || null;
+  try { NATIVE.gapir(text, S.rate || 0.9); } catch { window.yodlaGapirdi(); return; }
+  const mine = AI.spoke;
+  later(() => { if (AI && AI.spoke === mine && mine) window.yodlaGapirdi(); }, 2500 + text.split(/\s+/).length * 550);
+}
+function aiChat(tp) {
+  stopHear();
+  AI = { tp, turns: 0, buf: "", bub: null, busy: true, auto: S.aiAuto !== false, ending: false };
+  html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>${esc(tp.t)}</h2></div>
+    <div class="chat" id="chat"></div>
+    <div class="grow"></div>
+    <div class="rpctl">
+      <p class="center heard" id="msg">Andrew'ning miyasi yuklanmoqda...</p>
+      <div class="micwrap"><button class="mic" id="mic" type="button" aria-label="Gapirish" disabled>${MIC}</button></div>
+      <div class="row2"><button class="btn ghost" id="slow" type="button" disabled>Sekinroq</button><button class="btn ghost" id="end" type="button" disabled>Tugatish</button></div>
+      <div class="row aitype"><input id="aiin" type="text" placeholder="yoki yozib yubor..." autocomplete="off" enterkeyhint="send"><button class="btn ghost" id="aisend" type="button">→</button></div>
+    </div>`);
+  const chat = $("chat"), msg = $("msg");
+  const alive = () => AI && document.body.contains(chat);
+  $("quit").onclick = () => { try { NATIVE.gapirToxtat(); } catch {} AI = null; aiHome(); };
+  const setBusy = (b) => { AI.busy = b; ["mic", "slow", "end", "aisend"].forEach((id) => { $(id).disabled = b || (id === "mic" && !canHear) || (id === "end" && !AI.turns); }); };
+  function add(cls, who, text) {
+    const el = document.createElement("div");
+    el.className = `bub ${cls}`;
+    el.innerHTML = `<span class="who">${who}</span><b></b>`;
+    el.querySelector("b").textContent = text;
+    chat.appendChild(el); el.scrollIntoView({ behavior: "smooth", block: "end" });
+    return el;
+  }
+  // "Fix: ..." qatori tuzatish sifatida alohida ko'rsatiladi
+  const split = (s) => { const m = s.match(/^\s*\**fix\**:\s*(.+?)(\n|$)/i); return m ? { fix: m[1].trim(), rest: s.slice(m[0].length).trim() } : { fix: "", rest: s.trim() }; };
+  function render(final) {
+    const { fix, rest } = split(AI.buf);
+    const clean = rest.replace(/[*_#`]/g, "");
+    AI.bub.querySelector("b").textContent = clean || "...";
+    if (fix && !AI.fixEl) { AI.fixEl = document.createElement("div"); AI.fixEl.className = "fix"; AI.bub.before(AI.fixEl); }
+    if (fix) AI.fixEl.innerHTML = `<span class="who">To'g'risi</span>${esc(fix)}`;
+    if (final) AI.last = clean;
+    AI.bub.scrollIntoView({ block: "end" });
+  }
+  function send(text, hidden) {
+    if (!alive()) return;
+    if (!hidden) { add("me", "Sen", text); AI.turns++; if (normWords(text).length >= 3) stat("answers"); }
+    AI.buf = ""; AI.fixEl = null; AI.bub = add("ai now", "Andrew", "...");
+    setBusy(true); msg.textContent = "Andrew o'ylayapti...";
+    NATIVE.aiYoz(text);
+  }
+  function listen() {
+    if (!alive() || AI.busy || !canHear) return;
+    $("mic").classList.add("on"); msg.textContent = "Gapir, eshityapman...";
+    hear((err, alts) => {
+      if (!alive()) return;
+      $("mic").classList.remove("on");
+      if (err) { msg.textContent = hearError(err); return; }
+      const t = (alts[0] || "").trim();
+      if (!t) { msg.textContent = "Eshitilmadi, yana bos."; return; }
+      send(t.charAt(0).toUpperCase() + t.slice(1));
+    });
+  }
+  AI.on = (m) => {
+    if (!alive()) return;
+    if (m.t === "yuklanmoqda") msg.textContent = "Andrew'ning miyasi yuklanmoqda (birinchi marta biroz vaqt oladi)...";
+    else if (m.t === "tayyor") send("(Start the conversation now: greet me in one short sentence and ask your first question.)", true);
+    else if (m.t === "bolak") { AI.buf += m.s; render(false); }
+    else if (m.t === "tugadi") {
+      render(true); AI.bub.classList.remove("now");
+      if (AI.ending) { AI.bub.classList.add("sum"); setBusy(false); $("mic").disabled = true; msg.textContent = "Suhbat tugadi. Zo'r ish!"; addXP(15); bumpStreak(); save(); dayMark("lesson"); return; }
+      msg.textContent = "Andrew gapiryapti...";
+      aiSay(AI.last, () => { if (!alive()) return; setBusy(false); msg.textContent = "Mikrofonni bosib javob ber"; if (AI.auto) later(listen, 300); });
+    } else if (m.t === "xato") { setBusy(false); msg.textContent = "Miya xato berdi: " + m.s; }
+  };
+  $("mic").onclick = () => { if ($("mic").classList.contains("on")) { stopHear(); $("mic").classList.remove("on"); msg.textContent = ""; } else listen(); };
+  $("slow").onclick = () => { if (AI.last) { setBusy(true); AI.spoke = null; try { NATIVE.gapir(AI.last, 0.65); } catch {} later(() => setBusy(false), 1200); } };
+  $("aisend").onclick = () => { const v = $("aiin").value.trim(); if (v && !AI.busy) { $("aiin").value = ""; stopHear(); send(v); } };
+  $("aiin").onkeydown = (e) => { if (e.key === "Enter") $("aisend").click(); };
+  $("end").onclick = () => {
+    stopHear(); AI.ending = true;
+    send("(The conversation is over. In under 80 words, give me feedback on my English in this chat: 2 things I did well, then my 2 most important mistakes with the corrected versions. Do not use the Fix: line.)", true);
+  };
+  try { NATIVE.aiBoshla(aiSystem(tp)); } catch (e) { msg.textContent = "Miya ishga tushmadi."; }
+}
+
 // ---------- natijalar ----------
 function finishPack(pi, marks, misses) {
   const st = misses === 0 ? 3 : misses <= 2 ? 2 : 1;
@@ -1620,7 +1874,7 @@ function lessonTheory(li) {
 
 function startLesson(li) {
   const L = LESSONS[li];
-  const queue = L.tasks.map((t) => ({ ...t, type: t.k }));
+  const queue = L.tasks.map((t) => ({ ...t, type: t.k, lid: L.id }));
   shuffle(lessonSay(L)).slice(0, 2).forEach((t) => queue.push({ ...t, type: "speak" }));
   runQueue(queue, { back: lessonsTab, pool: L.tasks.filter((t) => t.uz).map((t) => t.uz), onDone: (misses) => lessonResult(li, misses) });
 }
@@ -1651,6 +1905,8 @@ function practiceTab() {
     <section class="panel hero">
       <div><h2>Mashq zali</h2><p>${ok ? `O'rgangan ${n} ta so'zingiz va ularning misol gaplari bilan mashq qiling.` : "Mashqlar o'rgangan so'zlaringizdan tuziladi. Avval So'zlar bo'limida 1-paketni tugating."}</p></div>
     </section>
+    ${brainCard()}
+    <button class="card aicta" id="m9" type="button"><span class="ic">${M_BRAIN}</span><span><b>AI suhbatdosh</b><span class="muted">Andrew bilan erkin gaplash: u tushunadi, javob beradi va xatolaringni tuzatadi</span></span></button>
     <div class="modes">
       <button class="mode v" id="m5" type="button"><span class="ic">${MIC}</span><b>Gapirish</b><span>Gaplarni ovoz chiqarib ayting, ilova tekshiradi</span></button>
       <button class="mode r" id="m6" type="button"><span class="ic">${M_CHAT}</span><b>Suhbat o'yini</b><span>Andrew bilan navbatma-navbat gaplashing</span></button>
@@ -1665,6 +1921,7 @@ function practiceTab() {
   bindTop();
   if (ok) { $("m1").onclick = practiceOrder; $("m2").onclick = practiceListen; $("m3").onclick = speedQuiz; }
   $("m4").onclick = vocab;
+  bindBrain(); $("m9").onclick = aiHome;
   $("m5").onclick = practiceSpeak; $("m6").onclick = dialogsList; $("m7").onclick = aboutMe; $("m8").onclick = storiesList;
 }
 
