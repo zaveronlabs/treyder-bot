@@ -186,6 +186,10 @@ p { margin: 0; }
 .aicta .ic svg { width: 24px; height: 24px; }
 .fix { align-self: flex-start; max-width: 88%; padding: 8px 12px; border-radius: 14px; background: rgba(180, 255, 74, .08); border: 1px solid rgba(180, 255, 74, .5); color: var(--lime); font-size: 15px; display: flex; flex-direction: column; gap: 2px; }
 .fix .who { font: 700 11px var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--lime); }
+#app.aipage { height: 100vh; height: 100dvh; min-height: 0; padding-bottom: 0; }
+.aipage #chat { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 8px; }
+.aipage .grow { display: none; }
+.aipage .rpctl { position: static; margin-inline: 0; padding: 6px 0 calc(10px + env(safe-area-inset-bottom, 0px)); background: none; }
 .bub.tap { cursor: pointer; }
 .bub .uz { display: none; color: var(--lime); font-size: 14px; border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 4px; }
 .bub.open .uz { display: block; }
@@ -537,7 +541,7 @@ function html(s, tab) {
       <button class="tab ${tab === "practice" ? "on" : ""}" data-t="practice" type="button">${T_PRAC}Mashq</button>
       <button class="tab ${tab === "plan" ? "on" : ""}" data-t="plan" type="button">${T_PLAN}Reja</button>
     </nav></div>` : "");
-  $app.classList.toggle("has-tabs", !!tab);
+  $app.classList.toggle("has-tabs", !!tab); $app.classList.remove("aipage");
   window.scrollTo(0, 0);
   if (tab) on(".tab", (e) => TABS[e.currentTarget.dataset.t]());
 }
@@ -1726,6 +1730,9 @@ function aiChat(tp) {
       <div class="row aitype"><input id="aiin" type="text" placeholder="yoki yozib yubor..." autocomplete="off" enterkeyhint="send"><button class="btn ghost" id="aisend" type="button">→</button></div>
     </div>`);
   const chat = $("chat"), msg = $("msg");
+  $app.classList.add("aipage");
+  // faqat chat qutisi aylanadi; o'qish uchun yuqoriga chiqsang, yangi gap seni pastga tortib ketmaydi
+  const stick = (force) => { if (force || chat.scrollHeight - chat.scrollTop - chat.clientHeight < 140) chat.scrollTop = chat.scrollHeight; };
   const alive = () => AI && document.body.contains(chat);
   $("quit").onclick = () => { try { NATIVE.gapirToxtat(); } catch {} AI = null; aiHome(); };
   const setBusy = (b) => { AI.busy = b; ["mic", "slow", "end", "aisend"].forEach((id) => { $(id).disabled = b || (id === "mic" && !canHear) || (id === "end" && !AI.turns); }); };
@@ -1734,7 +1741,7 @@ function aiChat(tp) {
     el.className = `bub ${cls}`;
     el.innerHTML = `<span class="who">${who}</span><b></b>`;
     el.querySelector("b").textContent = text;
-    chat.appendChild(el); el.scrollIntoView({ behavior: "smooth", block: "end" });
+    chat.appendChild(el); stick(true);
     return el;
   }
   // "Fix: ..." qatori tuzatish sifatida alohida ko'rsatiladi
@@ -1762,7 +1769,7 @@ function aiChat(tp) {
       el.classList.add("tap");
       el.onclick = () => el.classList.toggle("open");
     }
-    AI.bub.scrollIntoView({ block: "end" });
+    stick(false);
   }
   function send(text, hidden) {
     if (!alive()) return;
