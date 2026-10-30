@@ -29,6 +29,7 @@ jobs:
       - name: AI modeli havolasini tekshirish
         run: |
           curl -sIL -o /dev/null -w "model %{http_code} %{url_effective}\n" "https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm" || true
+          curl -sIL -o /dev/null -w "model4 %{http_code} %{size_download} %{url_effective}\n" "https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm/resolve/main/gemma-4-E4B-it.litertlm" || true
       - name: APK yig'ish
         env:
           VERSIYA: ${{ github.run_number }}

@@ -322,6 +322,7 @@ select { width: 100%; min-height: 48px; border-radius: 14px; background: var(--s
 .rpctl { position: sticky; bottom: 0; z-index: 3; display: flex; flex-direction: column; gap: 8px; margin-inline: -16px; padding: 22px 16px calc(6px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, rgba(7, 6, 26, .97) 75%, rgba(7, 6, 26, 0)); }
 .rpctl .mic { width: 80px; height: 80px; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.aimodel { margin-bottom: 12px; } .aimodel .btn { font-size: 13px; padding: 12px 8px; letter-spacing: 0; }
 .chat { display: flex; flex-direction: column; gap: 10px; }
 .bub { max-width: 88%; padding: 10px 14px; border-radius: 18px; background: var(--surface); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 3px; }
 .bub.ai { align-self: flex-start; border-bottom-left-radius: 6px; }
@@ -1779,28 +1780,39 @@ function brainCard() {
 function bindBrain() { if ($("smart")) $("smart").onclick = smartPractice; if ($("mist")) $("mist").onclick = mistPractice; }
 
 // ---------- AI suhbatdosh: telefonning o'zida ishlaydigan Gemma 4 modeli ----------
+// har mavzuning o'z birinchi gapi bor, ichida tasodifiy tanlov: har safar boshqa savol chiqadi (oldingisi takrorlanmaydi)
+const aiLastPick = {};
+const pickNew = (a) => { const k = a[0], b = a.length > 1 ? a.filter((x) => x !== aiLastPick[k]) : a; return (aiLastPick[k] = pick(b)); };
 const AI_TOPICS = [
-  { id: "free", t: "Erkin suhbat", d: "Istagan mavzuda gaplash", p: "a casual friendly chat about anything the learner wants" },
-  { id: "day", t: "Kuning haqida", d: "Bugun nima qilding, rejalaring", p: "a chat about the learner's day, routine and plans" },
-  { id: "music", t: "Musiqa va rep", d: "Sevimli reperlar, qo'shiqlar", p: "a chat about music, especially American rap (Juice WRLD, XXXTentacion and others)" },
-  { id: "job", t: "Ishga suhbat", d: "Sen nomzod, Andrew ish beruvchi", p: "a job interview role-play: you are the interviewer at a tech company, the learner is the candidate" },
-  { id: "ielts", t: "IELTS Speaking", d: "Imtihondagidek savollar", p: "an IELTS Speaking test: you are the examiner. Ask Part 1 questions first, later Part 3 discussion questions. Do not give scores during the test" },
-  { id: "debate", t: "Bahs", d: "Fikringni himoya qil", p: "a friendly debate: pick a common topic, take the opposite side of the learner's opinion and push them to give reasons" },
-  { id: "cafe", t: "Kafe va do'kon", d: "Buyurtma berish, sotib olish", p: "a role-play in an American cafe: you are the barista, the learner is the customer" },
-  { id: "travel", t: "Sayohat", d: "Aeroport, mehmonxona, yo'l so'rash", p: "a travel role-play in the USA: airport, hotel and asking for directions" },
+  { id: "free", t: "Erkin suhbat", d: "Istagan mavzuda gaplash", p: "a casual friendly chat about anything the learner wants",
+    s: () => `greet me and ask me one question about ${pickNew(["my weekend", "movies I like", "my favorite food", "my phone and apps", "sports", "my city", "my friends", "games", "my dream trip", "what makes me happy"])}` },
+  { id: "day", t: "Kuning haqida", d: "Bugun nima qilding, rejalaring", p: "a chat about the learner's day, routine and plans",
+    s: () => `greet me and ask ${pickNew(["how my day is going so far", "what I did this morning", "what my plans are for tonight", "what I usually do after lunch", "what the best part of my day was"])}` },
+  { id: "music", t: "Musiqa va rep", d: "Sevimli reperlar, qo'shiqlar", p: "a chat about music, especially American rap (Juice WRLD, XXXTentacion and others)",
+    s: () => `greet me and ask ${pickNew(["which Juice WRLD song hits me the hardest and why", "what I think about XXXTentacion's music", "what song I have on repeat this week", "if I prefer old school or new school rap", "which rapper I would love to see live", "what my favorite rap lyric means to me"])}` },
+  { id: "job", t: "Ishga suhbat", d: "Sen nomzod, Andrew ish beruvchi", p: "a job interview role-play: you are the interviewer at a tech company, the learner is the candidate",
+    s: () => `welcome me to the interview as the interviewer and ${pickNew(["ask me to introduce myself", "ask why I want this job", "ask about my strengths", "ask what I know about the company"])}` },
+  { id: "ielts", t: "IELTS Speaking", d: "Imtihondagidek savollar", p: "an IELTS Speaking test: you are the examiner. Ask Part 1 questions first, later Part 3 discussion questions. Do not give scores during the test",
+    s: () => `introduce yourself as the examiner and ask the first Part 1 question about ${pickNew(["my hometown", "my studies or work", "where I live", "my hobbies", "music", "the weather", "reading", "technology"])}` },
+  { id: "debate", t: "Bahs", d: "Fikringni himoya qil", p: "a friendly debate: you take the opposite side of the learner's opinion and push them to give reasons",
+    s: () => `say we are going to debate, give the topic "${pickNew(["Social media does more harm than good", "Video games are good for young people", "Money can buy happiness", "Rap music is the best kind of music", "Everyone should go to university", "Phones should be banned in schools", "It's better to live in a big city", "AI will take most people's jobs", "Learning English from movies beats classes"])}" and ask whether I agree or disagree` },
+  { id: "cafe", t: "Kafe va do'kon", d: "Buyurtma berish, sotib olish", p: "a role-play in an American cafe or store: you are the worker, the learner is the customer",
+    s: () => pickNew(["greet me as a barista at a coffee shop and ask what I'd like to order", "greet me as a worker at a sneaker store and ask if I need help finding anything", "greet me as a cashier at a burger place and take my order", "greet me as a clerk at a phone store and ask what I'm looking for"]) },
+  { id: "travel", t: "Sayohat", d: "Aeroport, mehmonxona, yo'l so'rash", p: "a travel role-play in the USA: airport, hotel and asking for directions",
+    s: () => pickNew(["act as an airport check-in agent in New York and ask for my passport and where I'm flying", "act as a hotel receptionist in Los Angeles and ask if I have a reservation", "act as a local on a street in Chicago: I just stopped you, so ask how you can help me", "act as a customs officer at the airport and ask the purpose of my visit"]) },
 ];
-const AI_MB = 2583;
+const AI_MODELS = { e2b: { n: "Tez miya", mb: 2583, d: "Yengil, tez javob beradi" }, e4b: { n: "Aqlli miya", mb: 3654, d: "Ancha aqlliroq: tuzatish, tarjima va suhbat yaxshiroq" } };
+const aiMB = (st) => AI_MODELS[(st && st.model) || "e2b"].mb;
 let AI = null; // joriy suhbat holati
 function aiSystem(tp) {
   const lv = workLv();
-  return `You are Andrew, a friendly American English speaking partner from California. You are talking with Gojo, a young man from Uzbekistan who is learning English (CEFR level ${lv}, goal C1). He loves American rap.
-This conversation is ${tp.p}.
+  return `You are Andrew, a friendly American English speaking partner from California. You are talking with Gojo, a young man from Uzbekistan who is learning English (CEFR level ${lv}, goal C1).
+The topic of this conversation: ${tp.p}. Stay on this topic the whole time and never switch to another topic on your own.
 Rules:
-- Speak natural, casual American English that fits level ${lv}. Keep every reply short: 1 to 3 sentences, then ask one follow-up question to keep him talking.
+- Speak natural, casual American English that fits level ${lv}. Keep every reply short: 1 to 3 sentences, then ask one follow-up question about the topic to keep him talking.
 - If his last message has a grammar or word mistake, start with his corrected sentence inside square brackets, like this: [Fix: I went to the gym yesterday.] Put only his corrected sentence inside the brackets, nothing else. If his message was fine, skip this.
 - Then write your reply to him.
-- At the very end, on a new line, add the Uzbek translation of your reply inside square brackets, like this: [Uz: ...]
-- No emojis, no lists, no markdown.`;
+- No emojis, no lists, no markdown, no translations.`;
 }
 const aiAvail = () => !!(NATIVE && NATIVE.aiHolat);
 function aiState() { try { return JSON.parse(NATIVE.aiHolat()); } catch { return { bor: false }; } }
@@ -1812,24 +1824,29 @@ function aiHome() {
   }
   const st = aiState();
   if (!st.bor) return aiDownload(st);
+  const cur = st.model || "e2b";
   html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>AI suhbatdosh</h2></div>
+    <div class="row2 aimodel">${Object.entries(AI_MODELS).map(([k, m]) => `<button class="btn ${k === cur ? "main" : "ghost"}" data-mdl="${k}" type="button">${k === "e4b" ? "🧠 " : "⚡ "}${m.n}${st[k] || k === cur ? "" : ` · ${(m.mb / 1024).toFixed(1)} GB`}</button>`).join("")}</div>
     <p class="muted">Andrew seni tushunadi, javob beradi va xatolaringni tuzatadi. Andrew'ning gapiga bir marta bossang, o'zbekcha tarjimasi chiqadi. Internetsiz ishlaydi. Mavzuni tanla:</p>
     <div class="list">${AI_TOPICS.map((tp, i) => `<button class="item" data-ai="${i}" type="button"><span class="num">${M_CHAT}</span><span class="body"><span class="title">${esc(tp.t)}</span><span class="sub">${esc(tp.d)}</span></span></button>`).join("")}</div>`);
   $("quit").onclick = practiceTab;
   on("[data-ai]", (e) => aiChat(AI_TOPICS[+e.currentTarget.dataset.ai]));
+  on("[data-mdl]", (e) => { const k = e.currentTarget.dataset.mdl; if (k === cur) return; try { NATIVE.aiTanla(k); } catch {} aiHome(); });
 }
 function aiDownload(st) {
-  const busy = st.holat === "yuklanmoqda", fail = st.holat === "xato";
+  const busy = st.holat === "yuklanmoqda", fail = st.holat === "xato", AI_MB = aiMB(st), big = st.model === "e4b";
   const pct = st.jami > 0 ? Math.floor((st.olindi / st.jami) * 100) : 0;
   html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>AI suhbatdosh</h2></div>
     <div class="card">
       <span class="tag pink">Bir martalik</span>
-      <b>Andrew'ning miyasini yuklab ol</b>
-      <span class="muted">Bu telefonda ishlaydigan Gemma 4 AI modeli, hajmi ${(AI_MB / 1024).toFixed(1)} GB. Bir marta yuklab olinadi, keyin internetsiz ishlaydi. Wi-Fi'da yuklash yaxshiroq.</span>
+      <b>${big ? "Andrew'ning aqlli miyasini yuklab ol" : "Andrew'ning miyasini yuklab ol"}</b>
+      <span class="muted">Bu telefonda ishlaydigan Gemma 4 ${big ? "E4B (kattaroq, aqlliroq)" : "E2B"} AI modeli, hajmi ${(AI_MB / 1024).toFixed(1)} GB. Bir marta yuklab olinadi, keyin internetsiz ishlaydi. Wi-Fi'da yuklash yaxshiroq.</span>
       ${busy ? `<div class="meter"><i style="width:${pct}%"></i></div><span class="muted" id="aipct">${pct}% · ${Math.round((st.olindi || 0) / 1048576)} / ${Math.round((st.jami || AI_MB * 1048576) / 1048576)} MB. Ilovadan chiqib ketsang ham yuklanaveradi.</span>` : ""}
       ${fail ? `<span class="muted" style="color:var(--red)">Yuklash to'xtadi. Internetni tekshirib, qaytadan bos.</span>` : ""}
       ${busy ? "" : `<button class="btn main" id="aidl" type="button">${fail ? "Qaytadan yuklash" : "Yuklab olish"}</button>`}
+      ${big && (st.e2b) && !busy ? `<button class="btn ghost" id="aiback" type="button">Hozircha tez miya bilan gaplashaman</button>` : ""}
     </div>`);
+  if ($("aiback")) $("aiback").onclick = () => { try { NATIVE.aiTanla("e2b"); } catch {} aiHome(); };
   $("quit").onclick = practiceTab;
   if ($("aidl")) $("aidl").onclick = () => { NATIVE.aiYukla(); later(aiHome, 800); };
   if (busy) later(aiHome, 1500);
@@ -1842,6 +1859,14 @@ function aiSay(text, cb) {
   try { NATIVE.gapir(text, S.rate || 0.9); } catch { window.yodlaGapirdi(); return; }
   const mine = AI.spoke;
   later(() => { if (AI && AI.spoke === mine && mine) window.yodlaGapirdi(); }, 2500 + text.split(/\s+/).length * 550);
+}
+// "tarjima" aslida inglizcha gapning o'zi bo'lsa (kichik model shunday qilib qo'yadi)
+function looksEn(uz, en) {
+  const a = normWords(uz), b = new Set(normWords(en || ""));
+  if (!a.length) return true;
+  const same = a.filter((w) => b.has(w)).length / a.length;
+  const enCommon = a.filter((w) => /^(the|you|your|what|is|are|i|i'm|a|to|and|of|do|about|my|it|that|this|really|right|now)$/.test(w)).length / a.length;
+  return same > 0.5 || enCommon > 0.25;
 }
 function aiChat(tp) {
   stopHear();
@@ -1890,10 +1915,19 @@ function aiChat(tp) {
     if (final) {
       AI.last = rest;
       const el = AI.bub, sm = document.createElement("small");
-      sm.className = "uz"; sm.textContent = uz || "Tarjima yo'q";
+      sm.className = "uz"; sm.dataset.en = rest;
+      // model tarjimani o'zi to'g'ri yozgan bo'lsa shu, bo'lmasa bosilganda alohida o'giriladi
+      if (uz && !looksEn(uz, rest)) { sm.textContent = uz; sm.dataset.st = "ok"; } else sm.textContent = "Tarjima qilinmoqda...";
       el.appendChild(sm);
       el.classList.add("tap");
-      el.onclick = () => el.classList.toggle("open");
+      el.onclick = () => {
+        el.classList.toggle("open");
+        if (!el.classList.contains("open") || sm.dataset.st) return;
+        if (!NATIVE || !NATIVE.aiTarjima) { sm.textContent = "Tarjima yo'q"; return; }
+        const id = "t" + Date.now();
+        AI.tr = AI.tr || {}; AI.tr[id] = sm; sm.dataset.st = "wait"; sm.textContent = "Tarjima qilinmoqda...";
+        try { NATIVE.aiTarjima(id, rest); } catch { sm.textContent = "Tarjima yo'q"; sm.dataset.st = ""; }
+      };
     }
     stick(false);
   }
@@ -1919,7 +1953,8 @@ function aiChat(tp) {
   AI.on = (m) => {
     if (!alive()) return;
     if (m.t === "yuklanmoqda") msg.textContent = "Andrew'ning miyasi yuklanmoqda (birinchi marta biroz vaqt oladi)...";
-    else if (m.t === "tayyor") send("(Start the conversation now: greet me in one short sentence and ask your first question.)", true);
+    else if (m.t === "tayyor") AI.dev = m.s, send(`(Start the conversation now. In 1 or 2 short sentences, ${tp.s ? tp.s() : "greet me and ask your first question"}.)`, true);
+    else if (m.t === "tarjima") { const el = AI.tr && AI.tr[m.id]; if (el) { el.textContent = m.s && !looksEn(m.s, el.dataset.en) ? m.s : "Tarjima chiqmadi, yana bos"; el.dataset.st = m.s && !looksEn(m.s, el.dataset.en) ? "ok" : ""; } }
     else if (m.t === "bolak") { AI.buf += m.s; render(false); }
     else if (m.t === "tugadi") {
       render(true); AI.bub.classList.remove("now");

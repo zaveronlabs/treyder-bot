@@ -44,8 +44,13 @@ public class MainActivity extends Activity {
     private String kutilganTil = null;
     private boolean eshityapti = false;
     // AI suhbatdosh: model fayli, yuklab olish va telefon ovozi (AI javoblari oldindan yozilmagan)
-    private static final String MODEL_URL = "https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it.litertlm";
-    private static final String MODEL_FAYL = "gemma-4-E2B-it.litertlm";
+    // ikki miya: e2b tez va yengil, e4b aqlliroq (kattaroq)
+    private static String modelNomi(String k) { return "e4b".equals(k) ? "gemma-4-E4B-it.litertlm" : "gemma-4-E2B-it.litertlm"; }
+    private static String modelUrl(String k) {
+        String n = "e4b".equals(k) ? "E4B" : "E2B";
+        return "https://huggingface.co/litert-community/gemma-4-" + n + "-it-litert-lm/resolve/main/gemma-4-" + n + "-it.litertlm";
+    }
+    private String tanlanganModel() { return getPreferences(MODE_PRIVATE).getString("model", "e2b"); }
     private Miya miya;
     private TextToSpeech tts;
     private boolean ttsTayyor = false;
@@ -98,16 +103,29 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void aiYukla() { runOnUiThread(() -> modelniYukla()); }
 
+        // miyani almashtirish: keyingi suhbat yangi model bilan ochiladi
+        @JavascriptInterface
+        public void aiTanla(String k) {
+            getPreferences(MODE_PRIVATE).edit().putString("model", "e4b".equals(k) ? "e4b" : "e2b").apply();
+            if (miya != null) { miya.yop(); miya = null; }
+        }
+
         @JavascriptInterface
         public void aiBoshla(String tizim) {
             File f = modelFayli();
             if (!f.exists()) { aiXabar("{\"t\":\"xato\",\"s\":\"model yo'q\"}"); return; }
-            if (miya == null) miya = new Miya(getCacheDir().getAbsolutePath(), j -> aiXabar(j));
+            if (miya == null) miya = new Miya(getCacheDir().getAbsolutePath(), getPreferences(MODE_PRIVATE), j -> aiXabar(j));
             miya.boshla(f.getAbsolutePath(), tizim);
         }
 
         @JavascriptInterface
         public void aiYoz(String matn) { if (miya != null) miya.yoz(matn); }
+
+        @JavascriptInterface
+        public void aiTarjima(String id, String matn) {
+            if (miya != null) miya.tarjima(id, matn);
+            else aiXabar("{\"t\":\"tarjima\",\"id\":" + JSONObject.quote(id) + ",\"xato\":\"miya yo'q\"}");
+        }
 
         @JavascriptInterface
         public void gapir(String matn, float tezlik) { runOnUiThread(() -> ovozChiqar(matn, tezlik)); }
@@ -150,15 +168,19 @@ public class MainActivity extends Activity {
 
     private void aiXabar(String json) { runOnUiThread(() -> js("window.yodlaAI&&window.yodlaAI(" + json + ")")); }
 
-    private File modelFayli() { return new File(getExternalFilesDir(null), MODEL_FAYL); }
+    private File modelFayli() { return modelFayli(tanlanganModel()); }
+    private File modelFayli(String k) { return new File(getExternalFilesDir(null), modelNomi(k)); }
+    private boolean modelBor(String k) { File f = modelFayli(k); return f.exists() && f.length() > 100_000_000L; }
 
     private String modelHolati() {
         try {
             JSONObject o = new JSONObject();
-            File f = modelFayli();
-            o.put("bor", f.exists() && f.length() > 100_000_000L);
+            String k = tanlanganModel();
+            o.put("model", k);
+            o.put("bor", modelBor(k));
+            o.put("e2b", modelBor("e2b")); o.put("e4b", modelBor("e4b"));
             long id = getPreferences(MODE_PRIVATE).getLong("yuk", -1);
-            if (id >= 0 && !(f.exists() && f.length() > 100_000_000L)) {
+            if (id >= 0 && !modelBor(k) && k.equals(getPreferences(MODE_PRIVATE).getString("yukModel", "e2b"))) {
                 DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
                 try (Cursor c = dm.query(new DownloadManager.Query().setFilterById(id))) {
                     if (c != null && c.moveToFirst()) {
@@ -179,15 +201,16 @@ public class MainActivity extends Activity {
         DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         long eski = getPreferences(MODE_PRIVATE).getLong("yuk", -1);
         if (eski >= 0) dm.remove(eski);
-        File f = modelFayli();
+        String k = tanlanganModel();
+        File f = modelFayli(k);
         if (f.exists()) f.delete();
-        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(MODEL_URL))
+        DownloadManager.Request r = new DownloadManager.Request(Uri.parse(modelUrl(k)))
                 .setTitle("Yodla: Andrew miyasi")
                 .setDescription("AI suhbatdosh modeli")
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                .setDestinationInExternalFilesDir(this, null, MODEL_FAYL);
+                .setDestinationInExternalFilesDir(this, null, modelNomi(k));
         long id = dm.enqueue(r);
-        getPreferences(MODE_PRIVATE).edit().putLong("yuk", id).apply();
+        getPreferences(MODE_PRIVATE).edit().putLong("yuk", id).putString("yukModel", k).apply();
     }
 
     private void ovozChiqar(String matn, float tezlik) {
