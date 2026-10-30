@@ -1554,11 +1554,16 @@ function creditStep(min) {
   if (m >= 1) addListen(m);
   return m;
 }
+const svcSek = () => { try { return +NATIVE.tinglashTugat() || 0; } catch { return 0; } };
+function closeStep() { const st = S.lstep; if (!st) return 0; return st.svc ? creditStep(Math.round(svcSek() / 60)) : creditStep(); }
 function startStep(id) {
   const x = dayPlan().steps.find((s) => s.id === id);
   if (!x) return;
-  if (S.lstep) creditStep();
-  S.lstep = { id, at: Date.now(), ext: x.ext }; save();
+  if (S.lstep) closeStep();
+  if (S.lt) { const lm = S.ltSvc ? svcSek() / 60 : (Date.now() - S.lt) / 60000; S.lt = 0; addListen(lm); }
+  const svc = !!(x.ext && NATIVE && NATIVE.tinglashBoshla);
+  S.lstep = { id, at: Date.now(), ext: x.ext, svc }; save();
+  if (svc) { try { NATIVE.tinglashBoshla(); } catch {} }
   if (x.ext) { try { NATIVE && NATIVE.och ? NATIVE.och(x.url) : window.open(x.url, "_blank"); } catch {} return; }
   if (id === "ai") aiChat({ id: "watched", t: "Ko'rganing haqida", d: "", p: `a chat about what the learner watched and listened to today: the TV show ${dayPlan().ep.name} and the song ${dayPlan().steps[1].t}. Ask what happened, what he liked and which words he learned` });
   else if (id === "shadow") storiesList();
@@ -1567,9 +1572,10 @@ function startStep(id) {
 // boshqa ilovadan qaytganda tashqi qadam vaqti o'zi yoziladi
 function backToApp() {
   const st = S.lstep;
-  if (!st || !st.ext) return;
-  const m = creditStep();
-  if (m >= 1) lateToast(`+${m} daqiqa tinglash yozildi`);
+  if (!st || !st.ext || Date.now() - st.at < 4000) return;
+  // fon xizmati faqat ovoz chiqqan soniyalarni sanagan: video pauzadagi vaqt hisoblanmaydi
+  const m = closeStep();
+  lateToast(m >= 1 ? `+${m} daqiqa tinglash yozildi` : "Video deyarli o'ynamadi, vaqt yozilmadi");
   if ($("lcard")) { $("lcard").outerHTML = listenCard(); bindListen(); }
 }
 window.yodlaQaytdi = backToApp;
@@ -1582,7 +1588,7 @@ function dayPlanHtml() {
       <span class="dbody"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></span>
       <span class="dmin">${x.got ? `${Math.min(x.got, x.min)}/` : ""}${x.min} daq</span>
     </button>`).join("")}
-    <span class="muted">Bossang, ochiladi va vaqt o'zi sanaladi. Ilovaga qaytganingda daqiqalar yoziladi.</span></div>`;
+    <span class="muted">Bossang, ochiladi. Faqat video o'ynab turgan vaqt sanaladi: pauza qilsang, sanash ham to'xtaydi. Ilovaga qaytganingda daqiqalar yoziladi.</span></div>`;
 }
 
 function listenCard() {
@@ -1605,8 +1611,9 @@ function listenCard() {
 function bindListen() {
   const redo = () => { const el = $("lcard"); if (!el) return; el.outerHTML = listenCard(); bindListen(); const mc = document.querySelector(".mission"); if (mc) { mc.outerHTML = missionCard(); bindMission(); } };
   $("ltm").onclick = () => {
-    if (S.lt) { const m = (Date.now() - S.lt) / 60000; S.lt = 0; save(); addListen(m); }
-    else { S.lt = Date.now(); save(); }
+    const svc = !!(NATIVE && NATIVE.tinglashBoshla);
+    if (S.lt) { const m = svc && S.ltSvc ? svcSek() / 60 : (Date.now() - S.lt) / 60000; S.lt = 0; save(); addListen(m); }
+    else { if (S.lstep) closeStep(); S.lt = Date.now(); S.ltSvc = svc; save(); if (svc) try { NATIVE.tinglashBoshla(); } catch {} }
     redo();
   };
   document.querySelectorAll("[data-lm]").forEach((b) => (b.onclick = () => { addListen(+b.dataset.lm); redo(); }));
@@ -1670,6 +1677,7 @@ function planTab() {
     <div class="badges">${BADGES.map((b) => { const on = S.badges && S.badges[b.id]; return `<div class="badge ${on ? "on" : ""}"><span>${on ? "🏅" : "🔒"}</span><b>${esc(b.t)}</b><small>${esc(b.d)}</small></div>`; }).join("")}</div>
   `, "plan");
   bindTop(); bindMission(); bindListen();
+  if (!S.notifAsk && NATIVE && NATIVE.bildirishRuxsat) { S.notifAsk = 1; save(); try { NATIVE.bildirishRuxsat(); } catch {} }
   if ($("toc1")) $("toc1").onclick = () => { S.plan = { ...S.plan, goal: "C1", c1: true }; save(); afterProgress(); planTab(); };
 }
 

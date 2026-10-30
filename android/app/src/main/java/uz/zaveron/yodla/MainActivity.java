@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -114,6 +115,34 @@ public class MainActivity extends Activity {
         // tashqi havola (YouTube va h.k.) telefonning o'z ilovasida ochiladi
         @JavascriptInterface
         public void och(String url) { runOnUiThread(() -> { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); } catch (Exception e) { } }); }
+
+        // tinglash sanog'i: faqat telefonda ovoz chiqayotgan vaqt (video pauzada bo'lsa sanalmaydi)
+        @JavascriptInterface
+        public void tinglashBoshla() {
+            runOnUiThread(() -> {
+                Tinglov.prefs(MainActivity.this).edit().putLong("sek", 0).apply();
+                Intent i = new Intent(MainActivity.this, Tinglov.class);
+                try { if (Build.VERSION.SDK_INT >= 26) startForegroundService(i); else startService(i); } catch (Exception e) { }
+            });
+        }
+
+        // bildirishnoma ruxsati (sanoq bildirishnomada ko'rinishi uchun), bir marta so'raladi
+        @JavascriptInterface
+        public void bildirishRuxsat() {
+            runOnUiThread(() -> {
+                if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+                    requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 8);
+            });
+        }
+
+        @JavascriptInterface
+        public long tinglashSek() { return Tinglov.prefs(MainActivity.this).getLong("sek", 0); }
+
+        @JavascriptInterface
+        public long tinglashTugat() {
+            stopService(new Intent(MainActivity.this, Tinglov.class));
+            return Tinglov.prefs(MainActivity.this).getLong("sek", 0);
+        }
 
         @JavascriptInterface
         public void gapirToxtat() { runOnUiThread(() -> { if (tts != null) tts.stop(); }); }
