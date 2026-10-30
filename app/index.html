@@ -191,6 +191,16 @@ p { margin: 0; }
 .aipage .grow { display: none; }
 .aipage .rpctl { position: static; margin-inline: 0; padding: 6px 0 calc(10px + env(safe-area-inset-bottom, 0px)); background: none; }
 .bub.tap { cursor: pointer; }
+.dplan { display: flex; flex-direction: column; gap: 8px; }
+.dphead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.dstep { display: flex; align-items: center; gap: 12px; text-align: left; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); color: inherit; font: inherit; }
+.dstep .dic { width: 34px; height: 34px; flex: none; border-radius: 10px; display: grid; place-items: center; font-size: 18px; background: var(--surface); border: 1px solid var(--line); }
+.dstep .dbody { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.dstep .dbody b { font-size: 15px; }
+.dstep .dbody small { color: var(--soft); font-size: 12.5px; }
+.dstep .dmin { font: 700 12px var(--display); color: var(--cyan); white-space: nowrap; }
+.dstep.on { opacity: .6; } .dstep.on .dic { background: var(--lime); color: var(--on-neon); border-color: var(--lime); font-weight: 700; }
+
 .bub .uz { display: none; color: var(--lime); font-size: 14px; border-top: 1px dashed var(--line); padding-top: 6px; margin-top: 4px; }
 .bub.open .uz { display: block; }
 .bub.sum { border-color: var(--gold); box-shadow: 0 0 20px -8px var(--gold); max-width: 100%; }
@@ -1471,6 +1481,110 @@ function missionCard() {
 }
 function bindMission() { on("[data-m]", (e) => { const m = missionItems().find((x) => x.id === e.currentTarget.dataset.m); if (m && !m.done) m.go(); }); }
 
+// ---------- miya tuzadigan 90 daqiqa: har kuni nimani ko'rish va tinglashni o'zi tanlaydi ----------
+const SERIES = {
+  A2: [["Friends", [24, 24, 25, 24, 24, 25, 24, 24, 24, 18]], ["Modern Family", [24, 24, 24, 24, 24, 24, 22, 22, 22, 22, 18]]],
+  B1: [["Friends", [24, 24, 25, 24, 24, 25, 24, 24, 24, 18]], ["The Office", [6, 22, 25, 19, 28, 26, 26, 24, 25]], ["Brooklyn Nine-Nine", [22, 23, 23, 22, 22, 18, 13, 10]]],
+  B2: [["Brooklyn Nine-Nine", [22, 23, 23, 22, 22, 18, 13, 10]], ["Breaking Bad", [7, 13, 13, 13, 16]], ["Stranger Things", [8, 9, 8, 9, 8]]],
+  C1: [["Breaking Bad", [7, 13, 13, 13, 16]], ["Succession", [10, 10, 9, 10]], ["Atlanta", [10, 11, 10, 10]]],
+};
+const SONGS = [
+  ["Juice WRLD", "Lucid Dreams"], ["XXXTentacion", "SAD!"], ["Juice WRLD", "Robbery"], ["XXXTentacion", "Moonlight"],
+  ["Juice WRLD", "Wishing Well"], ["XXXTentacion", "Jocelyn Flores"], ["Juice WRLD", "Legends"], ["XXXTentacion", "Changes"],
+  ["Juice WRLD", "All Girls Are The Same"], ["Post Malone", "Circles"], ["Juice WRLD", "Righteous"], ["XXXTentacion", "Hope"],
+  ["Juice WRLD", "Empty"], ["Eminem", "Mockingbird"], ["Juice WRLD", "Bandit"], ["Kid Cudi", "Pursuit of Happiness"],
+];
+const VIDEOS = {
+  A2: [["BBC Learning English", "6 Minute English"], ["English with Lucy", "everyday English"], ["Learn English with TV Series", "Friends"], ["VOA Learning English", "news words and their stories"]],
+  B1: [["Easy English", "street interviews"], ["Genius", "Verified Juice WRLD"], ["BBC Learning English", "6 Minute English"], ["Rachel's English", "how to speak fast"]],
+  B2: [["Genius", "Verified rapper explains lyrics"], ["Hot Ones", "rapper interview"], ["Drink Champs", "interview"], ["Easy English", "street interviews"]],
+  C1: [["TED", "talk motivation"], ["Diary of a CEO", "podcast"], ["Lex Fridman", "podcast interview"], ["Genius", "Verified"]],
+};
+const ytSearch = (q) => "https://www.youtube.com/results?search_query=" + encodeURIComponent(q);
+function lvForListen() {
+  const lv = S.plan && S.plan.c1 ? ((c1Chapters().find((c) => c.quests.some((x) => x.f() < x.need)) || {}).sub || "") : workLv();
+  return ["C1", "B2", "B1", "A2"].find((x) => String(lv).includes(x)) || (lvRank(workLv()) < 1 ? "A2" : workLv() === "C1" ? "C1" : workLv());
+}
+function seriesEp(list, n) {
+  const [name, eps] = list[0];
+  let s = 0, e = n;
+  while (s < eps.length && e >= eps[s]) { e -= eps[s]; s++; }
+  return s >= eps.length ? null : { name, s: s + 1, e: e + 1 };
+}
+function makeDayPlan() {
+  const lv = lvForListen(), c = (S.lc = S.lc || { ep: {}, song: 0, vid: 0 });
+  const sl = SERIES[lv] || SERIES.B1;
+  let si = c.series && sl.some((x) => x[0] === c.series) ? sl.findIndex((x) => x[0] === c.series) : 0;
+  let ep = seriesEp([sl[si]], c.ep[sl[si][0]] || 0);
+  if (!ep) { si = (si + 1) % sl.length; ep = seriesEp([sl[si]], c.ep[sl[si][0]] || 0) || { name: sl[si][0], s: 1, e: 1 }; }
+  const song = SONGS[c.song % SONGS.length], vids = VIDEOS[lv] || VIDEOS.B1, vid = vids[c.vid % vids.length];
+  const sub = lvRank(lv) >= 3 ? "subtitrsiz sinab ko'r, qiyin joyni inglizcha subtitr bilan qaytar" : "inglizcha subtitr bilan ko'r (o'zbekcha emas)";
+  const steps = [
+    { id: "serial", ic: "📺", min: 30, t: `${ep.name}: ${ep.s}-fasl, ${ep.e}-qism`, d: sub, url: ytSearch(`${ep.name} season ${ep.s} episode ${ep.e} english subtitles`), ext: true, key: ep.name },
+    { id: "song", ic: "🎤", min: 15, t: `${song[0]} – ${song[1]}`, d: "Matni bilan 2 marta tingla, keyin ustidan birga ayt (soya)", url: ytSearch(`${song[0]} ${song[1]} lyrics`), ext: true },
+    { id: "video", ic: "🎧", min: 25, t: `${vid[0]}: ${vid[1]}`, d: "Bitta-ikkita video. Tushunmagan gapingni qaytarib eshit", url: ytSearch(`${vid[0]} ${vid[1]}`), ext: true },
+    aiAvail()
+      ? { id: "ai", ic: "🤖", min: 10, t: "Andrew bilan ko'rganing haqida gaplash", d: "Serial yoki qo'shiqda nima bo'lganini aytib ber", ext: false }
+      : { id: "shadow", ic: "🗣", min: 10, t: "Soya mashqi", d: "Andrew'dan keyin darhol takrorla", ext: false },
+    { id: "app", ic: "👂", min: 10, t: "Tinglab tushunish", d: "Yodla ichida gaplarni eshitib ma'nosini top", ext: false },
+  ];
+  steps.forEach((x) => (x.got = 0));
+  S.lday = { d: todayStr(), steps, ep, lv };
+  save();
+  return S.lday;
+}
+const dayPlan = () => (S.lday && S.lday.d === todayStr() ? S.lday : makeDayPlan());
+// qadam bajarilganda keyingi kun uchun navbat suriladi (keyingi qism, keyingi qo'shiq)
+function stepDone(x) {
+  if (x.done) return;
+  x.done = true;
+  const c = S.lc;
+  if (x.id === "serial") { c.series = x.key; c.ep[x.key] = (c.ep[x.key] || 0) + 1; }
+  if (x.id === "song") c.song++;
+  if (x.id === "video") c.vid++;
+  save();
+}
+function creditStep(min) {
+  const st = S.lstep; S.lstep = null;
+  if (!st) return 0;
+  const x = dayPlan().steps.find((s) => s.id === st.id);
+  const m = Math.max(0, Math.min(x && !st.ext ? x.min * 2 : 150, Math.round(min != null ? min : (Date.now() - st.at) / 60000)));
+  if (x && m >= 1) { x.got += m; if (x.got >= x.min * 0.7) stepDone(x); }
+  save();
+  if (m >= 1) addListen(m);
+  return m;
+}
+function startStep(id) {
+  const x = dayPlan().steps.find((s) => s.id === id);
+  if (!x) return;
+  if (S.lstep) creditStep();
+  S.lstep = { id, at: Date.now(), ext: x.ext }; save();
+  if (x.ext) { try { NATIVE && NATIVE.och ? NATIVE.och(x.url) : window.open(x.url, "_blank"); } catch {} return; }
+  if (id === "ai") aiChat({ id: "watched", t: "Ko'rganing haqida", d: "", p: `a chat about what the learner watched and listened to today: the TV show ${dayPlan().ep.name} and the song ${dayPlan().steps[1].t}. Ask what happened, what he liked and which words he learned` });
+  else if (id === "shadow") storiesList();
+  else practiceListen();
+}
+// boshqa ilovadan qaytganda tashqi qadam vaqti o'zi yoziladi
+function backToApp() {
+  const st = S.lstep;
+  if (!st || !st.ext) return;
+  const m = creditStep();
+  if (m >= 1) lateToast(`+${m} daqiqa tinglash yozildi`);
+  if ($("lcard")) { $("lcard").outerHTML = listenCard(); bindListen(); }
+}
+window.yodlaQaytdi = backToApp;
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") backToApp(); });
+function dayPlanHtml() {
+  const dp = dayPlan();
+  return `<div class="dplan"><div class="dphead"><b>🧠 Bugungi 90 daqiqa</b><span class="muted">miya tanladi · ${dp.lv}</span></div>
+    ${dp.steps.map((x) => `<button class="dstep ${x.done ? "on" : ""}" data-st="${x.id}" type="button">
+      <span class="dic">${x.done ? "✓" : x.ic}</span>
+      <span class="dbody"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></span>
+      <span class="dmin">${x.got ? `${Math.min(x.got, x.min)}/` : ""}${x.min} daq</span>
+    </button>`).join("")}
+    <span class="muted">Bossang, ochiladi va vaqt o'zi sanaladi. Ilovaga qaytganingda daqiqalar yoziladi.</span></div>`;
+}
+
 function listenCard() {
   const t = listenToday(), lv = S.plan && S.plan.c1 ? (c1Chapters().find((c) => c.quests.some((x) => x.f() < x.need)) || {}).sub : workLv();
   const tipLv = ["A2", "B1", "B2", "C1"].find((x) => String(lv).includes(x)) || (lvRank(workLv()) < 1 ? "A2" : workLv());
@@ -1479,10 +1593,13 @@ function listenCard() {
     <div class="mhead"><b>Tinglash</b><span class="muted">Jami: ${listenH()} soat ${listenRec().min % 60} daq</span></div>
     <div class="qrow"><span>Bugun: ${t} / ${LISTEN_GOAL} daqiqa</span><small>${t >= LISTEN_GOAL ? "bajarildi ✓" : ""}</small></div>
     <div class="meter sm"><i style="width:${Math.min(100, (t / LISTEN_GOAL) * 100)}%"></i></div>
-    <span class="muted">Serial, YouTube, podkast yoki qo'shiq tinglagan bo'lsang, shu yerga yoz. Taymerni yoqib, boshqa ilovaga o'tsang ham vaqt sanaladi.</span>
-    <button class="btn ${run ? "main" : "ghost"}" id="ltm" type="button">${run ? `To'xtatish · ${String(run.getHours()).padStart(2, "0")}:${String(run.getMinutes()).padStart(2, "0")} dan beri` : "Taymerni yoqish"}</button>
-    <div class="row lrow">${[15, 30, 60].map((m) => `<button class="btn ghost" data-lm="${m}" type="button">+${m} daq</button>`).join("")}</div>
-    <details class="cando-box"><summary>Nimani tinglash kerak?</summary><ul class="cando">${LISTEN_TIPS[tipLv].map((x) => `<li>${esc(x)}</li>`).join("")}</ul><span class="muted">Qoida: gaplarning ko'pini tushunadigan narsani tanla. Bitta serial yoki bitta odamni ko'p tinglash eng yaxshi ishlaydi.</span></details>
+    ${dayPlanHtml()}
+    <details class="cando-box" ${run ? "open" : ""}><summary>Boshqa narsa tingladim</summary>
+      <span class="muted">O'zing tanlagan narsani tinglasang, taymerni yoq yoki daqiqani qo'lda qo'sh.</span>
+      <button class="btn ${run ? "main" : "ghost"}" id="ltm" type="button">${run ? `To'xtatish · ${String(run.getHours()).padStart(2, "0")}:${String(run.getMinutes()).padStart(2, "0")} dan beri` : "Taymerni yoqish"}</button>
+      <div class="row lrow">${[15, 30, 60].map((m) => `<button class="btn ghost" data-lm="${m}" type="button">+${m} daq</button>`).join("")}</div>
+      <ul class="cando">${LISTEN_TIPS[tipLv].map((x) => `<li>${esc(x)}</li>`).join("")}</ul>
+    </details>
   </section>`;
 }
 function bindListen() {
@@ -1493,6 +1610,7 @@ function bindListen() {
     redo();
   };
   document.querySelectorAll("[data-lm]").forEach((b) => (b.onclick = () => { addListen(+b.dataset.lm); redo(); }));
+  document.querySelectorAll("[data-st]").forEach((b) => (b.onclick = () => { const id = b.dataset.st; startStep(id); if (document.body.contains(b)) redo(); }));
 }
 
 function planTab() {
@@ -1734,7 +1852,7 @@ function aiChat(tp) {
   // faqat chat qutisi aylanadi; o'qish uchun yuqoriga chiqsang, yangi gap seni pastga tortib ketmaydi
   const stick = (force) => { if (force || chat.scrollHeight - chat.scrollTop - chat.clientHeight < 140) chat.scrollTop = chat.scrollHeight; };
   const alive = () => AI && document.body.contains(chat);
-  $("quit").onclick = () => { try { NATIVE.gapirToxtat(); } catch {} AI = null; aiHome(); };
+  $("quit").onclick = () => { try { NATIVE.gapirToxtat(); } catch {} AI = null; if (S.lstep && S.lstep.id === "ai") { creditStep(); planTab(); } else aiHome(); };
   const setBusy = (b) => { AI.busy = b; ["mic", "slow", "end", "aisend"].forEach((id) => { $(id).disabled = b || (id === "mic" && !canHear) || (id === "end" && !AI.turns); }); };
   function add(cls, who, text) {
     const el = document.createElement("div");
@@ -1971,6 +2089,7 @@ function practiceListen() {
 }
 
 function practiceDone(title, ok, n, again) {
+  if (S.lstep && !S.lstep.ext) creditStep();
   addXP(10); bumpStreak(); save();
   html(`
     <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>${esc(title)}</h2></div>

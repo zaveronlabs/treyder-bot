@@ -111,6 +111,10 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void gapir(String matn, float tezlik) { runOnUiThread(() -> ovozChiqar(matn, tezlik)); }
 
+        // tashqi havola (YouTube va h.k.) telefonning o'z ilovasida ochiladi
+        @JavascriptInterface
+        public void och(String url) { runOnUiThread(() -> { try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); } catch (Exception e) { } }); }
+
         @JavascriptInterface
         public void gapirToxtat() { runOnUiThread(() -> { if (tts != null) tts.stop(); }); }
     }
@@ -225,6 +229,12 @@ public class MainActivity extends Activity {
         kutilganTil = null;
         if (natija.length > 0 && natija[0] == PackageManager.PERMISSION_GRANTED && til != null) eshit(til);
         else xato("ruxsat");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (web != null) js("window.yodlaQaytdi&&window.yodlaQaytdi()");
     }
 
     @Override
