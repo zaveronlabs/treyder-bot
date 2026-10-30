@@ -1916,8 +1916,8 @@ function aiChat(tp) {
       AI.last = rest;
       const el = AI.bub, sm = document.createElement("small");
       sm.className = "uz"; sm.dataset.en = rest;
-      // model tarjimani o'zi to'g'ri yozgan bo'lsa shu, bo'lmasa bosilganda alohida o'giriladi
-      if (uz && !looksEn(uz, rest)) { sm.textContent = uz; sm.dataset.st = "ok"; } else sm.textContent = "Tarjima qilinmoqda...";
+      // bosilganda alohida o'giriladi: internet bo'lsa Google Tarjimon, bo'lmasa telefondagi miya
+      sm.textContent = "Tarjima qilinmoqda...";
       el.appendChild(sm);
       el.classList.add("tap");
       el.onclick = () => {

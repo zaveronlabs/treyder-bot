@@ -7,6 +7,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.speech.tts.Voice;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
@@ -28,7 +29,12 @@ import androidx.webkit.WebViewAssetLoader;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -123,8 +129,14 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void aiTarjima(String id, String matn) {
-            if (miya != null) miya.tarjima(id, matn);
-            else aiXabar("{\"t\":\"tarjima\",\"id\":" + JSONObject.quote(id) + ",\"xato\":\"miya yo'q\"}");
+            // internet bo'lsa Google Tarjimon (aniqroq), bo'lmasa telefondagi miya
+            new Thread(() -> {
+                String g = googleTarjima(matn);
+                if (g != null && !g.isEmpty()) {
+                    try { aiXabar(new JSONObject().put("t", "tarjima").put("id", id).put("s", g).put("manba", "google").toString()); } catch (Exception e) { }
+                } else if (miya != null) miya.tarjima(id, matn);
+                else aiXabar("{\"t\":\"tarjima\",\"id\":" + JSONObject.quote(id) + ",\"xato\":\"miya yo'q\"}");
+            }).start();
         }
 
         @JavascriptInterface
@@ -213,11 +225,54 @@ public class MainActivity extends Activity {
         getPreferences(MODE_PRIVATE).edit().putLong("yuk", id).putString("yukModel", k).apply();
     }
 
+    private static String googleTarjima(String matn) {
+        HttpURLConnection c = null;
+        try {
+            URL u = new URL("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=uz&dt=t&q=" + URLEncoder.encode(matn, "UTF-8"));
+            c = (HttpURLConnection) u.openConnection();
+            c.setConnectTimeout(4000); c.setReadTimeout(5000);
+            if (c.getResponseCode() != 200) return null;
+            StringBuilder b = new StringBuilder();
+            try (BufferedReader r = new BufferedReader(new InputStreamReader(c.getInputStream(), "UTF-8"))) {
+                String l; while ((l = r.readLine()) != null) b.append(l);
+            }
+            JSONArray qismlar = new JSONArray(b.toString()).getJSONArray(0);
+            StringBuilder t = new StringBuilder();
+            for (int i = 0; i < qismlar.length(); i++) t.append(qismlar.getJSONArray(i).optString(0, ""));
+            return t.toString().trim();
+        } catch (Exception e) {
+            return null;
+        } finally {
+            if (c != null) c.disconnect();
+        }
+    }
+
+    // Andrew erkak kishi: en-US erkak ovozi tanlanadi (telefonda bor bo'lsa), topilmasa ovoz pastroq qilinadi
+    private void erkakOvoz() {
+        float past = 0.82f;
+        try {
+            Voice eng = null; int engBall = -1;
+            for (Voice v : tts.getVoices()) {
+                if (v.getLocale() == null || !"en".equals(v.getLocale().getLanguage())) continue;
+                String n = v.getName().toLowerCase(Locale.ROOT);
+                java.util.Set<String> f = v.getFeatures();
+                if (f != null && f.contains(TextToSpeech.Engine.KEY_FEATURE_NOT_INSTALLED)) continue;
+                boolean erkak = (f != null && f.contains("male")) || n.contains("#male") || n.contains("-male")
+                        || n.matches(".*en-us-x-(iol|iom|tpd)-.*") || n.contains("smtm");
+                if (!erkak || n.contains("female")) continue;
+                int ball = ("US".equals(v.getLocale().getCountry()) ? 4 : 0) + (v.isNetworkConnectionRequired() ? 0 : 2) + (n.contains("iom") || n.contains("tpd") ? 1 : 0);
+                if (ball > engBall) { eng = v; engBall = ball; }
+            }
+            if (eng != null && tts.setVoice(eng) == TextToSpeech.SUCCESS) past = 0.95f;
+        } catch (Exception e) { }
+        tts.setPitch(past);
+    }
+
     private void ovozChiqar(String matn, float tezlik) {
         if (tts == null) {
             tts = new TextToSpeech(this, st -> {
                 ttsTayyor = st == TextToSpeech.SUCCESS;
-                if (ttsTayyor) { tts.setLanguage(Locale.US); ovozChiqar(matn, tezlik); }
+                if (ttsTayyor) { tts.setLanguage(Locale.US); erkakOvoz(); ovozChiqar(matn, tezlik); }
                 else js("window.yodlaGapirdi&&window.yodlaGapirdi()");
             });
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
