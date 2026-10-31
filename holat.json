@@ -1,7 +1,7 @@
 {
  "chat_id": 8859413416,
  "update_id": 74030509,
- "oxirgi_sana": "2026-10-31 08:00",
+ "oxirgi_sana": "2026-10-31 12:00",
  "holat": {
   "BTC": 0,
   "ETH": 0,
@@ -10,30 +10,30 @@
   "XRP": 0
  },
  "narx": {
-  "BTC": 77618.97,
-  "ETH": 2248.64,
-  "SOL": 95.91,
-  "BNB": 705.34,
-  "XRP": 1.2498,
+  "BTC": 77622.01,
+  "ETH": 2250.88,
+  "SOL": 95.98,
+  "BNB": 705.42,
+  "XRP": 1.253,
   "DOGE": 0.08007,
   "ADA": 0.2228,
   "AVAX": 9.897,
   "LINK": 12.074,
   "LTC": 59.36,
-  "PAXG": 3899.12
+  "PAXG": 3900.0
  },
  "rejim": "4h-5-avto3",
  "miya": {
-  "BTC": -0.42215529593494466,
-  "ETH": -0.20455667419066176,
-  "SOL": -0.10254033021006694,
-  "BNB": -0.14421098775048605,
-  "XRP": -0.6363557443026656,
-  "DOGE": -0.31016212907923674,
-  "ADA": -0.5469586968759828,
-  "AVAX": -0.03775295383244951,
-  "LINK": -0.26186919105428,
-  "LTC": -0.12428382199492861
+  "BTC": -0.33382569238395987,
+  "ETH": -0.12933488784349456,
+  "SOL": -0.04603642681738732,
+  "BNB": -0.16728303509277007,
+  "XRP": -0.6917286390441961,
+  "DOGE": -0.4504259769718479,
+  "ADA": -0.44980805452012945,
+  "AVAX": -0.059741412128961,
+  "LINK": -0.1483314872994558,
+  "LTC": -0.17766677151293958
  },
  "sinov_boshi": "2026-10-17 20:00",
  "oxirgi_hisobot": 1792886471.1645865,
@@ -520,12 +520,6 @@
      "kirish_sana": "2026-10-27 04:00",
      "yon": -1
     },
-    "SOL": {
-     "miqdor": 4.113110539845758,
-     "kirish_narx": 97.25,
-     "kirish_sana": "2026-10-30 00:00",
-     "yon": -1
-    },
     "BTC": {
      "miqdor": 0.005198682601841867,
      "kirish_narx": 76942.57,
@@ -629,10 +623,19 @@
      "chiqish_narx": 700.71,
      "foyda": -0.4743327192493999,
      "sabab": "miya endi tushish kutmayapti (-0.06)"
+    },
+    {
+     "belgi": "SOL",
+     "kirish_sana": "2026-10-30 00:00",
+     "kirish_narx": 97.25,
+     "chiqish_sana": "2026-10-31 12:00",
+     "chiqish_narx": 95.98,
+     "foyda": 5.026262210796898,
+     "sabab": "miya endi tushish kutmayapti (-0.05)"
     }
    ],
-   "naqd": 74.27405454131957,
-   "komissiya": 4.960382781338672
+   "naqd": 279.3003167521165,
+   "komissiya": 5.15777095614587
   },
   "longshort": {
    "portfel": {
@@ -1554,46 +1557,46 @@
  },
  "ai_vaqt": "2026-10-31 12:13",
  "yangilik": {
-  "vaqt": "2026-10-31 11:22",
+  "vaqt": "2026-10-31 15:24",
   "soni": 50,
   "model": "qwen2.5:7b",
   "bozor": {
-   "baho": -0.25,
-   "izoh": "Umumiy bozor: 50 ta yangilik (5 yaxshi, 23 yomon). Kayfiyat salbiy."
+   "baho": -0.32,
+   "izoh": "Umumiy bozor: 50 ta yangilik (3 yaxshi, 27 yomon). Kayfiyat salbiy."
   },
   "tangalar": {
    "BTC": {
-    "baho": -0.18,
-    "izoh": "Bitcoin haqida 14 ta yangilik (2 yaxshi, 5 yomon). Kayfiyat salbiy."
+    "baho": -0.21,
+    "izoh": "Bitcoin haqida 16 ta yangilik (2 yaxshi, 4 yomon). Kayfiyat betaraf."
    },
    "ETH": {
-    "baho": -0.25,
+    "baho": -0.32,
     "izoh": "Alohida yangilik yo'q, umumiy bozorga qaraldi."
    },
    "SOL": {
-    "baho": -0.25,
+    "baho": -0.32,
     "izoh": "Alohida yangilik yo'q, umumiy bozorga qaraldi."
    },
    "BNB": {
-    "baho": -0.32,
-    "izoh": "BNB haqida 24 ta yangilik (4 yaxshi, 16 yomon). Kayfiyat salbiy."
+    "baho": -0.36,
+    "izoh": "BNB haqida 21 ta yangilik (3 yaxshi, 14 yomon). Kayfiyat salbiy."
    },
    "XRP": {
-    "baho": -0.25,
+    "baho": -0.29,
     "izoh": "XRP haqida 2 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat salbiy."
    }
   }
  },
  "short_miya": {
-  "BTC": 0.3257455512685402,
-  "ETH": 0.3742835986929764,
-  "SOL": 0.18126451918146333,
-  "BNB": 0.13402038096914526,
-  "XRP": 0.7390294295837458,
-  "DOGE": 0.12356911623468611,
-  "ADA": 0.4638290862414186,
-  "AVAX": 0.33412582631868154,
-  "LINK": 0.26826141925303804,
-  "LTC": 0.1669188313266414
+  "BTC": 0.3902220692315911,
+  "ETH": 0.43586159825406395,
+  "SOL": 0.23529437820944826,
+  "BNB": 0.14728052827445706,
+  "XRP": 0.7554713504215169,
+  "DOGE": 0.1530144538969619,
+  "ADA": 0.4916351844216775,
+  "AVAX": 0.35443767856316727,
+  "LINK": 0.18218245444033074,
+  "LTC": 0.11915363585727902
  }
 }
