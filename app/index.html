@@ -241,6 +241,12 @@ p { margin: 0; }
 .cando-box summary { cursor: pointer; color: var(--cyan); font-weight: 600; }
 .cando-box .cando { margin-top: 10px; margin-bottom: 8px; }
 .lrow { flex-wrap: nowrap; }
+.qbox { display: grid; gap: 8px; margin: 10px 0; padding: 12px; border: 1px solid var(--line); border-radius: 14px; }
+.qbox .small, .muted.small { font-size: 12px; }
+.qlist { display: grid; gap: 6px; }
+.qrow2 { display: grid; grid-template-columns: 18px 1fr auto; gap: 8px; align-items: center; text-align: left; background: transparent; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; color: var(--muted, inherit); font: inherit; font-size: 13px; }
+.qrow2.on { color: var(--text, inherit); border-color: rgba(173, 255, 47, .45); }
+.qrow2 .qn { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lrow .btn { flex: 1 1 0; width: auto; padding: 0 6px; letter-spacing: .03em; white-space: nowrap; }
 .c1card { border-color: rgba(255, 63, 208, .55); box-shadow: 0 0 24px -10px var(--pink); }
 .toast.gold { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 28px -4px var(--gold); white-space: normal; text-align: center; max-width: calc(100vw - 32px); }
@@ -1545,6 +1551,32 @@ function stepDone(x) {
   if (x.id === "video") c.vid++;
   save();
 }
+// ---------- Quloq: telefonda nima o'ynayotganini bilib, faqat inglizchasini sanaydi (Spotify, YouTube...) ----------
+const TANISH = ["juice wrld", "xxxtentacion", "post malone", "eminem", "kid cudi", "drake", "kendrick lamar", "j. cole", "travis scott", "the weeknd",
+  "lil peep", "lil uzi vert", "lil baby", "lil wayne", "future", "21 savage", "kanye west", "ye", "jay-z", "nas", "2pac", "the notorious b.i.g.", "50 cent",
+  "snoop dogg", "dr. dre", "tyler, the creator", "a$ap rocky", "playboi carti", "nf", "logic", "mac miller", "polo g", "lil durk", "nba youngboy", "rod wave",
+  "trippie redd", "ski mask the slump god", "kodak black", "dababy", "jack harlow", "lil nas x", "chance the rapper", "childish gambino", "ed sheeran",
+  "billie eilish", "taylor swift", "ariana grande", "justin bieber", "imagine dragons", "coldplay", "linkin park", "bruno mars", "dua lipa", "sza",
+  "frank ocean", "olivia rodrigo", "the kid laroi", "central cee", "metro boomin", "21 pilots", "twenty one pilots", "bbc learning english",
+  "english with lucy", "rachel's english", "easy english", "genius", "hot ones", "first we feast", "drink champs", "ted", "the diary of a ceo"];
+const quloqBor = () => !!(NATIVE && NATIVE.quloqHolat);
+function quloq() { try { return JSON.parse(NATIVE.quloqHolat()); } catch { return { ruxsat: false }; } }
+let quloqTanishYuborildi = false;
+// ilovadan tashqarida (Spotify, YouTube) tinglangan inglizcha daqiqalar ilovaga qaytganda o'zi yoziladi
+function quloqSync(toast) {
+  if (!quloqBor()) return 0;
+  if (!quloqTanishYuborildi) { quloqTanishYuborildi = true; try { NATIVE.quloqTanish("|" + TANISH.concat(SONGS.map((x) => x[0].toLowerCase())).join("|") + "|"); } catch {} }
+  const q = quloq();
+  if (!q.ruxsat || q.jami == null) return 0;
+  if (S.lq == null || S.lq > q.jami) { S.lq = q.jami; save(); return 0; }
+  if ((S.lstep && S.lstep.svc) || (S.lt && S.ltSvc)) return 0; // qadam yoki taymer o'zi sanaydi
+  const m = Math.floor((q.jami - S.lq) / 60);
+  if (m < 1) return 0;
+  S.lq += m * 60; save(); addListen(m);
+  if (toast) lateToast(`+${m} daqiqa inglizcha tinglash yozildi 🎧`);
+  return m;
+}
+function quloqTugadi() { if (quloqBor()) { const q = quloq(); if (q.jami != null) { S.lq = q.jami; save(); } } }
 function creditStep(min) {
   const st = S.lstep; S.lstep = null;
   if (!st) return 0;
@@ -1556,12 +1588,13 @@ function creditStep(min) {
   return m;
 }
 const svcSek = () => { try { return +NATIVE.tinglashTugat() || 0; } catch { return 0; } };
-function closeStep() { const st = S.lstep; if (!st) return 0; return st.svc ? creditStep(Math.round(svcSek() / 60)) : creditStep(); }
+function closeStep() { const st = S.lstep; if (!st) return 0; const m = st.svc ? creditStep(Math.round(svcSek() / 60)) : creditStep(); if (st.svc) quloqTugadi(); return m; }
 function startStep(id) {
   const x = dayPlan().steps.find((s) => s.id === id);
   if (!x) return;
   if (S.lstep) closeStep();
-  if (S.lt) { const lm = S.ltSvc ? svcSek() / 60 : (Date.now() - S.lt) / 60000; S.lt = 0; addListen(lm); }
+  if (S.lt) { const lm = S.ltSvc ? svcSek() / 60 : (Date.now() - S.lt) / 60000; const sv = S.ltSvc; S.lt = 0; addListen(lm); if (sv) quloqTugadi(); }
+  if (x.ext) quloqSync(false);
   const svc = !!(x.ext && NATIVE && NATIVE.tinglashBoshla);
   S.lstep = { id, at: Date.now(), ext: x.ext, svc }; save();
   if (svc) { try { NATIVE.tinglashBoshla(); } catch {} }
@@ -1573,10 +1606,11 @@ function startStep(id) {
 // boshqa ilovadan qaytganda tashqi qadam vaqti o'zi yoziladi
 function backToApp() {
   const st = S.lstep;
-  if (!st || !st.ext || Date.now() - st.at < 4000) return;
+  if (!st || !st.ext) { quloqSync(true); if (quloqBor() && $("lcard")) { $("lcard").outerHTML = listenCard(); bindListen(); } return; }
+  if (Date.now() - st.at < 4000) return;
   // fon xizmati faqat ovoz chiqqan soniyalarni sanagan: video pauzadagi vaqt hisoblanmaydi
   const m = closeStep();
-  lateToast(m >= 1 ? `+${m} daqiqa tinglash yozildi` : "Video deyarli o'ynamadi, vaqt yozilmadi");
+  lateToast(m >= 1 ? `+${m} daqiqa tinglash yozildi` : quloqBor() && quloq().ruxsat ? "Inglizcha narsa o'ynamadi, vaqt yozilmadi" : "Video deyarli o'ynamadi, vaqt yozilmadi");
   if ($("lcard")) { $("lcard").outerHTML = listenCard(); bindListen(); }
 }
 window.yodlaQaytdi = backToApp;
@@ -1589,7 +1623,7 @@ function dayPlanHtml() {
       <span class="dbody"><b>${esc(x.t)}</b><small>${esc(x.d)}</small></span>
       <span class="dmin">${x.got ? `${Math.min(x.got, x.min)}/` : ""}${x.min} daq</span>
     </button>`).join("")}
-    <span class="muted">Bossang, ochiladi. Faqat video o'ynab turgan vaqt sanaladi: pauza qilsang, sanash ham to'xtaydi. Ilovaga qaytganingda daqiqalar yoziladi.</span></div>`;
+    <span class="muted">Bossang, ochiladi. Faqat inglizcha narsa o'ynab turgan vaqt sanaladi: pauza qilsang yoki boshqa tildagi narsa qo'ysang, sanash to'xtaydi. Ilovaga qaytganingda daqiqalar yoziladi.</span></div>`;
 }
 
 function listenCard() {
@@ -1601,6 +1635,7 @@ function listenCard() {
     <div class="qrow"><span>Bugun: ${t} / ${LISTEN_GOAL} daqiqa</span><small>${t >= LISTEN_GOAL ? "bajarildi ✓" : ""}</small></div>
     <div class="meter sm"><i style="width:${Math.min(100, (t / LISTEN_GOAL) * 100)}%"></i></div>
     ${dayPlanHtml()}
+    ${quloqHtml()}
     <details class="cando-box" ${run ? "open" : ""}><summary>Boshqa narsa tingladim</summary>
       <span class="muted">O'zing tanlagan narsani tinglasang, taymerni yoq yoki daqiqani qo'lda qo'sh.</span>
       <button class="btn ${run ? "main" : "ghost"}" id="ltm" type="button">${run ? `To'xtatish · ${String(run.getHours()).padStart(2, "0")}:${String(run.getMinutes()).padStart(2, "0")} dan beri` : "Taymerni yoqish"}</button>
@@ -1609,15 +1644,38 @@ function listenCard() {
     </details>
   </section>`;
 }
+function quloqHtml() {
+  if (!quloqBor()) return "";
+  const q = quloq();
+  if (!q.ruxsat) return `<div class="qbox"><b>🎧 Spotify va YouTube'ni o'zi sanasin</b>
+    <span class="muted">Ruxsat bersang, Yodla telefonda nima o'ynayotganini (nomi va ijrochisi) ko'radi va faqat inglizchasini sanaydi. Spotify'dagi inglizcha qo'shiqlar ham o'zi yoziladi.</span>
+    <button class="btn main" id="qrux" type="button">Ruxsat berish</button>
+    <span class="muted small">Ro'yxatdan Yodla'ni topib yoq. Agar "Cheklangan sozlama" desa: Yodla sozlamalari → yuqoridagi ⋮ → "Cheklangan sozlamalarga ruxsat berish", keyin qaytadan shu tugmani bos.</span>
+    <button class="btn ghost" id="qapp" type="button">Yodla sozlamalari</button></div>`;
+  const list = (q.bugun || []).sort((a, b) => b.at - a.at).slice(0, 8);
+  const now = q.hozir ? `<span class="muted small">Hozir: ${q.hozirTil === 1 ? "✓" : q.hozirTil === -1 ? "✗" : "…"} ${esc(q.hozir)}</span>` : "";
+  return `<div class="qbox"><b>🎧 Avto-sanash yoqilgan</b>
+    <span class="muted small">Spotify, YouTube va boshqa ilovalarda faqat inglizcha narsa sanaladi. Xato topsa, bosib tuzat.</span>${now}
+    ${list.length ? `<div class="qlist">${list.map((x, i) => `<button class="qrow2 ${x.en ? "on" : ""}" data-qi="${i}" type="button"><span>${x.en ? "✓" : "✗"}</span><span class="qn">${esc(x.n)}</span><small>${Math.max(1, Math.round(x.s / 60))} daq · ${x.en ? "sanaldi" : "sanalmadi"}</small></button>`).join("")}</div>
+    <span class="muted small">✓ = inglizcha deb sanaldi. Noto'g'ri bo'lsa bos: shu ijrochi bundan keyin ham to'g'ri sanaladi.</span>` : `<span class="muted small">Bugun hali hech narsa eshitilmadi.</span>`}</div>`;
+}
 function bindListen() {
   const redo = () => { const el = $("lcard"); if (!el) return; el.outerHTML = listenCard(); bindListen(); const mc = document.querySelector(".mission"); if (mc) { mc.outerHTML = missionCard(); bindMission(); } };
   $("ltm").onclick = () => {
     const svc = !!(NATIVE && NATIVE.tinglashBoshla);
-    if (S.lt) { const m = svc && S.ltSvc ? svcSek() / 60 : (Date.now() - S.lt) / 60000; S.lt = 0; save(); addListen(m); }
-    else { if (S.lstep) closeStep(); S.lt = Date.now(); S.ltSvc = svc; save(); if (svc) try { NATIVE.tinglashBoshla(); } catch {} }
+    if (S.lt) { const sv = svc && S.ltSvc, m = sv ? svcSek() / 60 : (Date.now() - S.lt) / 60000; S.lt = 0; save(); addListen(m); if (sv) quloqTugadi(); }
+    else { if (S.lstep) closeStep(); quloqSync(false); S.lt = Date.now(); S.ltSvc = svc; save(); if (svc) try { NATIVE.tinglashBoshla(); } catch {} }
     redo();
   };
   document.querySelectorAll("[data-lm]").forEach((b) => (b.onclick = () => { addListen(+b.dataset.lm); redo(); }));
+  if ($("qrux")) $("qrux").onclick = () => { try { NATIVE.quloqRuxsat(); } catch {} };
+  if ($("qapp")) $("qapp").onclick = () => { try { NATIVE.ilovaSozlama(); } catch {} };
+  document.querySelectorAll("[data-qi]").forEach((b) => (b.onclick = () => {
+    const x = (quloq().bugun || []).sort((a, c) => c.at - a.at)[+b.dataset.qi];
+    if (!x) return;
+    try { NATIVE.quloqBelgila(x.n, !x.en); } catch {}
+    quloqSync(true); redo();
+  }));
   document.querySelectorAll("[data-st]").forEach((b) => (b.onclick = () => { const id = b.dataset.st; startStep(id); if (document.body.contains(b)) redo(); }));
 }
 
@@ -2211,6 +2269,7 @@ function vocab() {
 }
 
 home();
+setTimeout(() => { if (quloqSync(true) && $("lcard")) { $("lcard").outerHTML = listenCard(); bindListen(); } }, 800);
 if ("serviceWorker" in navigator && location.hostname.endsWith("github.io")) {
   try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch {}
 }

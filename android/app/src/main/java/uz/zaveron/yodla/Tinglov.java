@@ -15,7 +15,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
-// Tinglash vaqtini sanaydi: telefonda ovoz (YouTube, musiqa) chiqib turgan soniyalargina hisoblanadi
+// Tinglash vaqtini sanaydi. Quloq ulangan bo'lsa faqat inglizcha narsa o'ynagan soniyalar,
+// ulanmagan bo'lsa (ruxsat yo'q) telefonda ovoz chiqib turgan soniyalar hisoblanadi
 public class Tinglov extends Service {
     static final String KANAL = "tinglash";
     static final int ID = 42;
@@ -24,17 +25,19 @@ public class Tinglov extends Service {
     private AudioManager am;
     private SharedPreferences sp;
     private int oxirgiDaq = -1;
+    private String oxirgiHozir = "";
 
     static SharedPreferences prefs(Context c) { return c.getSharedPreferences("tinglov", MODE_PRIVATE); }
 
     private final Runnable tik = new Runnable() {
         @Override public void run() {
-            if (am != null && am.isMusicActive()) {
-                long s = sp.getLong("sek", 0) + QADAM / 1000;
-                sp.edit().putLong("sek", s).apply();
-                int d = (int) (s / 60);
-                if (d != oxirgiDaq) { oxirgiDaq = d; xabarYangila(d); }
-            }
+            long s = sp.getLong("sek", 0);
+            if (Quloq.ulangan) s = Math.max(0, sp.getLong("jami", 0) - sp.getLong("q0", 0));
+            else if (am != null && am.isMusicActive()) s += QADAM / 1000;
+            sp.edit().putLong("sek", s).apply();
+            int d = (int) (s / 60);
+            String hz = Quloq.hozir + Quloq.hozirTil;
+            if (d != oxirgiDaq || !hz.equals(oxirgiHozir)) { oxirgiDaq = d; oxirgiHozir = hz; xabarYangila(d); }
             h.postDelayed(this, QADAM);
         }
     };
@@ -55,8 +58,10 @@ public class Tinglov extends Service {
         PendingIntent pi = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(this, KANAL) : new Notification.Builder(this);
         return b.setSmallIcon(android.R.drawable.ic_media_play)
-                .setContentTitle("Yodla: tinglash sanalmoqda")
-                .setContentText(daq + " daqiqa · video to'xtasa, sanash ham to'xtaydi")
+                .setContentTitle("Yodla: inglizcha tinglash · " + daq + " daqiqa")
+                .setContentText(!Quloq.ulangan ? "video to'xtasa, sanash ham to'xtaydi"
+                        : Quloq.hozir.isEmpty() ? "hech narsa o'ynamayapti"
+                        : (Quloq.hozirTil == 1 ? "✓ sanalmoqda: " : Quloq.hozirTil == -1 ? "✗ inglizcha emas: " : "… aniqlanmoqda: ") + Quloq.hozir)
                 .setContentIntent(pi)
                 .setOngoing(true)
                 .build();

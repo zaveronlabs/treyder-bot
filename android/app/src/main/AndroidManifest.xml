@@ -38,5 +38,14 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Counts time while the user listens to English videos" />
         </service>
+        <service
+            android:name=".Quloq"
+            android:label="Yodla: inglizcha tinglashni sanash"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>

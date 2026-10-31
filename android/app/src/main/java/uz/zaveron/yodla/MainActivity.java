@@ -3,7 +3,9 @@ package uz.zaveron.yodla;
 import android.Manifest;
 import android.app.Activity;
 import android.app.DownloadManager;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
@@ -14,6 +16,7 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -150,7 +153,8 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void tinglashBoshla() {
             runOnUiThread(() -> {
-                Tinglov.prefs(MainActivity.this).edit().putLong("sek", 0).apply();
+                SharedPreferences tp = Tinglov.prefs(MainActivity.this);
+                tp.edit().putLong("sek", 0).putLong("q0", tp.getLong("jami", 0)).apply();
                 Intent i = new Intent(MainActivity.this, Tinglov.class);
                 try { if (Build.VERSION.SDK_INT >= 26) startForegroundService(i); else startService(i); } catch (Exception e) { }
             });
@@ -167,6 +171,36 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public long tinglashSek() { return Tinglov.prefs(MainActivity.this).getLong("sek", 0); }
+
+        // Quloq: telefonda nima o'ynayotganini bilib, faqat inglizchasini sanaydi
+        @JavascriptInterface
+        public String quloqHolat() { return Quloq.holat(MainActivity.this); }
+
+        @JavascriptInterface
+        public void quloqBelgila(String nom, boolean en) { Quloq.belgila(MainActivity.this, nom, en); }
+
+        @JavascriptInterface
+        public void quloqTanish(String royxat) { Tinglov.prefs(MainActivity.this).edit().putString("tanish", royxat.toLowerCase(Locale.ROOT)).apply(); }
+
+        @JavascriptInterface
+        public void quloqRuxsat() {
+            runOnUiThread(() -> {
+                try {
+                    Intent i = Build.VERSION.SDK_INT >= 30
+                            ? new Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS).putExtra(Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME, new ComponentName(MainActivity.this, Quloq.class).flattenToString())
+                            : new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
+                    startActivity(i);
+                } catch (Exception e) {
+                    try { startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)); } catch (Exception e2) { }
+                }
+            });
+        }
+
+        // Android 13+: yuklab o'rnatilgan ilovada "cheklangan sozlama"ni ochish uchun ilova sahifasi
+        @JavascriptInterface
+        public void ilovaSozlama() {
+            runOnUiThread(() -> { try { startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()))); } catch (Exception e) { } });
+        }
 
         @JavascriptInterface
         public long tinglashTugat() {
