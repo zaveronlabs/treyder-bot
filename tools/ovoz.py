@@ -13,7 +13,7 @@ def oqi():
 
 async def yoz(text, sem):
     async with sem:
-        for urinish in range(6):
+        for urinish in range(10):
             try:
                 b = b""
                 async for ch in edge_tts.Communicate(text, VOICE).stream():
@@ -23,8 +23,9 @@ async def yoz(text, sem):
                     return text, b
             except Exception as e:
                 print("xato", repr(text), e, flush=True)
-            await asyncio.sleep(2 + urinish * 3)
-        raise SystemExit("yozib bo'lmadi: " + text)
+            await asyncio.sleep(3 + urinish * 4)
+        print("yozib bo'lmadi (keyingi safar qayta uriniladi):", repr(text), flush=True)
+        return text, None
 
 async def main():
     kerak = json.load(open(sys.argv[1], encoding="utf-8"))
@@ -33,16 +34,21 @@ async def main():
     print("yangi matnlar:", len(yangi), flush=True)
     if not yangi:
         return
-    sem = asyncio.Semaphore(6)
+    sem = asyncio.Semaphore(3)
     natija = await asyncio.gather(*(yoz(t, sem) for t in yangi))
     with open(MP3, "ab") as f:
         pos = f.tell()
         for t, b in natija:
+            if b is None:
+                continue
             f.write(b)
             A["files"][t] = [pos, len(b)]
             pos += len(b)
     with open(AJS, "w", encoding="utf-8") as f:
         f.write("window.AUDIO = " + json.dumps(A, ensure_ascii=False, separators=(",", ":")) + ";\n")
-    print("tayyor:", len(A["files"]), "ta ovoz", flush=True)
+    yoq = sum(1 for _, b in natija if b is None)
+    print("tayyor:", len(A["files"]), "ta ovoz; yozilmay qolgan:", yoq, flush=True)
+    if yoq > len(yangi) // 2:
+        raise SystemExit("ko'p matn yozilmadi, ovoz xizmati ishlamayapti")
 
 asyncio.run(main())
