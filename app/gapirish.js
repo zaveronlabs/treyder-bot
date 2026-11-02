@@ -136,4 +136,20 @@ const HIKOYALAR = [
     ["If I hadn't kept going on the hard days, I wouldn't be where I am now.", "Qiyin kunlarda davom etmaganimda, hozir shu yerda bo'lmasdim."],
     ["The bottom line is: show up every day, and the results will follow.", "Eng asosiysi: har kuni harakat qil, natija o'zi keladi."],
   ]},
+  { lv: "B1", title: "Ko'cha: o'yin kechasi", lines: [
+    ["Last night me and the squad stayed up gaming till three.", "Kecha jamoam bilan soat uchgacha o'yin o'ynadik."],
+    ["My boy carried the whole team, no cap.", "Oshnam butun jamoani yolg'iz olib chiqdi, rostdan."],
+    ["I was kinda tired, but the vibe was too good.", "Biroz charchagan edim, lekin kayfiyat juda zo'r edi."],
+    ["In the last round I hit a clutch shot and everybody went crazy.", "Oxirgi raundda hal qiluvchi o'q uzdim, hamma aqldan ozdi."],
+    ["We lost the next game, but it is what it is.", "Keyingi o'yinda yutqazdik, lekin nima ham qilardik."],
+    ["GG, fam. Same time tomorrow?", "GG, jigarlar. Ertaga shu vaqtdami?"],
+  ]},
+  { lv: "B1", title: "Ko'cha: yangi trek", lines: [
+    ["Yo, have you heard his new track?", "Hey, uning yangi trekini eshitdingmi?"],
+    ["I've had it on repeat all day.", "Kun bo'yi qayta-qayta eshitdim."],
+    ["The beat slaps, and the hook is so catchy.", "Biti zo'r, naqaroti esa juda esda qolarli."],
+    ["His verse in the middle hits different at night.", "O'rtadagi kupleti kechasi boshqacha ta'sir qiladi."],
+    ["Real talk, this guy is so underrated.", "Rostini aytsam, bu yigitning qadri bilinmagan."],
+    ["Hit me up if you wanna go to his show.", "Konsertiga borishni xohlasang, menga yoz."],
+  ]},
 ];

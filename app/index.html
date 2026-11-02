@@ -257,6 +257,9 @@ p { margin: 0; }
 .sheet h3 { color: var(--red); font-size: 22px; text-shadow: 0 0 12px rgba(255, 77, 114, .6); }
 .sheet p { margin-bottom: 6px; overflow-wrap: anywhere; }
 .sheet p b { color: var(--lime); }
+.sheet .why { max-height: 34vh; overflow-y: auto; font-size: 14px; line-height: 1.5; color: var(--soft); background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .08); border-radius: 12px; padding: 10px 12px; margin-bottom: 6px; }
+.sheet .why span { color: var(--cyan); font-weight: 700; margin-right: 4px; }
+.sheet .why b { color: var(--lime); }
 .sheet .btn { background: var(--red); color: var(--on-neon); }
 @keyframes up { from { transform: translateY(100%) } }
 
@@ -364,6 +367,12 @@ const BY = Object.fromEntries(ALL.map((w) => [w.id, w]));
 function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } }
 let S = Object.assign({ packs: {}, words: {}, lessons: {}, xp: 0, day: { d: "", xp: 0 }, goal: 50, best: {}, streak: { last: "", n: 0 }, rate: 0.9, voice: "" }, load());
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
+// olib tashlangan so'zlar (telefon tanimaydi): saqlanmalardan ham o'chiriladi
+const REMOVED = ["goated"];
+if (REMOVED.some((w) => (S.words && S.words[w]) || (S.pron && S.pron[w]) || Object.keys(S.mist || {}).some((k) => k.toLowerCase().includes(w)))) {
+  REMOVED.forEach((w) => { if (S.words) delete S.words[w]; if (S.pron) delete S.pron[w]; for (const k of Object.keys(S.mist || {})) if (k.toLowerCase().includes(w)) delete S.mist[k]; });
+  save();
+}
 // eski saqlanmalar: paketlar tartib raqami bilan yozilgan edi, endi nomi bilan (yangi paketlar qo'shilsa ham adashmaydi)
 const OLD_PACKS = ["Tanishuv", "Eng kerakli so'zlar", "Olmoshlar", "Harakatlar 1", "Harakatlar 2", "Savol so'zlari", "Odamlar", "Vaqt", "Ish", "Sifatlar", "Ovqat", "Joylar", "Gapirish", "Harakatlar 3", "Sonlar", "Kayfiyat", "Bog'lovchi so'zlar", "Iboralar 1", "Iboralar 2", "Atrofimizda", "Ko'cha inglizchasi 1", "Ko'cha inglizchasi 2"];
 if (Object.keys(S.packs).some((k) => /^\d+$/.test(k))) {
@@ -480,6 +489,25 @@ function normWords(s) {
     .flatMap((w) => { w = w.replace(/^'+|'+$/g, ""); const n = /^\d+$/.test(w) ? NUMW[+w] : null; return (CONTR[w] || n || w).split(" "); })
     .map((w) => { w = w.replace(/'/g, ""); return SAME[w] || w; }).filter(Boolean);
 }
+// o'xshash eshitilgan so'zlar: telefon ko'cha so'zlarini ko'pincha boshqacha yozadi (goated -> go to, lowkey -> low key)
+function skel(w) {
+  w = w.replace(/gh/g, "").replace(/ph/g, "f").replace(/ck|q/g, "k").replace(/c(?=[eiy])/g, "s").replace(/c/g, "k").replace(/z/g, "s").replace(/x/g, "ks")
+    .replace(/d/g, "t").replace(/b/g, "p").replace(/v/g, "f").replace(/g(?=[eiy])/g, "j");
+  return (w[0] + w.slice(1).replace(/[aeiouyhw]/g, "")).replace(/(.)\1+/g, "$1");
+}
+function lev(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+function near(t, h) {
+  if (t === h) return true;
+  if (!t || !h || t.length < 3 || h.length < 2) return false;
+  const st = skel(t);
+  if (st.length >= 2 && st === skel(h)) return true;
+  return lev(t, h) <= (t.length >= 7 ? 2 : t.length >= 4 ? 1 : 0);
+}
 function speechCheck(target, alts) {
   const toks = target.split(/\s+/).filter(Boolean);
   const parts = toks.map((t) => normWords(t));
@@ -488,10 +516,18 @@ function speechCheck(target, alts) {
   for (const a of alts.length ? alts : [""]) {
     const H = normWords(a), n = T.length, m = H.length;
     const L = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
-    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) L[i][j] = T[i] === H[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+    for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) L[i][j] = near(T[i], H[j]) ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
     const hit = new Array(n).fill(false);
-    for (let i = 0, j = 0; i < n && j < m;) { if (T[i] === H[j]) { hit[i] = true; i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++; }
-    const score = n ? L[0][0] / n : 0;
+    for (let i = 0, j = 0; i < n && j < m;) { if (near(T[i], H[j]) && L[i][j] === L[i + 1][j + 1] + 1) { hit[i] = true; i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++; }
+    // bitta so'z ikkiga bo'linib eshitilsa (go to = goated) yoki ikki so'z qo'shilib eshitilsa (noway = no way)
+    for (let i = 0; i < n; i++) {
+      if (hit[i]) continue;
+      for (let j = 0; j < m && !hit[i]; j++) {
+        if (j + 1 < m && near(T[i], H[j] + H[j + 1])) hit[i] = true;
+        else if (i + 1 < n && !hit[i + 1] && near(T[i] + T[i + 1], H[j])) hit[i] = hit[i + 1] = true;
+      }
+    }
+    const score = n ? hit.filter(Boolean).length / n : 0;
     if (!best || score > best.score) best = { score, hit, heard: a };
   }
   let k = 0;
@@ -602,11 +638,24 @@ function toast(xp) {
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 1000);
 }
-function sheet(correctText, cont) {
+// xato bo'lganda qisqa izoh: vazifaning o'z izohi, bo'lmasa dars qoidasi yoki so'zning misoli
+function whyFor(task) {
+  if (task.why) return task.why;
+  const L = task.lid && LESSONS.find((l) => l.id === task.lid);
+  if (L && ["fill", "tr", "order"].includes(task.type) && L.rule) {
+    const rule = L.dialog ? "" : L.rule;
+    const hint = task.type === "fill" && task.a ? `Bu yerga <b>${esc(task.a)}</b> mos keladi. ` : "";
+    return (hint + rule) || null;
+  }
+  const w = task.w;
+  if (w && w.ex) return `<b>${esc(w.en)}</b> = ${esc(w.uz)}. Misol: <i>${esc(w.ex)}</i> (${esc(w.exUz)})`;
+  return null;
+}
+function sheet(correctText, cont, why) {
   ding(false);
   const el = document.createElement("div");
   el.className = "sheet";
-  el.innerHTML = `<div class="in"><h3>Xato</h3><p>To'g'ri javob: <b>${esc(correctText)}</b></p><button class="btn" type="button">Davom etish</button></div>`;
+  el.innerHTML = `<div class="in"><h3>Xato</h3><p>To'g'ri javob: <b>${esc(correctText)}</b></p>${why ? `<div class="why"><span>Nega?</span> ${why}</div>` : ""}<button class="btn" type="button">Davom etish</button></div>`;
   document.body.appendChild(el);
   const b = el.querySelector("button"); b.focus();
   b.onclick = () => { el.remove(); cont(); };
@@ -827,7 +876,7 @@ function runQueue(queue, cfg) {
         later(() => { i++; next(); }, 850);
       } else {
         misses++; if (cfg.onMiss) cfg.onMiss(task, wid);
-        sheet(correctText, () => { if (!task.retry) done++; queue.push({ ...task, retry: true }); i++; next(); });
+        sheet(correctText, () => { if (!task.retry) done++; queue.push({ ...task, retry: true }); i++; next(); }, whyFor(task));
       }
     };
     const t = task.type;
@@ -1086,6 +1135,7 @@ function taskSpeak(head, t, finish) {
       draw(res);
       const heard = `Eshitildi: <i>${esc(res.heard || "...")}</i>`;
       if (res.ok) { locked = true; $("msg").innerHTML = heard; stat("spoken"); finish(true, t.wid, t.en); }
+      else if (tries >= 3 && res.score >= 0.5) { locked = true; $("msg").innerHTML = `${heard}<br>Deyarli to'g'ri, qabul qildim. Telefon ba'zi so'zlarni yaxshi tanimaydi.`; stat("spoken"); finish(true, t.wid, t.en); }
       else if (tries >= 3) { locked = true; $("msg").innerHTML = heard; finish(false, t.wid, t.en); }
       else { $("msg").innerHTML = `${heard}<br>Qizil so'zlarni yana bir bor aytib ko'ring.`; speak(t.en); }
     });
@@ -1144,6 +1194,7 @@ function rolePlay(li, me, back) {
       cur.querySelector("b").innerHTML = marked(res);
       const heard = `Eshitildi: <i>${esc(res.heard || "...")}</i>`;
       if (res.ok) { ding(true); $("msg").innerHTML = `${pick(PRAISE)} ${heard}`; stat("spoken"); next(true); }
+      else if (tries >= 2 && res.score >= 0.5) { ding(true); $("msg").innerHTML = `Deyarli to'g'ri, qabul qildim. ${heard}`; stat("spoken"); next(true); }
       else if (tries >= 2) { ding(false); $("msg").innerHTML = `${heard}<br>Mayli, Andrew to'g'risini aytadi, davom etamiz.`; setBtns(false); speakThen(r[1], () => next(false)); }
       else { $("msg").innerHTML = `${heard}<br>Qizil so'zlarni yana bir bor ayt.`; }
     });
