@@ -23,7 +23,7 @@ for (const L of ctx.LESSONS) {
   }
 }
 const P = (x) => String(x).replace(/\*/g, "");
-const isEn = (s) => /^[A-Z"'][^:]*[.?!]$/.test(s) && !/[oOgG]'|\b(va|emas|uchun|bilan|yo'q)\b/.test(s);
+const isEn = (s) => /^[A-Z"'][^:]*[.?!]$/.test(s) && !/[oOgG]'(?!s\b)|\b(va|emas|uchun|bilan|yo'q)\b/.test(s);
 const task = (t) => {
   if (t.k === "fill") { const [a, b] = t.s.split("___"); add(a + t.a + b); }
   if (t.k === "type") { const [a, b] = t.s.split("___"); add(a + [].concat(t.a)[0] + b); }
@@ -37,8 +37,8 @@ for (const id in ctx.DEEP || {}) {
   const D = ctx.DEEP[id];
   D.story.lines.forEach((l) => add(P(l[1])));
   (D.notice || []).forEach((t) => add(t.s));
-  (D.ccq || []).forEach((t) => { if (t.s) add(P(t.s)); });
-  (D.parts || []).forEach((p) => (p.rows || []).forEach((r) => { if (!/\+|[oOgG]'|\.\.\./.test(r[0])) add(sayable(P(r[0]))); }));
+  (D.ccq || []).forEach((t) => { if (t.s) add(P(t.s)); else if (isEn(t.a)) add(t.a); });
+  (D.parts || []).forEach((p) => (p.rows || []).forEach((r) => { if (!/\+|[oOgG]'(?!s\b)|\.\.\./.test(r[0])) add(sayable(P(r[0]))); }));
   (D.say || []).forEach((t) => add(t.en));
   (D.tasks || []).forEach(task); (D.final || []).forEach(task);
 }
