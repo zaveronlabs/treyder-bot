@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Yodla" parent="@android:style/Theme.Material.NoActionBar">
+    <style name="Yodla" parent="@android:style/Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/fon</item>
         <item name="android:statusBarColor">@color/fon</item>
-        <item name="android:navigationBarColor">@color/fon</item>
+        <item name="android:navigationBarColor">@color/pastki</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
-    <color name="fon">#06130F</color>
+    <color name="fon">#E4F6F3</color>
+    <color name="pastki">#F8FAFC</color>
 </resources>

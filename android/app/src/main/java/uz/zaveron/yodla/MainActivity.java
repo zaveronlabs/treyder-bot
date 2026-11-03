@@ -72,7 +72,7 @@ public class MainActivity extends Activity {
                 .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
                 .build();
         web = new WebView(this);
-        web.setBackgroundColor(0xFF06130F);
+        web.setBackgroundColor(0xFFE4F6F3);
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
