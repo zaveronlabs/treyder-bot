@@ -345,65 +345,6 @@ select { width: 100%; min-height: 48px; border-radius: 14px; background: var(--s
 .lvcard { border-color: rgba(255, 63, 208, .55); box-shadow: 0 0 24px -10px var(--pink); }
 .mode.v { color: var(--violet); } .mode.r { color: var(--red); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
-/* Yodi: suzib yuradigan ustoz-kallacha */
-#yodi { position: fixed; z-index: 30; width: 62px; height: 62px; padding: 0; border: 0; background: none; cursor: pointer; touch-action: none; -webkit-tap-highlight-color: transparent; filter: drop-shadow(0 6px 14px rgba(109, 92, 255, .55)); }
-#yodi[hidden] { display: none; }
-#yodi svg { width: 100%; height: 100%; overflow: visible; }
-#yodi .y-body, #yodi .y-ant { transform-origin: 50% 90%; animation: ybob 3s ease-in-out infinite; }
-#yodi .y-shadow { transform-origin: 50% 95%; animation: yshad 3s ease-in-out infinite; }
-#yodi .y-ant circle:last-child { animation: yblinkant 2.2s ease-in-out infinite; }
-#yodi .y-eye { transform-box: fill-box; transform-origin: center; animation: yblink 4.6s infinite; }
-#yodi .y-happy, #yodi .y-mouth, #yodi .y-frown, #yodi .y-dots { display: none; }
-#yodi[data-mood="happy"] .y-eyes { display: none; }
-#yodi[data-mood="happy"] .y-happy { display: inline; }
-#yodi[data-mood="talk"] .y-smile, #yodi[data-mood="think"] .y-smile, #yodi[data-mood="sad"] .y-smile { display: none; }
-#yodi[data-mood="talk"] .y-mouth { display: inline; transform-box: fill-box; transform-origin: center; animation: ytalk .28s ease-in-out infinite alternate; }
-#yodi[data-mood="think"] .y-mouth { display: inline; transform: scale(.55); transform-box: fill-box; transform-origin: center; }
-#yodi[data-mood="think"] .y-pup { transform: translate(2px, -4px); }
-#yodi[data-mood="think"] .y-dots { display: inline; }
-#yodi[data-mood="think"] .y-dots circle { animation: ydot 1.2s infinite; }
-#yodi[data-mood="think"] .y-dots circle:nth-child(2) { animation-delay: .2s; }
-#yodi[data-mood="think"] .y-dots circle:nth-child(3) { animation-delay: .4s; }
-#yodi[data-mood="sad"] .y-frown { display: inline; }
-#yodi[data-mood="sad"] .y-pup { transform: translateY(3px); }
-#yodi[data-mood="sad"] .y-body { animation: ysad 1.2s ease-in-out infinite; }
-#yodi.jump svg { animation: yjump .55s cubic-bezier(.3, 1.6, .5, 1); }
-#yodi.drag { filter: drop-shadow(0 12px 22px rgba(255, 63, 208, .6)); transform: scale(1.1); }
-@keyframes ybob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-4px) } }
-@keyframes yshad { 0%, 100% { transform: scaleX(1); opacity: .9 } 50% { transform: scaleX(.82); opacity: .6 } }
-@keyframes yblink { 0%, 92%, 100% { transform: scaleY(1) } 95% { transform: scaleY(.1) } }
-@keyframes yblinkant { 0%, 100% { opacity: 1 } 50% { opacity: .55 } }
-@keyframes ytalk { from { transform: scaleY(.35) } to { transform: scaleY(1.1) } }
-@keyframes ydot { 0%, 100% { opacity: .2 } 50% { opacity: 1 } }
-@keyframes ysad { 0%, 100% { transform: translateY(2px) rotate(-3deg) } 50% { transform: translateY(3px) rotate(3deg) } }
-@keyframes yjump { 0% { transform: translateY(0) scale(1, 1) } 30% { transform: translateY(-18px) scale(.92, 1.1) } 60% { transform: translateY(0) scale(1.12, .88) } 100% { transform: translateY(0) scale(1) } }
-.ybub { position: fixed; z-index: 31; max-width: 230px; padding: 9px 12px; border-radius: 14px; border: 1px solid rgba(143, 99, 255, .6); background: #1b1446; color: var(--ink); font: 600 13.5px/1.35 var(--body); text-align: left; box-shadow: 0 8px 24px -6px rgba(143, 99, 255, .7); opacity: 0; transform: translateY(6px) scale(.96); pointer-events: none; transition: opacity .2s, transform .2s; }
-.ybub.show { opacity: 1; transform: none; pointer-events: auto; }
-.yback { position: fixed; inset: 0; z-index: 40; background: rgba(4, 3, 16, .55); backdrop-filter: blur(3px); display: flex; align-items: flex-end; justify-content: center; animation: yfade .2s ease-out; }
-.ypanel { width: 100%; max-width: 480px; height: min(78vh, 640px); height: min(78dvh, 640px); display: flex; flex-direction: column; background: #0f0b2b; border: 1px solid rgba(143, 99, 255, .45); border-bottom: 0; border-radius: 22px 22px 0 0; box-shadow: 0 -16px 50px -12px rgba(109, 92, 255, .7); padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px)); animation: up .25s ease-out; }
-.yhead { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
-.yhead > div { flex: 1; display: flex; flex-direction: column; }
-.yhead b { font-family: var(--display); font-size: 18px; }
-.yhead small { color: var(--soft); font-size: 12.5px; }
-.yface { width: 44px; height: 44px; flex: none; }
-.yface svg { width: 100%; height: 100%; }
-.yface .y-happy, .yface .y-mouth, .yface .y-frown, .yface .y-dots { display: none; }
-.ychat { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 8px; padding: 12px 2px; }
-.ymsg { max-width: 86%; padding: 9px 12px; border-radius: 16px; font-size: 15px; line-height: 1.45; overflow-wrap: anywhere; animation: yfade .2s ease-out; }
-.ymsg.yodi { align-self: flex-start; background: rgba(109, 92, 255, .2); border: 1px solid rgba(143, 99, 255, .35); border-bottom-left-radius: 4px; }
-.ymsg.me { align-self: flex-end; background: rgba(45, 240, 255, .14); border: 1px solid rgba(45, 240, 255, .3); border-bottom-right-radius: 4px; }
-.ymsg.now span::after { content: " ▍"; animation: ydot 1s infinite; }
-.ymsg .yuz { display: block; margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(255, 255, 255, .15); color: var(--soft); font-size: 13.5px; }
-.ychips { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 8px; scrollbar-width: none; }
-.ychips button { flex: none; padding: 7px 12px; border-radius: 999px; border: 1px solid rgba(143, 99, 255, .5); background: rgba(143, 99, 255, .12); color: var(--ink); font: 600 13px var(--body); }
-.yin { display: flex; gap: 6px; align-items: center; }
-.yin input { flex: 1; min-width: 0; height: 44px; padding: 0 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255, 255, 255, .05); color: var(--ink); font: 15px var(--body); }
-.yin button { width: 44px; height: 44px; flex: none; border-radius: 14px; border: 0; background: var(--grad); color: var(--on-neon); font: 700 18px var(--body); display: grid; place-items: center; }
-.yin .ymic { background: rgba(255, 255, 255, .08); color: var(--ink); border: 1px solid var(--line); }
-.yin .ymic svg { width: 20px; height: 20px; }
-.yin .ymic.on { background: var(--pink); color: #fff; animation: ydot 1s infinite; }
-@keyframes yfade { from { opacity: 0 } to { opacity: 1 } }
-@media (prefers-reduced-motion: reduce) { #yodi *, .ybub, .ypanel { animation: none !important; transition: none !important; } }
 </style>
 
 <div class="atmo" aria-hidden="true"></div>
@@ -656,7 +597,6 @@ function html(s, tab) {
   $app.classList.toggle("has-tabs", !!tab); $app.classList.remove("aipage");
   window.scrollTo(0, 0);
   if (tab) on(".tab", (e) => TABS[e.currentTarget.dataset.t]());
-  yodiSync();
 }
 function topBar() {
   return `<div class="top">
@@ -691,7 +631,7 @@ function ding(ok) {
 }
 const PRAISE = ["To'g'ri!", "Zo'r!", "Barakalla!", "Aynan!", "Ajoyib!"];
 function toast(xp) {
-  ding(true); yodiReact("happy");
+  ding(true);
   const el = document.createElement("div");
   el.className = "toast"; el.setAttribute("role", "status");
   el.innerHTML = `${pick(PRAISE)}${xp ? ` <small>+${xp} XP</small>` : ""}`;
@@ -712,7 +652,7 @@ function whyFor(task) {
   return null;
 }
 function sheet(correctText, cont, why) {
-  ding(false); yodiReact("sad");
+  ding(false);
   const el = document.createElement("div");
   el.className = "sheet";
   el.innerHTML = `<div class="in"><h3>Xato</h3><p>To'g'ri javob: <b>${esc(correctText)}</b></p>${why ? `<div class="why"><span>Nega?</span> ${why}</div>` : ""}<button class="btn" type="button">Davom etish</button></div>`;
@@ -2020,15 +1960,8 @@ function aiDownload(st) {
   if ($("aidl")) $("aidl").onclick = () => { NATIVE.aiYukla(); later(aiHome, 800); };
   if (busy) later(aiHome, 1500);
 }
-window.yodlaAI = (m) => {
-  if (m.t === "tarjima" && String(m.id || "").startsWith("y")) return YODI.on(m);
-  if (YODI.busy || YODI.pending) return YODI.on(m);
-  if (AI && AI.on) AI.on(m);
-};
-window.yodlaGapirdi = () => {
-  if (YODI.spoke) { const y = YODI.spoke; YODI.spoke = null; y(); return; }
-  const c = AI && AI.spoke; if (AI) AI.spoke = null; if (c) c();
-};
+window.yodlaAI = (m) => { if (AI && AI.on) AI.on(m); };
+window.yodlaGapirdi = () => { const c = AI && AI.spoke; if (AI) AI.spoke = null; if (c) c(); };
 function aiSay(text, cb) {
   if (!AI) return;
   AI.spoke = cb || null;
@@ -2045,8 +1978,7 @@ function looksEn(uz, en) {
   return same > 0.5 || enCommon > 0.25;
 }
 function aiChat(tp) {
-  stopHear(); yodiClose();
-  Object.assign(YODI, { started: false, busy: false, pending: null, queue: [], bub: null });
+  stopHear();
   AI = { tp, turns: 0, buf: "", bub: null, busy: true, auto: S.aiAuto !== false, ending: false };
   html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>${esc(tp.t)}</h2></div>
     <div class="chat" id="chat"></div>
@@ -2058,7 +1990,7 @@ function aiChat(tp) {
       <div class="row aitype"><input id="aiin" type="text" placeholder="yoki yozib yubor..." autocomplete="off" enterkeyhint="send"><button class="btn ghost" id="aisend" type="button">→</button></div>
     </div>`);
   const chat = $("chat"), msg = $("msg");
-  $app.classList.add("aipage"); yodiSync();
+  $app.classList.add("aipage");
   // faqat chat qutisi aylanadi; o'qish uchun yuqoriga chiqsang, yangi gap seni pastga tortib ketmaydi
   const stick = (force) => { if (force || chat.scrollHeight - chat.scrollTop - chat.clientHeight < 140) chat.scrollTop = chat.scrollHeight; };
   const alive = () => AI && document.body.contains(chat);
@@ -2151,310 +2083,6 @@ function aiChat(tp) {
   try { NATIVE.aiBoshla(aiSystem(tp)); } catch (e) { msg.textContent = "Miya ishga tushmadi."; }
 }
 
-// ---------- Yodi: har sahifada turadigan kichik ustoz-kallacha ----------
-// Bossang: suhbat oynasi (savol berish, "buni tushuntir", ovozli javob). Telefondagi miya (Gemma) bo'lsa o'sha javob beradi,
-// bo'lmasa ilovaning o'z bilimidan (darslar qoidasi, so'zlar, aqlli maslahatlar) javob qaytaradi.
-const YODI_SVG = `<svg viewBox="0 0 100 100" aria-hidden="true">
-  <defs>
-    <radialGradient id="ybody" cx="38%" cy="30%" r="75%"><stop offset="0" stop-color="#7ff6ff"/><stop offset=".55" stop-color="#6d5cff"/><stop offset="1" stop-color="#3a1f9e"/></radialGradient>
-    <radialGradient id="yglow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ff7be5"/><stop offset="1" stop-color="#ff3fd0" stop-opacity="0"/></radialGradient>
-  </defs>
-  <g class="y-ant"><path d="M50 22 Q52 12 58 8" stroke="#b9a8ff" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="58" cy="8" r="9" fill="url(#yglow)"/><circle cx="58" cy="8" r="4.2" fill="#ff8be8"/></g>
-  <ellipse class="y-shadow" cx="50" cy="95" rx="24" ry="3.5" fill="rgba(0,0,0,.35)"/>
-  <g class="y-body">
-    <path d="M50 20c20 0 34 14 34 36 0 21-14 34-34 34S16 77 16 56c0-22 14-36 34-36z" fill="url(#ybody)"/>
-    <ellipse cx="38" cy="34" rx="10" ry="5" fill="#fff" opacity=".28" transform="rotate(-20 38 34)"/>
-    <g class="y-eyes">
-      <g class="y-eye"><ellipse cx="38" cy="54" rx="9" ry="10.5" fill="#fff"/><circle class="y-pup" cx="39" cy="56" r="5" fill="#140c33"/><circle cx="41" cy="53" r="1.8" fill="#fff"/></g>
-      <g class="y-eye"><ellipse cx="62" cy="54" rx="9" ry="10.5" fill="#fff"/><circle class="y-pup" cx="63" cy="56" r="5" fill="#140c33"/><circle cx="65" cy="53" r="1.8" fill="#fff"/></g>
-    </g>
-    <g class="y-happy"><path d="M30 55 Q38 46 46 55" stroke="#140c33" stroke-width="3.6" fill="none" stroke-linecap="round"/><path d="M54 55 Q62 46 70 55" stroke="#140c33" stroke-width="3.6" fill="none" stroke-linecap="round"/></g>
-    <ellipse cx="28" cy="67" rx="5" ry="3" fill="#ff6fd8" opacity=".55"/><ellipse cx="72" cy="67" rx="5" ry="3" fill="#ff6fd8" opacity=".55"/>
-    <path class="y-smile" d="M43 69 Q50 75 57 69" stroke="#140c33" stroke-width="3" fill="none" stroke-linecap="round"/>
-    <ellipse class="y-mouth" cx="50" cy="71" rx="5" ry="4" fill="#140c33"/>
-    <path class="y-frown" d="M43 73 Q50 67 57 73" stroke="#140c33" stroke-width="3" fill="none" stroke-linecap="round"/>
-  </g>
-  <g class="y-dots"><circle cx="78" cy="22" r="3" fill="#fff"/><circle cx="87" cy="16" r="3" fill="#fff"/><circle cx="95" cy="10" r="3" fill="#fff"/></g>
-</svg>`;
-let YODI = { started: false, busy: false, buf: "", bub: null, queue: [], spoke: null, open: false, el: null, panel: null, tr: {} };
-// ovoz effektlari (fayl kerak emas, telefonning o'zida chiziladi)
-function sfx(kind) {
-  if (S.sfx === false) return;
-  try {
-    const C = window.__ac || (window.__ac = new (window.AudioContext || window.webkitAudioContext)());
-    const t0 = C.currentTime;
-    const note = (f1, f2, at, dur, type = "sine", vol = 0.09) => {
-      const o = C.createOscillator(), g = C.createGain();
-      o.type = type; o.frequency.setValueAtTime(f1, t0 + at); o.frequency.exponentialRampToValueAtTime(f2, t0 + at + dur);
-      g.gain.setValueAtTime(0.0001, t0 + at); g.gain.exponentialRampToValueAtTime(vol, t0 + at + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t0 + at + dur);
-      o.connect(g); g.connect(C.destination); o.start(t0 + at); o.stop(t0 + at + dur + 0.02);
-    };
-    if (kind === "pop") { note(420, 900, 0, 0.12, "sine", 0.12); note(900, 1300, 0.07, 0.08, "triangle", 0.06); }
-    else if (kind === "close") note(800, 300, 0, 0.14, "sine", 0.08);
-    else if (kind === "happy") { note(660, 700, 0.05, 0.09, "triangle"); note(880, 940, 0.13, 0.09, "triangle"); note(1175, 1320, 0.21, 0.14, "triangle"); }
-    else if (kind === "sad") { note(520, 360, 0.05, 0.22, "sine", 0.08); note(380, 250, 0.25, 0.28, "sine", 0.07); }
-    else if (kind === "msg") { note(1000, 1500, 0, 0.07, "sine", 0.06); note(1500, 1200, 0.06, 0.08, "sine", 0.05); }
-    else if (kind === "tap") note(700, 1000, 0, 0.05, "square", 0.03);
-    else if (kind === "boing") { note(200, 600, 0, 0.18, "sine", 0.1); note(600, 400, 0.16, 0.12, "sine", 0.06); }
-  } catch {}
-}
-function yodiMood(m, ms) {
-  const el = YODI.el; if (!el) return;
-  el.dataset.mood = m;
-  clearTimeout(YODI.moodT);
-  if (ms) YODI.moodT = setTimeout(() => { if (YODI.el) YODI.el.dataset.mood = YODI.busy ? "think" : "idle"; }, ms);
-}
-function yodiBubble(text, ms = 2600, onTap) {
-  if (!YODI.el || YODI.el.hidden) return;
-  let b = document.getElementById("ybub");
-  if (!b) { b = document.createElement("button"); b.id = "ybub"; b.type = "button"; document.body.appendChild(b); }
-  b.textContent = text; b.className = "ybub show";
-  const r = YODI.el.getBoundingClientRect(), left = r.left + r.width / 2 > innerWidth / 2;
-  b.style.top = Math.max(8, r.top - 52) + "px";
-  if (left) { b.style.right = Math.max(8, innerWidth - r.right) + "px"; b.style.left = "auto"; } else { b.style.left = Math.max(8, r.left) + "px"; b.style.right = "auto"; }
-  b.onclick = () => { b.className = "ybub"; (onTap || yodiOpen)(); };
-  clearTimeout(YODI.bubT); YODI.bubT = setTimeout(() => { b.className = "ybub"; }, ms);
-}
-function yodiReact(kind) {
-  if (!YODI.el || YODI.el.hidden || YODI.open) return;
-  if (kind === "happy") { yodiMood("happy", 1300); YODI.el.classList.remove("jump"); void YODI.el.offsetWidth; YODI.el.classList.add("jump"); setTimeout(() => sfx("happy"), 120); if (Math.random() < 0.35) yodiBubble(pick(["Zo'r!", "Barakalla!", "Davom et!", "Sen zo'rsan!", "Ana bu boshqa gap!"]), 1500); }
-  else if (kind === "sad") { yodiMood("sad", 2600); setTimeout(() => sfx("sad"), 150); yodiBubble("Nega xato? Meni bos, tushuntiraman", 3800, () => yodiOpen("explain")); }
-}
-function yodiPlace() {
-  const el = YODI.el; if (!el) return;
-  const p = S.yodiPos || { r: 12, b: 96 };
-  el.style.right = Math.min(Math.max(4, p.r), innerWidth - 64) + "px";
-  el.style.bottom = Math.min(Math.max(4, p.b), innerHeight - 70) + "px";
-}
-function yodiInit() {
-  if (YODI.el) return;
-  const el = document.createElement("button");
-  el.id = "yodi"; el.type = "button"; el.setAttribute("aria-label", "Yodi, ustozing: savol berish uchun bos");
-  el.dataset.mood = "idle"; el.innerHTML = YODI_SVG;
-  document.body.appendChild(el); YODI.el = el; yodiPlace();
-  // sudrab boshqa joyga qo'yish mumkin (tugmalarni to'sib qolmasligi uchun)
-  let sx = 0, sy = 0, sr = 0, sb = 0, moved = false, down = false;
-  el.addEventListener("pointerdown", (e) => { down = true; moved = false; sx = e.clientX; sy = e.clientY; const p = S.yodiPos || { r: 12, b: 96 }; sr = p.r; sb = p.b; try { el.setPointerCapture(e.pointerId); } catch {} });
-  el.addEventListener("pointermove", (e) => {
-    if (!down) return;
-    const dx = e.clientX - sx, dy = e.clientY - sy;
-    if (!moved && Math.hypot(dx, dy) < 8) return;
-    moved = true; el.classList.add("drag");
-    S.yodiPos = { r: sr - dx, b: sb - dy }; yodiPlace();
-  });
-  el.addEventListener("pointerup", () => { if (!down) return; down = false; el.classList.remove("drag"); if (moved) { save(); sfx("boing"); } });
-  el.addEventListener("click", () => { if (moved) { moved = false; return; } yodiOpen(); });
-  addEventListener("resize", yodiPlace);
-  // kunda bir marta salomlashadi
-  const t = todayStr();
-  if (S.yodiHi !== t) { S.yodiHi = t; save(); setTimeout(() => { yodiMood("happy", 1500); sfx("pop"); yodiBubble(yodiGreeting(), 4500); }, 1600); }
-}
-function yodiGreeting() {
-  const h = new Date().getHours(), d = todayRec();
-  const hi = h < 11 ? "Xayrli tong, Gojo!" : h < 18 ? "Salom, Gojo!" : "Xayrli kech, Gojo!";
-  if (dueWords().length) return `${hi} ${dueWords().length} ta so'z seni kutyapti.`;
-  if (!d.lesson) return `${hi} Bugun bitta dars qilamizmi?`;
-  return `${hi} Savoling bo'lsa, meni bos.`;
-}
-function yodiSync() {
-  yodiInit();
-  const hide = $app.classList.contains("aipage");
-  YODI.el.hidden = hide;
-  if (hide) { const b = document.getElementById("ybub"); if (b) b.className = "ybub"; }
-}
-// foydalanuvchi hozir nimaga qarab turibdi: miyaga kontekst sifatida beriladi
-function yodiContext() {
-  const t = window.__t, onTask = t && $app.querySelector(".prog");
-  const wrong = !!document.querySelector(".sheet");
-  const L = (onTask && t.lid && LESSONS.find((l) => l.id === t.lid)) || (!onTask && window.__L && $app.querySelector(".rule") ? window.__L : null);
-  const strip = (h) => String(h || "").replace(/<[^>]+>/g, "");
-  const c = { t: onTask ? t : null, L, wrong, title: ($app.querySelector(".bar h2, h1, .card b") || {}).textContent || "" };
-  let s = `Level ${workLv()}.`;
-  if (c.t) {
-    const tt = c.t, kind = { fill: "fill in the blank", order: "put the words in order", tr: "choose the correct translation", listen: "listen and understand", speak: "say the sentence aloud", choose: "choose the meaning of a word", chooseUz: "choose the English word", build: "build the word", match: "match words" }[tt.type] || tt.type;
-    const what = tt.s || tt.en || (tt.w && `${tt.w.en} = ${tt.w.uz}`) || tt.uz || "";
-    const ans = tt.a || tt.en || (tt.w && tt.w.en) || "";
-    s += ` He is doing an exercise (${kind}): "${what}"${tt.uz && tt.s ? ` (Uzbek meaning: "${tt.uz}")` : ""}.`;
-    s += wrong ? ` He just answered it WRONG. The correct answer is "${ans}". Explain why.` : ` He has not answered yet, so give a hint but do not tell him the answer.`;
-  }
-  if (L) s += ` The lesson is "${L.title}". Lesson rule: ${strip(L.rule)}`;
-  else if (!c.t && c.title) s += ` He is on the "${c.title}" screen of the app.`;
-  c.text = s;
-  return c;
-}
-function yodiSystem() {
-  return `You are Yodi, a small, cute, funny robot mascot and English teacher living inside Gojo's English learning app "Yodla". Gojo is a 19-year-old guy from Uzbekistan, English level ${workLv()}, goal C1. He loves American rap.
-Rules:
-- Be a kind, encouraging teacher and friend. Keep every answer short: 2 to 4 simple sentences.
-- Always answer in simple English that fits his level, even if he writes in Uzbek (the app shows him an Uzbek translation of your answer).
-- When you explain grammar or a word, give one short example sentence.
-- His message may start with [Context: ...]. It tells you what he is looking at in the app right now. Use it, but never mention the word "context".
-- No emojis, no markdown, no lists, no bullet points.`;
-}
-function yodiPanelHtml() {
-  return `<div class="ypanel" role="dialog" aria-label="Yodi bilan suhbat">
-    <div class="yhead"><span class="yface">${YODI_SVG}</span><div><b>Yodi</b><small id="ysub">ustozing va sherigin</small></div>
-      <button class="icon-btn" id="yvoice" type="button" aria-label="Ovoz">${S.yodiVoice === false ? "🔇" : "🔊"}</button>
-      <button class="icon-btn" id="yclose" type="button" aria-label="Yopish">×</button></div>
-    <div class="ychat" id="ychat"></div>
-    <div class="ychips">
-      <button type="button" data-yq="explain">Buni tushuntir</button>
-      <button type="button" data-yq="today">Bugun nima qilay?</button>
-      <button type="button" data-yq="word">Bitta so'z o'rgat</button>
-      <button type="button" data-yq="talk">Gaplashaylik</button>
-    </div>
-    <div class="yin"><input id="yinp" type="text" placeholder="Savolingni yoz..." autocomplete="off" enterkeyhint="send">
-      <button class="ymic" id="ymic" type="button" aria-label="Gapirish">${MIC}</button>
-      <button class="ysend" id="ysend" type="button" aria-label="Yuborish">→</button></div>
-  </div>`;
-}
-function yodiOpen(ask) {
-  yodiInit();
-  if (YODI.open) { if (ask) yodiAsk(ask); return; }
-  YODI.open = true; sfx("pop"); yodiMood("happy", 900);
-  const b = document.getElementById("ybub"); if (b) b.className = "ybub";
-  const wrap = document.createElement("div");
-  wrap.className = "yback"; wrap.innerHTML = yodiPanelHtml();
-  document.body.appendChild(wrap); YODI.panel = wrap;
-  YODI.ctxAt = yodiContext();
-  const q = (id) => wrap.querySelector("#" + id);
-  wrap.addEventListener("click", (e) => { if (e.target === wrap) yodiClose(); });
-  q("yclose").onclick = yodiClose;
-  q("yvoice").onclick = () => { S.yodiVoice = S.yodiVoice === false; save(); q("yvoice").textContent = S.yodiVoice === false ? "🔇" : "🔊"; if (S.yodiVoice === false) try { NATIVE.gapirToxtat(); } catch {} };
-  wrap.querySelectorAll("[data-yq]").forEach((x) => x.onclick = () => { sfx("tap"); yodiAsk(x.dataset.yq); });
-  const send = () => { const v = q("yinp").value.trim(); if (!v) return; q("yinp").value = ""; yodiAsk(v); };
-  q("ysend").onclick = send;
-  q("yinp").onkeydown = (e) => { if (e.key === "Enter") send(); };
-  q("ymic").onclick = () => {
-    if (!canHear) { yodiAdd("yodi", "Bu oynada mikrofon ishlamaydi, yozib yubor."); return; }
-    const m = q("ymic");
-    if (m.classList.contains("on")) { stopHear(); m.classList.remove("on"); return; }
-    m.classList.add("on");
-    hear((err, alts) => { m.classList.remove("on"); if (err) return yodiAdd("yodi", hearError(err)); const t = (alts[0] || "").trim(); if (t) yodiAsk(t.charAt(0).toUpperCase() + t.slice(1)); });
-  };
-  if (!YODI.hist || !YODI.hist.length) yodiAdd("yodi", YODI.ctxAt.t ? "Salom! Shu mashqda yordam kerakmi? \"Buni tushuntir\"ni bos yoki savolingni yoz." : "Salom! Men Yodi, sening ustozingman. Ingliz tili haqida xohlagan savolingni ber, o'zbekcha yoki inglizcha.");
-  else YODI.hist.forEach((h) => yodiAdd(h.who, h.text, h.uz, true));
-  if (ask) yodiAsk(ask);
-}
-function yodiClose() {
-  if (!YODI.open) return;
-  YODI.open = false; sfx("close"); stopHear();
-  try { if (YODI.spoke) NATIVE.gapirToxtat(); } catch {}
-  YODI.spoke = null; if (YODI.el) YODI.el.dataset.mood = "idle";
-  if (YODI.panel) YODI.panel.remove(); YODI.panel = null; YODI.bub = null;
-}
-function yodiAdd(who, text, uz, quiet) {
-  if (!quiet) { YODI.hist = YODI.hist || []; YODI.hist.push({ who, text, uz }); if (YODI.hist.length > 30) YODI.hist.shift(); }
-  const chat = YODI.panel && YODI.panel.querySelector("#ychat"); if (!chat) return null;
-  const el = document.createElement("div");
-  el.className = "ymsg " + who;
-  el.innerHTML = `<span></span>${uz ? `<small class="yuz">${esc(uz)}</small>` : ""}`;
-  el.querySelector("span").textContent = text;
-  chat.appendChild(el); chat.scrollTop = chat.scrollHeight;
-  if (who === "yodi" && !quiet) sfx("msg");
-  return el;
-}
-const YODI_QUICK = {
-  explain: { me: "Buni tushuntir", ai: (c) => c.t ? "Explain this exercise to me in a simple way." : c.L ? "Explain the main idea of this lesson in a simple way with one example." : "Tell me in one or two sentences how this part of the app helps me learn, then give me one useful tip." },
-  today: { me: "Bugun nima qilay?" },
-  word: { me: "Bitta so'z o'rgat", ai: () => `Teach me one useful English word or street phrase for level ${workLv()} that I probably don't know. Give its meaning and one example sentence.` },
-  talk: { me: "Gaplashaylik", ai: () => "Let's have a short chat in English. Ask me one fun, easy question about my day or my favorite music." },
-};
-function yodiAsk(q) {
-  const quick = YODI_QUICK[q], c = yodiContext().t || yodiContext().L ? yodiContext() : YODI.ctxAt || yodiContext();
-  yodiAdd("me", quick ? quick.me : q);
-  if (q === "today") return yodiLocal("today", c);
-  const st = aiAvail() ? aiState() : { bor: false };
-  if (!st.bor) return yodiLocal(q, c);
-  const text = quick ? quick.ai(c) : q;
-  yodiAI(`[Context: ${c.text}]\n${text}`);
-}
-// miyasiz javoblar: ilovaning o'z bilimidan
-function yodiLocal(q, c) {
-  const strip = (h) => String(h || "").replace(/<[^>]+>/g, "");
-  let out = "";
-  if (q === "today") {
-    const tips = brainTips().map(strip);
-    const d = todayRec(), todo = [];
-    if (dueWords().length) todo.push(`${dueWords().length} ta so'zni takrorla`);
-    if (!d.lesson) todo.push("bitta dars yoki suhbat qil");
-    if ((d.spoken || 0) < 10) todo.push(`yana ${10 - (d.spoken || 0)} ta gapni ovoz chiqarib ayt`);
-    out = todo.length ? `Bugungi rejang: ${todo.join(", ")}.` : "Bugungi vazifalarni bajarding, zo'r! Endi Andrew bilan gaplash yoki inglizcha qo'shiq tingla.";
-    if (tips.length) out += " " + tips[0];
-    return yodiReply(out);
-  }
-  if (q === "explain") {
-    if (c.t && c.t.why && c.wrong) out = strip(c.t.why);
-    else if (c.L) out = (c.t && c.wrong && c.t.a ? `To'g'ri javob "${c.t.a}". ` : "") + strip(c.L.rule) + (c.L.note ? " " + c.L.note : "");
-    else if (c.t && c.t.w) out = `"${c.t.w.en}" degani "${c.t.w.uz}". Misol: ${c.t.w.ex} (${c.t.w.exUz})`;
-    else out = "Hozir tushuntiradigan mashq yo'q. Biror mashq yoki dars ichida meni bossang, aynan o'shani tushuntiraman.";
-    return yodiReply(out, c.t && c.t.w ? c.t.w.ex : null);
-  }
-  if (q === "word") {
-    const pool = ALL.filter((w) => !S.words[w.id] && lvRank(PACKS[w.pi].lv) >= lvRank(workLv()) - 1);
-    const w = pick(pool.length ? pool : ALL);
-    return yodiReply(`Bugungi so'z: "${w.en}" ${w.ipa || ""}, ya'ni ${w.uz}. Misol: ${w.ex} (${w.exUz})`, w.ex);
-  }
-  if (q === "talk") return yodiReply("Inglizcha erkin gaplashish uchun telefondagi miyam kerak. Mashq bo'limidagi \"AI suhbatdosh\"dan miyani bir marta yuklab olsang, men ham, Andrew ham gaplasha olamiz.");
-  // erkin savol: so'zlar va darslardan qidiramiz
-  const words = normWords(q), lw = q.toLowerCase();
-  const w = ALL.find((x) => lw.includes(x.en.toLowerCase()) && x.en.length > 2) || ALL.find((x) => x.uz.split(/[,;()]/).some((u) => u.trim().length > 3 && lw.includes(u.trim().toLowerCase())));
-  const L = LESSONS.find((l) => !l.dialog && (normWords(l.title).filter((x) => x.length > 2 && words.includes(x)).length >= 1));
-  if (/salom|assalom|hello|hi\b|qalaysan/i.test(q)) out = "Salom! Men shu yerdaman. Qaysi mavzu qiyin bo'lyapti?";
-  else if (L) out = `"${L.title}" darsi: ${strip(L.rule)}`;
-  else if (w) out = `"${w.en}" degani "${w.uz}". Misol: ${w.ex} (${w.exUz})`;
-  else out = "Bu savolga to'liq javob berish uchun telefondagi miyam kerak. Mashq bo'limidagi \"AI suhbatdosh\"dan uni bir marta yuklab olsang, istalgan savolingga javob beraman.";
-  yodiReply(out, w && !L ? w.ex : null);
-}
-function yodiReply(text, sayEn) {
-  yodiMood("happy", 1200);
-  YODI.el.classList.remove("jump"); void YODI.el.offsetWidth; YODI.el.classList.add("jump");
-  setTimeout(() => { yodiAdd("yodi", text); if (sayEn) yodiSpeak(sayEn); }, 350);
-}
-function yodiSpeak(text) {
-  if (S.yodiVoice === false || !text) return;
-  if (YODI.el) YODI.el.dataset.mood = "talk";
-  const done = () => { YODI.spoke = null; if (YODI.el && YODI.el.dataset.mood === "talk") YODI.el.dataset.mood = "idle"; };
-  if (NATIVE && NATIVE.gapir) {
-    YODI.spoke = done;
-    try { NATIVE.gapir(text, S.rate || 0.9); } catch { done(); }
-    const mine = YODI.spoke; setTimeout(() => { if (YODI.spoke === mine) done(); }, 2500 + text.split(/\s+/).length * 550);
-  } else speak(text, null, done);
-}
-// telefondagi miya bilan
-function yodiAI(msg) {
-  if (YODI.busy) { YODI.queue.push(msg); return; }
-  YODI.busy = true; YODI.buf = ""; yodiMood("think");
-  const sub = YODI.panel && YODI.panel.querySelector("#ysub"); if (sub) sub.textContent = "o'ylayapti...";
-  YODI.bub = yodiAdd("yodi now", "...", null, true);
-  if (!YODI.started) { YODI.pending = msg; try { NATIVE.aiBoshla(yodiSystem()); } catch { YODI.busy = false; yodiReply("Miyam ishga tushmadi, keyinroq urinib ko'r."); } return; }
-  try { NATIVE.aiYoz(msg); } catch { YODI.busy = false; }
-}
-YODI.on = (m) => {
-  if (m.t === "tayyor") { YODI.started = true; const p = YODI.pending; YODI.pending = null; if (p) try { NATIVE.aiYoz(p); } catch {} return; }
-  if (m.t === "yuklanmoqda") { const sub = YODI.panel && YODI.panel.querySelector("#ysub"); if (sub) sub.textContent = "miyasi uyg'onyapti..."; return; }
-  if (m.t === "tarjima") { const el = YODI.tr[m.id]; if (el) { delete YODI.tr[m.id]; const ok = m.s && !looksEn(m.s, el.dataset.en); el.textContent = ok ? m.s : ""; el.hidden = !ok; if (ok && el.dataset.h) { const h = YODI.hist[+el.dataset.h]; if (h) h.uz = m.s; } } return; }
-  const span = YODI.bub && YODI.bub.querySelector("span");
-  if (m.t === "bolak") { YODI.buf += m.s; if (span) { span.textContent = YODI.buf.replace(/[*_#`]/g, ""); const ch = span.closest(".ychat"); if (ch) ch.scrollTop = ch.scrollHeight; } return; }
-  if (m.t === "tugadi" || m.t === "xato") {
-    const text = m.t === "xato" ? "Kechirasan, miyamda xato chiqdi. Yana bir bor so'ra." : YODI.buf.replace(/\[[^\]]*\]/g, "").replace(/[*_#`]/g, "").trim() || "...";
-    YODI.busy = false;
-    const sub = YODI.panel && YODI.panel.querySelector("#ysub"); if (sub) sub.textContent = "ustozing va sherigin";
-    if (YODI.bub) { YODI.bub.classList.remove("now"); span.textContent = text; }
-    YODI.hist = YODI.hist || []; YODI.hist.push({ who: "yodi", text }); if (YODI.hist.length > 30) YODI.hist.shift();
-    sfx("msg"); yodiMood("happy", 900);
-    // o'zbekcha tarjimasi pastida (internet bo'lsa Google, bo'lmasa telefondagi miya)
-    if (YODI.bub && m.t === "tugadi" && NATIVE && NATIVE.aiTarjima) {
-      const sm = document.createElement("small"); sm.className = "yuz"; sm.textContent = "tarjima qilinmoqda..."; sm.dataset.en = text; sm.dataset.h = YODI.hist.length - 1;
-      YODI.bub.appendChild(sm); const id = "y" + Date.now(); YODI.tr[id] = sm;
-      try { NATIVE.aiTarjima(id, text); } catch { sm.hidden = true; }
-    }
-    if (m.t === "tugadi") yodiSpeak(text);
-    YODI.bub = null;
-    if (YODI.queue.length) yodiAI(YODI.queue.shift());
-  }
-};
-
 // ---------- natijalar ----------
 function finishPack(pi, marks, misses) {
   const st = misses === 0 ? 3 : misses <= 2 ? 2 : 1;
@@ -2522,7 +2150,7 @@ function lessonsTab() {
 // har darsda 2 ta gapirish mashqi: misollar (suhbatda esa B qatorlari)
 const lessonSay = (L) => L.dialog ? L.rows.filter((r) => r[0] === "B").map((r) => ({ en: r[1], uz: r[2] })) : (L.ex || []).map((r) => ({ en: r[0], uz: r[1] }));
 function lessonTheory(li) {
-  const L = LESSONS[li]; window.__L = L;
+  const L = LESSONS[li];
   const row = (r) => L.dialog
     ? `<div class="tr"><span class="who">${esc(r[0])}</span><div><b>${esc(r[1])}</b><br><span>${esc(r[2])}</span></div><button class="say" data-say="${esc(r[1])}" type="button" aria-label="Tinglash">${SPK}</button></div>`
     : `<div class="tr"><b>${esc(r[0])}</b><span>${esc(r[1])}</span><button class="say" data-say="${esc(sayable(r[0]))}" type="button" aria-label="Tinglash">${SPK}</button></div>`;
