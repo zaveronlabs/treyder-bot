@@ -3,7 +3,7 @@ const fs = require("fs"), vm = require("vm");
 const dir = process.argv[2];
 const ctx = { window: {} };
 vm.createContext(ctx);
-for (const f of ["words.js", "lessons.js", "gapirish.js"]) vm.runInContext(fs.readFileSync(dir + "/" + f, "utf8").replace(/^const (PACKS|LESSONS|TEST|SAVOLLAR|HIKOYALAR)\b/gm, "var $1"), ctx);
+for (const f of ["words.js", "lessons.js", "chuqur.js", "gapirish.js"]) vm.runInContext(fs.readFileSync(dir + "/" + f, "utf8").replace(/^const (PACKS|LESSONS|TEST|SAVOLLAR|HIKOYALAR|DEEP)\b/gm, "var $1"), ctx);
 const tokens = (s) => s.replace(/[.,!?;:—]/g, " ").split(/\s+/).filter((x) => /[a-z0-9]/i.test(x));
 const sayable = (s) => s.replace(/\.\.\.|…|\(.*?\)/g, "").replace(/\s*(→|\/)\s*/g, ", ").replace(/\s+([?,.!])/g, "$1").replace(/\s+/g, " ").trim();
 const S = new Set(["Hi! How are you today?", "Nice to meet you. I'm learning English."]);
@@ -21,5 +21,25 @@ for (const L of ctx.LESSONS) {
     if (t.k === "tr") add(t.a);
     if (t.k === "listen") add(t.en);
   }
+}
+const P = (x) => String(x).replace(/\*/g, "");
+const isEn = (s) => /^[A-Z"'][^:]*[.?!]$/.test(s) && !/[oOgG]'|\b(va|emas|uchun|bilan|yo'q)\b/.test(s);
+const task = (t) => {
+  if (t.k === "fill") { const [a, b] = t.s.split("___"); add(a + t.a + b); }
+  if (t.k === "type") { const [a, b] = t.s.split("___"); add(a + [].concat(t.a)[0] + b); }
+  if (t.k === "order") { add(t.en); tokens(t.en).forEach(add); (t.extra || []).forEach(add); }
+  if (t.k === "tr") add(t.a);
+  if (t.k === "listen" || t.k === "speak") add(t.en);
+  if (t.k === "pick") { if (t.s) add(P(t.s)); else if (isEn(t.a)) add(t.a); }
+  if (t.k === "spot") add(t.s);
+};
+for (const id in ctx.DEEP || {}) {
+  const D = ctx.DEEP[id];
+  D.story.lines.forEach((l) => add(P(l[1])));
+  (D.notice || []).forEach((t) => add(t.s));
+  (D.ccq || []).forEach((t) => { if (t.s) add(P(t.s)); });
+  (D.parts || []).forEach((p) => (p.rows || []).forEach((r) => { if (!/\+|[oOgG]'|\.\.\./.test(r[0])) add(sayable(P(r[0]))); }));
+  (D.say || []).forEach((t) => add(t.en));
+  (D.tasks || []).forEach(task); (D.final || []).forEach(task);
 }
 console.log(JSON.stringify([...S]));
