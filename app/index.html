@@ -1,6 +1,6 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Yodla</title>
-<meta name="theme-color" content="#E4F6F3">
+<meta name="theme-color" id="tcol" content="#E4F6F3">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -474,6 +474,58 @@ h1, h2, h3 { font-weight: 800; letter-spacing: -.01em; }
 .folder.street .fic { background: rgba(255, 255, 255, .14); color: var(--mint); border-color: rgba(153, 246, 228, .35); }
 .folder.street .meter { background: rgba(255, 255, 255, .15); }
 .folder.street::after { background: radial-gradient(circle, rgba(153, 246, 228, .3), transparent 70%); }
+
+/* ===== Tungi mavzu: chuqur aqua kecha, to'q muzli shisha ===== */
+html[data-theme="tun"] {
+  color-scheme: dark;
+  --bg: #021614; --surface: rgba(236, 254, 255, .06); --surface-2: rgba(153, 246, 228, .07);
+  --line: rgba(153, 246, 228, .14); --ink: #ECFEFF; --soft: #9BC7C0; --dim: #5E8A84;
+  --cyan: #2DD4BF; --pink: #99F6E4; --violet: #7DD3FC; --lime: #34D399; --red: #FB7185; --gold: #FBBF24;
+  --sheet: rgba(4, 30, 27, .92); --bar: rgba(5, 40, 36, .75);
+  --hi: inset 0 1px 0 rgba(236, 254, 255, .10), 0 12px 30px -18px rgba(0, 0, 0, .75);
+}
+[data-theme="tun"] .atmo { background: linear-gradient(180deg, #053B36 0%, #042A26 38%, #021614 75%); }
+[data-theme="tun"] .atmo::before { background: radial-gradient(circle, rgba(20, 184, 166, .26), transparent 65%); }
+[data-theme="tun"] .atmo::after { background: radial-gradient(circle, rgba(125, 211, 252, .13), transparent 65%); }
+[data-theme="tun"] .atmo i { background: radial-gradient(circle, rgba(153, 246, 228, .10), transparent 70%); }
+[data-theme="tun"] #wg1 stop:first-child { stop-color: #14B8A6; stop-opacity: .32; } [data-theme="tun"] #wg1 stop:last-child { stop-color: #053B36; stop-opacity: .1; }
+[data-theme="tun"] #wg2 stop:first-child { stop-color: #0F766E; stop-opacity: .5; } [data-theme="tun"] #wg2 stop:last-child { stop-color: #042A26; stop-opacity: .25; }
+[data-theme="tun"] #wg3 stop:first-child { stop-color: #06403A; stop-opacity: .95; } [data-theme="tun"] #wg3 stop:last-child { stop-color: #021614; stop-opacity: 1; }
+[data-theme="tun"] .brand { background: linear-gradient(100deg, #ECFEFF, #99F6E4 55%, #2DD4BF); -webkit-background-clip: text; background-clip: text; }
+[data-theme="tun"] .panel, [data-theme="tun"] .item, [data-theme="tun"] .card, [data-theme="tun"] .opt, [data-theme="tun"] .mode, [data-theme="tun"] .resw, [data-theme="tun"] .badge, [data-theme="tun"] .bub, [data-theme="tun"] .tbl, [data-theme="tun"] .stat, [data-theme="tun"] .dstep, [data-theme="tun"] .mrow,
+[data-theme="tun"] .chip, [data-theme="tun"] .icon-btn, [data-theme="tun"] .x { background: linear-gradient(180deg, rgba(236, 254, 255, .09), rgba(236, 254, 255, .035)); border-color: rgba(153, 246, 228, .14); box-shadow: var(--hi); }
+[data-theme="tun"] .icon-btn, [data-theme="tun"] .x { color: var(--ink); }
+[data-theme="tun"] .item .num, [data-theme="tun"] .chead .num { background: rgba(153, 246, 228, .08); border-color: rgba(153, 246, 228, .16); color: var(--ink); }
+[data-theme="tun"] .item.next .num, [data-theme="tun"] .chap.open .num { background: var(--grad); color: #fff; }
+[data-theme="tun"] .item .end .off, [data-theme="tun"] .big-stars .off { color: rgba(236, 254, 255, .14); }
+[data-theme="tun"] .sec { color: #7DD3FC; }
+[data-theme="tun"] .meter { background: rgba(236, 254, 255, .08); }
+[data-theme="tun"] .prog { background: rgba(236, 254, 255, .06); border-color: rgba(153, 246, 228, .14); }
+[data-theme="tun"] .btn::before { opacity: .45; }
+[data-theme="tun"] .btn.ghost { color: var(--ink); background: linear-gradient(180deg, rgba(236, 254, 255, .14), rgba(236, 254, 255, .04)); border-color: rgba(236, 254, 255, .18); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 10px 24px -14px rgba(0, 0, 0, .7); }
+[data-theme="tun"] .btn.main:disabled { background: rgba(236, 254, 255, .06); border-color: rgba(236, 254, 255, .06); }
+[data-theme="tun"] .hero { background: linear-gradient(170deg, #0B5E57 0%, #094A44 50%, #063B36 100%); border-color: rgba(153, 246, 228, .25); box-shadow: 0 22px 44px -22px rgba(0, 0, 0, .9), inset 0 1px 0 rgba(255, 255, 255, .14); }
+[data-theme="tun"] .hero .btn.main { background: linear-gradient(180deg, #ECFEFF, #99F6E4); }
+[data-theme="tun"] .tabs { background: linear-gradient(to top, rgba(2, 22, 20, .88) 25%, transparent); }
+[data-theme="tun"] .tabs nav { background: linear-gradient(180deg, rgba(10, 60, 54, .78), rgba(5, 40, 36, .6)); border-color: rgba(153, 246, 228, .16); box-shadow: inset 0 1px 0 rgba(236, 254, 255, .1), 0 16px 36px -16px rgba(0, 0, 0, .85); }
+[data-theme="tun"] .tab { color: #6E9A94; }
+[data-theme="tun"] .tab.on { color: #fff; background: linear-gradient(180deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 50%), linear-gradient(160deg, #0F9488, #14B8A6); }
+[data-theme="tun"] .say, [data-theme="tun"] .slow { background: linear-gradient(180deg, rgba(236, 254, 255, .14), rgba(236, 254, 255, .04)); border-color: rgba(45, 212, 191, .4); box-shadow: 0 8px 18px -10px rgba(0, 0, 0, .7); }
+[data-theme="tun"] .tilebtn, [data-theme="tun"] .wchip { background: rgba(236, 254, 255, .08); border-color: rgba(45, 212, 191, .4); color: var(--ink); box-shadow: 0 3px 0 rgba(20, 184, 166, .35); }
+[data-theme="tun"] .answer .wchip { color: var(--cyan); }
+[data-theme="tun"] .uzcard { background: rgba(20, 184, 166, .1); border-color: rgba(45, 212, 191, .3); }
+[data-theme="tun"] .ex, [data-theme="tun"] .sheet .why { background: rgba(236, 254, 255, .05); border-color: rgba(153, 246, 228, .14); }
+[data-theme="tun"] .rpctl { background: linear-gradient(to top, rgba(2, 22, 20, .97) 75%, rgba(2, 22, 20, 0)); }
+[data-theme="tun"] .toast { background: linear-gradient(180deg, rgba(10, 60, 54, .95), rgba(5, 40, 36, .92)); box-shadow: 0 16px 34px -14px rgba(0, 0, 0, .8); }
+[data-theme="tun"] .toast.gold { color: var(--gold); }
+[data-theme="tun"] .sheet { box-shadow: 0 -16px 40px -16px rgba(0, 0, 0, .8); }
+[data-theme="tun"] .mode .ic, [data-theme="tun"] .aicta .ic { background: rgba(236, 254, 255, .06); }
+[data-theme="tun"] .bub.me { background: linear-gradient(180deg, rgba(20, 184, 166, .22), rgba(20, 184, 166, .1)); }
+[data-theme="tun"] .aitype input, [data-theme="tun"] select { background: rgba(236, 254, 255, .06); border-color: rgba(153, 246, 228, .16); }
+[data-theme="tun"] .folder { background: linear-gradient(165deg, rgba(236, 254, 255, .10), rgba(236, 254, 255, .03)); border-color: rgba(153, 246, 228, .14); box-shadow: inset 0 1px 0 rgba(236, 254, 255, .1), 0 14px 30px -18px rgba(0, 0, 0, .8); }
+[data-theme="tun"] .folder .flv { color: var(--ink); }
+[data-theme="tun"] .folder .fcount { color: #6E9A94; }
+[data-theme="tun"] .folder.street { background: linear-gradient(165deg, #0B5E57, #094A44 60%, #0F7F74); }
 </style>
 
 <div class="atmo" aria-hidden="true"><i></i><svg class="waves" viewBox="0 0 2880 600" preserveAspectRatio="none"><defs><linearGradient id="wg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5EEAD4" stop-opacity=".55"/><stop offset="1" stop-color="#ECFEFF" stop-opacity=".2"/></linearGradient><linearGradient id="wg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14B8A6" stop-opacity=".30"/><stop offset="1" stop-color="#99F6E4" stop-opacity=".12"/></linearGradient><linearGradient id="wg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ECFEFF" stop-opacity=".95"/><stop offset="1" stop-color="#F8FAFC"/></linearGradient></defs><path fill="url(#wg1)" d="M0,600 L0,240.2 L30,252.2 L60,261.0 L90,266.4 L120,268.4 L150,267.5 L180,264.6 L210,260.6 L240,256.6 L270,253.3 L300,251.3 L330,251.0 L360,251.9 L390,253.7 L420,255.5 L450,256.3 L480,255.1 L510,251.3 L540,244.3 L570,234.2 L600,221.2 L630,206.1 L660,190.1 L690,174.3 L720,159.8 L750,147.8 L780,139.0 L810,133.6 L840,131.6 L870,132.5 L900,135.4 L930,139.4 L960,143.4 L990,146.7 L1020,148.7 L1050,149.0 L1080,148.1 L1110,146.3 L1140,144.5 L1170,143.7 L1200,144.9 L1230,148.7 L1260,155.7 L1290,165.8 L1320,178.8 L1350,193.9 L1380,209.9 L1410,225.7 L1440,240.2 L1470,252.2 L1500,261.0 L1530,266.4 L1560,268.4 L1590,267.5 L1620,264.6 L1650,260.6 L1680,256.6 L1710,253.3 L1740,251.3 L1770,251.0 L1800,251.9 L1830,253.7 L1860,255.5 L1890,256.3 L1920,255.1 L1950,251.3 L1980,244.3 L2010,234.2 L2040,221.2 L2070,206.1 L2100,190.1 L2130,174.3 L2160,159.8 L2190,147.8 L2220,139.0 L2250,133.6 L2280,131.6 L2310,132.5 L2340,135.4 L2370,139.4 L2400,143.4 L2430,146.7 L2460,148.7 L2490,149.0 L2520,148.1 L2550,146.3 L2580,144.5 L2610,143.7 L2640,144.9 L2670,148.7 L2700,155.7 L2730,165.8 L2760,178.8 L2790,193.9 L2820,209.9 L2850,225.7 L2880,240.2 L2880,600 Z"/><path fill="url(#wg2)" d="M0,600 L0,353.1 L30,346.0 L60,335.2 L90,321.5 L120,305.4 L150,288.2 L180,270.7 L210,254.1 L240,239.4 L270,227.7 L300,219.6 L330,215.7 L360,216.3 L390,221.4 L420,230.6 L450,243.5 L480,259.2 L510,276.8 L540,295.2 L570,313.2 L600,329.9 L630,344.2 L660,355.3 L690,362.7 L720,365.9 L750,365.0 L780,360.1 L810,351.8 L840,340.7 L870,327.7 L900,313.9 L930,300.2 L960,287.7 L990,277.2 L1020,269.6 L1050,265.3 L1080,264.7 L1110,267.7 L1140,274.0 L1170,283.3 L1200,294.7 L1230,307.4 L1260,320.3 L1290,332.5 L1320,343.0 L1350,350.9 L1380,355.5 L1410,356.3 L1440,353.1 L1470,346.0 L1500,335.2 L1530,321.5 L1560,305.4 L1590,288.2 L1620,270.7 L1650,254.1 L1680,239.4 L1710,227.7 L1740,219.6 L1770,215.7 L1800,216.3 L1830,221.4 L1860,230.6 L1890,243.5 L1920,259.2 L1950,276.8 L1980,295.2 L2010,313.2 L2040,329.9 L2070,344.2 L2100,355.3 L2130,362.7 L2160,365.9 L2190,365.0 L2220,360.1 L2250,351.8 L2280,340.7 L2310,327.7 L2340,313.9 L2370,300.2 L2400,287.7 L2430,277.2 L2460,269.6 L2490,265.3 L2520,264.7 L2550,267.7 L2580,274.0 L2610,283.3 L2640,294.7 L2670,307.4 L2700,320.3 L2730,332.5 L2760,343.0 L2790,350.9 L2820,355.5 L2850,356.3 L2880,353.1 L2880,600 Z"/></svg><svg class="waves b" viewBox="0 0 2880 600" preserveAspectRatio="none"><path fill="url(#wg2)" d="M0,600 L0,340.7 L30,337.3 L60,334.6 L90,332.3 L120,330.3 L150,328.3 L180,326.1 L210,323.5 L240,320.3 L270,316.4 L300,311.8 L330,306.5 L360,300.5 L390,294.2 L420,287.8 L450,281.5 L480,275.7 L510,270.9 L540,267.3 L570,265.2 L600,264.9 L630,266.7 L660,270.4 L690,276.2 L720,284.0 L750,293.4 L780,304.2 L810,316.0 L840,328.3 L870,340.7 L900,352.6 L930,363.8 L960,373.6 L990,381.8 L1020,388.2 L1050,392.5 L1080,394.8 L1110,395.1 L1140,393.5 L1170,390.3 L1200,385.7 L1230,380.2 L1260,374.0 L1290,367.6 L1320,361.2 L1350,355.1 L1380,349.6 L1410,344.8 L1440,340.7 L1470,337.3 L1500,334.6 L1530,332.3 L1560,330.3 L1590,328.3 L1620,326.1 L1650,323.5 L1680,320.3 L1710,316.4 L1740,311.8 L1770,306.5 L1800,300.5 L1830,294.2 L1860,287.8 L1890,281.5 L1920,275.7 L1950,270.9 L1980,267.3 L2010,265.2 L2040,264.9 L2070,266.7 L2100,270.4 L2130,276.2 L2160,284.0 L2190,293.4 L2220,304.2 L2250,316.0 L2280,328.3 L2310,340.7 L2340,352.6 L2370,363.8 L2400,373.6 L2430,381.8 L2460,388.2 L2490,392.5 L2520,394.8 L2550,395.1 L2580,393.5 L2610,390.3 L2640,385.7 L2670,380.2 L2700,374.0 L2730,367.6 L2760,361.2 L2790,355.1 L2820,349.6 L2850,344.8 L2880,340.7 L2880,600 Z"/><path fill="url(#wg3)" d="M0,600 L0,473.0 L30,476.5 L60,475.9 L90,471.7 L120,464.5 L150,455.1 L180,444.7 L210,434.1 L240,424.2 L270,415.7 L300,409.0 L330,404.2 L360,401.4 L390,400.3 L420,400.6 L450,402.1 L480,404.5 L510,407.6 L540,411.5 L570,416.0 L600,421.4 L630,427.6 L660,434.5 L690,442.0 L720,449.6 L750,456.9 L780,463.2 L810,467.8 L840,469.9 L870,469.1 L900,465.1 L930,457.7 L960,447.6 L990,435.2 L1020,421.6 L1050,408.1 L1080,395.9 L1110,386.3 L1140,380.2 L1170,378.4 L1200,381.1 L1230,388.1 L1260,398.8 L1290,412.1 L1320,426.9 L1350,441.6 L1380,454.9 L1410,465.7 L1440,473.0 L1470,476.5 L1500,475.9 L1530,471.7 L1560,464.5 L1590,455.1 L1620,444.7 L1650,434.1 L1680,424.2 L1710,415.7 L1740,409.0 L1770,404.2 L1800,401.4 L1830,400.3 L1860,400.6 L1890,402.1 L1920,404.5 L1950,407.6 L1980,411.5 L2010,416.0 L2040,421.4 L2070,427.6 L2100,434.5 L2130,442.0 L2160,449.6 L2190,456.9 L2220,463.2 L2250,467.8 L2280,469.9 L2310,469.1 L2340,465.1 L2370,457.7 L2400,447.6 L2430,435.2 L2460,421.6 L2490,408.1 L2520,395.9 L2550,386.3 L2580,380.2 L2610,378.4 L2640,381.1 L2670,388.1 L2700,398.8 L2730,412.1 L2760,426.9 L2790,441.6 L2820,454.9 L2850,465.7 L2880,473.0 L2880,600 Z"/></svg></div>
@@ -495,6 +547,20 @@ const ALL = PACKS.flatMap((p) => p.words);
 const BY = Object.fromEntries(ALL.map((w) => [w.id, w]));
 function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } }
 let S = Object.assign({ packs: {}, words: {}, lessons: {}, xp: 0, day: { d: "", xp: 0 }, goal: 50, best: {}, streak: { last: "", n: 0 }, rate: 0.9, voice: "" }, load());
+// mavzu: "kun" (kunduzgi), "tun" (tungi), "avto" (19:00 dan 6:00 gacha tungi)
+function isNight() { const t = S.theme || "kun"; if (t === "avto") { const h = new Date().getHours(); return h >= 19 || h < 6; } return t === "tun"; }
+let _thm = null;
+function applyTheme() {
+  const n = isNight();
+  if (n === _thm) return;
+  _thm = n;
+  document.documentElement.dataset.theme = n ? "tun" : "kun";
+  const m = document.getElementById("tcol"); if (m) m.content = n ? "#053B36" : "#E4F6F3";
+  try { if (window.YodlaNative && window.YodlaNative.mavzu) window.YodlaNative.mavzu(n); } catch (e) {}
+}
+applyTheme();
+setInterval(applyTheme, 60000);
+document.addEventListener("visibilitychange", applyTheme);
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch {} }
 // olib tashlangan so'zlar (telefon tanimaydi): saqlanmalardan ham o'chiriladi
 const REMOVED = ["goated"];
@@ -921,6 +987,11 @@ function settings() {
       <button class="btn ghost" id="test" type="button">${SPK} Sinab ko'rish</button>
     </div>
     <div class="card">
+      <b>Mavzu</b>
+      <div class="grid3">${[["kun", "Kunduzgi"], ["tun", "Tungi"], ["avto", "Avto"]].map(([k, t]) => `<button class="opt ${(S.theme || "kun") === k ? "sel" : ""}" data-th="${k}" type="button">${t}</button>`).join("")}</div>
+      <span class="muted">Avto: kechqurun 19:00 dan ertalab 6:00 gacha o'zi tungi mavzuga o'tadi.</span>
+    </div>
+    <div class="card">
       <b>Kunlik maqsad</b>
       <div class="grid3">${GOALS.map((g) => `<button class="opt ${S.goal === g ? "sel" : ""}" data-g="${g}" type="button">${g} XP</button>`).join("")}</div>
     </div>
@@ -941,9 +1012,10 @@ function settings() {
   $("rate").oninput = (e) => { S.rate = +e.target.value; $("rv").textContent = S.rate.toFixed(2); save(); };
   $("test").onclick = () => speak("Nice to meet you. I'm learning English.");
   on("[data-g]", (e) => { S.goal = +e.currentTarget.dataset.g; save(); settings(); });
+  on("[data-th]", (e) => { S.theme = e.currentTarget.dataset.th; save(); applyTheme(); settings(); });
   $("reset").onclick = () => { $("reset2").hidden = false; };
   $("lvs").onclick = levelIntro;
-  $("reset2").onclick = () => { const keep = { rate: S.rate, voice: S.voice, goal: S.goal }; S = Object.assign({ packs: {}, words: {}, lessons: {}, xp: 0, day: { d: "", xp: 0 }, best: {}, streak: { last: "", n: 0 } }, keep); save(); home(); };
+  $("reset2").onclick = () => { const keep = { rate: S.rate, voice: S.voice, goal: S.goal, theme: S.theme }; S = Object.assign({ packs: {}, words: {}, lessons: {}, xp: 0, day: { d: "", xp: 0 }, best: {}, streak: { last: "", n: 0 } }, keep); save(); home(); };
 }
 
 // tanishuv kartochkalari

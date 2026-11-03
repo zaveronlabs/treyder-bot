@@ -72,7 +72,7 @@ public class MainActivity extends Activity {
                 .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
                 .build();
         web = new WebView(this);
-        web.setBackgroundColor(0xFFE4F6F3);
+        tungiRang(getPreferences(MODE_PRIVATE).getBoolean("tun", false));
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
@@ -97,8 +97,28 @@ public class MainActivity extends Activity {
         if (saved == null || web.restoreState(saved) == null) web.loadUrl("https://" + HOST + "/assets/index.html");
     }
 
+    // kunduzgi / tungi mavzu: holat va pastki panel ranglari, ikonkalar rangi
+    private void tungiRang(boolean tun) {
+        int yuqori = tun ? 0xFF053B36 : 0xFFE4F6F3, past = tun ? 0xFF021614 : 0xFFF8FAFC;
+        android.view.Window w = getWindow();
+        w.setStatusBarColor(yuqori);
+        w.setNavigationBarColor(past);
+        w.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(past));
+        if (web != null) web.setBackgroundColor(past);
+        android.view.View d = w.getDecorView();
+        int f = d.getSystemUiVisibility();
+        int och = android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        d.setSystemUiVisibility(tun ? (f & ~och) : (f | och));
+    }
+
     // JavaScript'dan chaqiriladi: YodlaNative.tingla("en-US"), YodlaNative.toxtat()
     private class Kopik {
+        @JavascriptInterface
+        public void mavzu(final boolean tun) {
+            getPreferences(MODE_PRIVATE).edit().putBoolean("tun", tun).apply();
+            runOnUiThread(() -> tungiRang(tun));
+        }
+
         @JavascriptInterface
         public void tingla(final String til) { runOnUiThread(() -> eshit(til)); }
 
