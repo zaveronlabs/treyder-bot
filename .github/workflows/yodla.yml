@@ -15,10 +15,14 @@ jobs:
         with:
           python-version: "3.12"
       - name: Yangi gaplarga Andrew ovozi
+        id: ovoz
         run: |
           pip install -q edge-tts
+          edge-tts --list-voices | grep -E "en-(GB|AU|IE)-" | head -40 || true
           node tools/matnlar.js app > kerak.json
           python tools/ovoz.py kerak.json
+          node tools/matnlar.js app ielts > kerak2.json
+          python tools/ovoz.py kerak2.json app/ielts_audio.js app/ielts.mp3 AUDIO2
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -40,9 +44,22 @@ jobs:
           cp android/app/build/outputs/apk/release/app-release.apk Yodla.apk
           ls -la Yodla.apk
       - name: Saqlash
+        # APK yig'ilmasa ham yozilgan ovozlar saqlanadi (keyingi safar qayta yozilmaydi)
+        if: ${{ !cancelled() && steps.ovoz.outcome == 'success' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898341+github-actions[bot]@users.noreply.github.com"
-          git add app/audio.js app/ovozlar.mp3 Yodla.apk
+          git add app/audio.js app/ovozlar.mp3 app/ielts_audio.js
+          if [ -f app/ielts.mp3 ]; then git add app/ielts.mp3; fi
+          # GitHub 100 MB dan katta faylni qabul qilmaydi: katta APK faqat Release'da turadi
+          if [ -f Yodla.apk ]; then
+            if [ "$(stat -c%s Yodla.apk)" -lt 95000000 ]; then git add Yodla.apk; else git rm -q --cached --ignore-unmatch Yodla.apk; fi
+          fi
           git commit -q -m "Yodla: ovozlar va APK yangilandi [skip ci]" || exit 0
           git push origin HEAD:yodla
+      - name: APK'ni Release'ga yuklash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view yodla-apk >/dev/null 2>&1 || gh release create yodla-apk --target yodla --title "Yodla APK" --notes "Yodla ilovasining eng yangi versiyasi: Yodla.apk ni yuklab o'rnating."
+          gh release upload yodla-apk Yodla.apk --clobber

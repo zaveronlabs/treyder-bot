@@ -563,6 +563,172 @@ mark { background: rgba(20, 184, 166, .18); color: var(--cyan); border-radius: 5
 .spot .wchip.sel { border-color: var(--cyan); color: var(--cyan); background: rgba(20, 184, 166, .14); }
 .spot .wchip.hit { outline: 2px solid var(--lime); outline-offset: 2px; }
 .small { font-size: 12.5px; }
+/* ===== Ustoz: qat'iy IELTS o'qituvchisi ===== */
+.hero .tag.pink { color: var(--mint); }
+.uhero { gap: 12px; }
+.uh { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.udisc { flex: none; min-width: 78px; text-align: center; padding: 8px 10px; border-radius: 16px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(153, 246, 228, .25); }
+.udisc b { display: block; font: 800 24px/1.1 var(--display); color: #fff; font-variant-numeric: tabular-nums; }
+.udisc small { color: rgba(236, 254, 255, .75); font-size: 11.5px; }
+.hero .ubig { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 18px; background: rgba(255, 255, 255, .1); border: 1px solid rgba(153, 246, 228, .22); }
+.hero .ubig h2 { font-size: 20px; }
+.hero .ubig p { margin: 0; }
+.hero .ubig.now { border-color: rgba(153, 246, 228, .6); box-shadow: 0 0 0 3px rgba(153, 246, 228, .12); }
+.hero .ubig.debt { border-color: rgba(251, 113, 133, .75); box-shadow: 0 0 0 3px rgba(224, 71, 91, .2); }
+.hero .ubig.ok h2 { color: var(--mint); }
+.card.ubig.ok h2 { color: var(--lime); font-size: 20px; }
+.usay { font-style: italic; color: rgba(236, 254, 255, .88); font-size: 14.5px; }
+.tline, .steps { display: flex; flex-direction: column; gap: 8px; }
+.tli, .ustep { width: 100%; text-align: left; border-radius: 18px; background: linear-gradient(180deg, rgba(255, 255, 255, .78), rgba(255, 255, 255, .52)); border: 1px solid rgba(255, 255, 255, .9); box-shadow: var(--hi); backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass); }
+.tli { display: grid; grid-template-columns: 42px 28px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 12px; }
+.tli .tt { font: 700 13px var(--mono); color: var(--soft); font-variant-numeric: tabular-nums; }
+.tli .tic { font-size: 19px; text-align: center; }
+.tli .tb { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.tli .tb b { font: 700 15px var(--display); }
+.tli .tb b small { font: 600 11px var(--body); color: var(--dim); margin-left: 4px; }
+.tli .tb > small { color: var(--soft); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tli .ts { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.tli .ts em { font: 700 11.5px var(--display); font-style: normal; padding: 2px 8px; border-radius: 99px; background: rgba(5, 59, 54, .06); color: var(--soft); white-space: nowrap; }
+.tli .ts small { font: 600 11px var(--mono); color: var(--dim); white-space: nowrap; }
+.tli.now { border-color: rgba(20, 184, 166, .6); box-shadow: var(--hi), 0 0 0 3px rgba(20, 184, 166, .14); }
+.tli.now .ts em { background: var(--grad); color: #fff; }
+.tli.done .ts em { background: rgba(14, 159, 116, .12); color: var(--lime); }
+.tli.done .tb b { color: var(--soft); }
+.tli.miss { border-color: rgba(224, 71, 91, .4); }
+.tli.miss .ts em { background: rgba(224, 71, 91, .1); color: var(--red); }
+.tli.late .ts em { background: rgba(224, 161, 0, .14); color: #A16207; }
+.tli.exc, .tli.skip { opacity: .7; }
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.wd { display: flex; flex-direction: column; align-items: center; gap: 4px; font: 600 11.5px var(--mono); color: var(--soft); }
+.wd i { width: 26px; height: 26px; border-radius: 50%; background: rgba(5, 59, 54, .07); border: 1px solid rgba(5, 59, 54, .08); }
+.wd.ok i { background: var(--grad); border-color: transparent; }
+.wd.half i { background: linear-gradient(90deg, var(--flow) 50%, rgba(5, 59, 54, .07) 50%); }
+.wd.no i { background: rgba(224, 71, 91, .18); border-color: rgba(224, 71, 91, .45); }
+.wd.cur i { border: 2px dashed var(--flow); background: transparent; }
+.wd.na i { opacity: .35; }
+.ubands { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.ubs { display: flex; flex-direction: column; gap: 4px; padding: 10px 8px; border-radius: 14px; background: rgba(236, 254, 255, .65); border: 1px solid var(--line); min-width: 0; }
+.ubs span { font-size: 11px; color: var(--soft); overflow: hidden; text-overflow: ellipsis; }
+.ubs b { font: 800 20px var(--display); font-variant-numeric: tabular-nums; }
+.ustep { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+.ustep .un { width: 34px; height: 34px; flex: none; border-radius: 11px; display: grid; place-items: center; font: 800 15px var(--display); background: linear-gradient(180deg, #ECFEFF, rgba(153, 246, 228, .35)); border: 1px solid rgba(20, 184, 166, .22); color: var(--deep); }
+.ustep .un svg { width: 18px; height: 18px; }
+.ustep .ub { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ustep .ub b { font: 700 15px var(--display); }
+.ustep .ub small { color: var(--soft); font-size: 12.5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ustep .um { font: 700 12px var(--mono); color: var(--cyan); white-space: nowrap; }
+.ustep.cur { border-color: rgba(20, 184, 166, .6); box-shadow: var(--hi), 0 0 0 3px rgba(20, 184, 166, .14); }
+.ustep.cur .un { background: var(--grad); color: #fff; border-color: transparent; }
+.ustep.ok { opacity: .62; }
+.ustep.ok .un { background: var(--lime); color: #fff; border-color: transparent; }
+.ustep.lock { opacity: .5; }
+.ugood { color: var(--lime); font-weight: 700; }
+.sheet.ulock { border-top-color: rgba(20, 184, 166, .55); }
+.sheet.ulock h3 { color: var(--deep); }
+.sheet.ulock p b { color: var(--cyan); }
+.sheet.ulock .btn.main { background: var(--grad); color: #fff; }
+.sheet.ulock .btn.ghost { background: linear-gradient(180deg, rgba(255, 255, 255, .95), rgba(255, 255, 255, .55)); color: var(--deep); border: 1px solid rgba(5, 59, 54, .1); }
+.card.uphone { border-color: rgba(224, 161, 0, .5); box-shadow: var(--hi), 0 0 0 3px rgba(224, 161, 0, .1); }
+.urules { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; line-height: 1.5; }
+.ufield { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14.5px; }
+.ufield input, .ufield select, .qq select { font: 700 15px var(--display); color: var(--ink); padding: 8px 10px; border-radius: 12px; border: 1px solid rgba(5, 59, 54, .14); background: rgba(255, 255, 255, .85); }
+.wdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.wdays .opt { min-height: 40px; font-size: 13px; padding: 4px; }
+/* IELTS imtihon ekranlari */
+.iebar { position: sticky; top: 0; z-index: 6; margin: -14px -16px 0; padding: 12px 16px 10px; background: linear-gradient(180deg, rgba(248, 250, 252, .96) 70%, rgba(248, 250, 252, 0)); }
+.ietime { flex: 1; text-align: center; font: 800 22px var(--mono); font-variant-numeric: tabular-nums; color: var(--deep); }
+.ietime.low { color: var(--red); }
+.ietime.ok { color: var(--lime); }
+.btn.iesub { width: auto; min-height: 42px; padding: 0 16px; font-size: 14px; }
+.seg { position: sticky; top: 64px; z-index: 5; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(255, 255, 255, .85); border: 1px solid rgba(255, 255, 255, .95); box-shadow: var(--hi); backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass); }
+.seg button { padding: 9px 6px; border-radius: 999px; font: 700 14px var(--display); color: var(--soft); }
+.seg button.on { background: linear-gradient(160deg, #0B5E57, #0F9488); color: #fff; }
+.iepass { display: flex; flex-direction: column; gap: 12px; padding: 18px; border-radius: 22px; background: rgba(255, 255, 255, .88); border: 1px solid rgba(255, 255, 255, .95); box-shadow: var(--hi); font-size: 16px; line-height: 1.68; }
+.iepass h2 { font-size: 21px; line-height: 1.3; }
+.plet { display: inline-grid; place-items: center; width: 24px; height: 24px; margin-right: 8px; border-radius: 7px; background: var(--deep); color: #fff; font: 800 13px var(--display); vertical-align: 2px; }
+.ieqs { display: flex; flex-direction: column; gap: 12px; }
+.qgrp, .qr { border-radius: 22px; background: linear-gradient(180deg, rgba(255, 255, 255, .82), rgba(255, 255, 255, .58)); border: 1px solid rgba(255, 255, 255, .92); box-shadow: var(--hi); }
+.qgrp { display: flex; flex-direction: column; gap: 10px; padding: 16px; }
+.qh { font: 800 15px var(--display); }
+.qi { font-size: 14.5px; font-weight: 600; line-height: 1.5; }
+.heads { margin: 0; padding: 10px 12px; list-style: none; display: flex; flex-direction: column; gap: 6px; border-radius: 14px; background: rgba(236, 254, 255, .75); border: 1px solid var(--line); font-size: 14.5px; line-height: 1.4; }
+.heads b { display: inline-block; min-width: 34px; color: var(--cyan); font-family: var(--mono); }
+.qq { display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+.qq p { font-size: 15.5px; line-height: 1.55; }
+.qq .qn { align-self: flex-start; display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 6px; border-radius: 8px; background: var(--grad); color: #fff; font: 800 13px var(--display); }
+.ch3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.ch3 .opt { min-height: 44px; font-size: 12.5px; padding: 6px 4px; letter-spacing: .02em; }
+.qq .opts.sent .opt { min-height: 46px; font-size: 15px; display: flex; gap: 10px; align-items: baseline; padding: 10px 14px; }
+.qq .opt b { color: var(--cyan); flex: none; }
+.gapin { width: 9.5em; max-width: 62%; margin: 2px 6px; padding: 6px 10px; border-radius: 10px; border: 1.5px solid rgba(20, 184, 166, .5); background: rgba(255, 255, 255, .95); font: 700 15.5px var(--body); color: var(--ink); }
+.qq select { width: 100%; }
+.card.lsnow { position: sticky; top: 64px; z-index: 5; }
+.qres { display: flex; flex-direction: column; gap: 8px; }
+.qr summary { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; cursor: pointer; list-style: none; font-size: 14.5px; line-height: 1.45; }
+.qr summary::-webkit-details-marker { display: none; }
+.qr .mk { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 13px; color: #fff; background: var(--lime); }
+.qr.no { border-color: rgba(224, 71, 91, .4); }
+.qr.no .mk { background: var(--red); }
+.qr.no[open] { border-color: rgba(224, 71, 91, .65); }
+.qbody { display: flex; flex-direction: column; gap: 8px; padding: 0 14px 14px; font-size: 14.5px; }
+.qbody .qrow { align-items: center; font-size: 14.5px; }
+.ev { padding: 10px 12px; border-left: 3px solid var(--flow); border-radius: 4px 12px 12px 4px; background: rgba(236, 254, 255, .8); font-size: 14.5px; line-height: 1.55; font-style: italic; }
+.qbody .ex { font-size: 14px; line-height: 1.5; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(20, 184, 166, .18); }
+.okc { color: var(--lime); } .noc { color: var(--red); }
+.bandchip { display: inline-block; padding: 4px 12px; border-radius: 99px; background: var(--deep); color: #fff; font: 800 15px var(--display); }
+.trs { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; font-size: 14.5px; line-height: 1.5; }
+.say.sm { width: 34px; height: 34px; } .say.sm svg { width: 16px; height: 16px; }
+.wq { font-weight: 600; white-space: pre-line; }
+.chart { display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 16px; background: #fff; border: 1px solid rgba(5, 59, 54, .1); color: #053B36; }
+.chart b { font-size: 13.5px; line-height: 1.35; color: #053B36; }
+.chart svg { width: 100%; height: auto; }
+.chart svg text { font: 600 10px var(--body); fill: #4A716C; }
+.chart .ax { stroke: rgba(5, 59, 54, .12); stroke-width: 1; }
+.chart svg text.pl { fill: #fff; font-weight: 800; font-size: 11px; }
+.chart svg text.ct { fill: #053B36; font-weight: 700; font-size: 12px; }
+.chart .muted { color: #4A716C; }
+.leg { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 12.5px; color: #053B36; }
+.leg i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; }
+.tblwrap { overflow-x: auto; margin: 0 -4px; padding: 0 4px; }
+.ietbl { width: 100%; border-collapse: collapse; font-size: 12.5px; color: #053B36; }
+.ietbl th, .ietbl td { white-space: nowrap; }
+.ietbl th, .ietbl td { padding: 6px 5px; border-bottom: 1px solid rgba(5, 59, 54, .1); text-align: right; font-variant-numeric: tabular-nums; }
+.ietbl th:first-child, .ietbl td:first-child { text-align: left; }
+.wcount { font: 800 15px var(--mono); padding: 6px 12px; border-radius: 99px; background: rgba(224, 71, 91, .1); color: var(--red); white-space: nowrap; }
+.wcount.ok { background: rgba(14, 159, 116, .12); color: var(--lime); }
+.wbox { width: 100%; min-height: 46vh; resize: vertical; padding: 14px; border-radius: 18px; border: 1px solid rgba(20, 184, 166, .35); background: rgba(255, 255, 255, .92); font: 500 16px/1.6 var(--body); color: var(--ink); }
+.wbox.notes { min-height: 110px; }
+.wbox:focus { outline: 2px solid var(--cyan); outline-offset: 1px; }
+.wqd summary, details.card summary { cursor: pointer; }
+.card.cue { border-color: rgba(20, 184, 166, .45); }
+.cue ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+.aifb { white-space: pre-wrap; font-size: 14.5px; line-height: 1.55; color: var(--ink); overflow-wrap: anywhere; }
+.mpara .rule { font-size: 15.5px; }
+.spark { width: 100%; height: 54px; color: var(--flow); }
+.sptext { min-height: 60px; font-size: 16px; line-height: 1.5; }
+[data-theme="tun"] .tli, [data-theme="tun"] .ustep, [data-theme="tun"] .qgrp, [data-theme="tun"] .qr, [data-theme="tun"] .iepass, [data-theme="tun"] .seg { background: linear-gradient(180deg, rgba(236, 254, 255, .09), rgba(236, 254, 255, .035)); border-color: rgba(153, 246, 228, .14); }
+[data-theme="tun"] .iebar { background: linear-gradient(180deg, rgba(2, 22, 20, .96) 70%, rgba(2, 22, 20, 0)); }
+[data-theme="tun"] .ietime { color: var(--ink); }
+[data-theme="tun"] .ubs, [data-theme="tun"] .heads, [data-theme="tun"] .ev { background: rgba(236, 254, 255, .05); border-color: rgba(153, 246, 228, .14); }
+[data-theme="tun"] .wd i { background: rgba(236, 254, 255, .07); border-color: rgba(153, 246, 228, .12); }
+[data-theme="tun"] .wd.ok i { background: var(--grad); }
+[data-theme="tun"] .wd.half i { background: linear-gradient(90deg, var(--flow) 50%, rgba(236, 254, 255, .07) 50%); }
+[data-theme="tun"] .wd.cur i { background: transparent; }
+[data-theme="tun"] .tli .ts em { background: rgba(236, 254, 255, .07); }
+[data-theme="tun"] .tli.now .ts em { background: var(--grad); }
+[data-theme="tun"] .tli.done .ts em { background: rgba(52, 211, 153, .14); }
+[data-theme="tun"] .tli.miss .ts em { background: rgba(251, 113, 133, .14); }
+[data-theme="tun"] .tli.late .ts em { color: var(--gold); }
+[data-theme="tun"] .ustep .un { background: rgba(153, 246, 228, .08); border-color: rgba(153, 246, 228, .16); color: var(--ink); }
+[data-theme="tun"] .ustep.cur .un { background: var(--grad); color: #fff; }
+[data-theme="tun"] .ustep.ok .un { background: var(--lime); color: #021614; }
+[data-theme="tun"] .gapin, [data-theme="tun"] .wbox, [data-theme="tun"] .ufield input, [data-theme="tun"] .ufield select, [data-theme="tun"] .qq select { background: rgba(236, 254, 255, .07); border-color: rgba(153, 246, 228, .25); color: var(--ink); color-scheme: dark; }
+[data-theme="tun"] .bandchip { background: var(--grad); }
+[data-theme="tun"] .plet { background: rgba(153, 246, 228, .16); color: var(--mint); }
+[data-theme="tun"] .seg button.on { background: linear-gradient(160deg, #0F9488, #14B8A6); }
+[data-theme="tun"] .sheet.ulock h3 { color: var(--ink); }
+[data-theme="tun"] .sheet.ulock .btn.ghost { background: linear-gradient(180deg, rgba(236, 254, 255, .14), rgba(236, 254, 255, .04)); color: var(--ink); border-color: rgba(236, 254, 255, .18); }
+[data-theme="tun"] .chart { background: #E6F4F1; }
 </style>
 
 <div class="atmo" aria-hidden="true"><i></i><svg class="waves" viewBox="0 0 2880 600" preserveAspectRatio="none"><defs><linearGradient id="wg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5EEAD4" stop-opacity=".55"/><stop offset="1" stop-color="#ECFEFF" stop-opacity=".2"/></linearGradient><linearGradient id="wg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14B8A6" stop-opacity=".30"/><stop offset="1" stop-color="#99F6E4" stop-opacity=".12"/></linearGradient><linearGradient id="wg3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ECFEFF" stop-opacity=".95"/><stop offset="1" stop-color="#F8FAFC"/></linearGradient></defs><path fill="url(#wg1)" d="M0,600 L0,240.2 L30,252.2 L60,261.0 L90,266.4 L120,268.4 L150,267.5 L180,264.6 L210,260.6 L240,256.6 L270,253.3 L300,251.3 L330,251.0 L360,251.9 L390,253.7 L420,255.5 L450,256.3 L480,255.1 L510,251.3 L540,244.3 L570,234.2 L600,221.2 L630,206.1 L660,190.1 L690,174.3 L720,159.8 L750,147.8 L780,139.0 L810,133.6 L840,131.6 L870,132.5 L900,135.4 L930,139.4 L960,143.4 L990,146.7 L1020,148.7 L1050,149.0 L1080,148.1 L1110,146.3 L1140,144.5 L1170,143.7 L1200,144.9 L1230,148.7 L1260,155.7 L1290,165.8 L1320,178.8 L1350,193.9 L1380,209.9 L1410,225.7 L1440,240.2 L1470,252.2 L1500,261.0 L1530,266.4 L1560,268.4 L1590,267.5 L1620,264.6 L1650,260.6 L1680,256.6 L1710,253.3 L1740,251.3 L1770,251.0 L1800,251.9 L1830,253.7 L1860,255.5 L1890,256.3 L1920,255.1 L1950,251.3 L1980,244.3 L2010,234.2 L2040,221.2 L2070,206.1 L2100,190.1 L2130,174.3 L2160,159.8 L2190,147.8 L2220,139.0 L2250,133.6 L2280,131.6 L2310,132.5 L2340,135.4 L2370,139.4 L2400,143.4 L2430,146.7 L2460,148.7 L2490,149.0 L2520,148.1 L2550,146.3 L2580,144.5 L2610,143.7 L2640,144.9 L2670,148.7 L2700,155.7 L2730,165.8 L2760,178.8 L2790,193.9 L2820,209.9 L2850,225.7 L2880,240.2 L2880,600 Z"/><path fill="url(#wg2)" d="M0,600 L0,353.1 L30,346.0 L60,335.2 L90,321.5 L120,305.4 L150,288.2 L180,270.7 L210,254.1 L240,239.4 L270,227.7 L300,219.6 L330,215.7 L360,216.3 L390,221.4 L420,230.6 L450,243.5 L480,259.2 L510,276.8 L540,295.2 L570,313.2 L600,329.9 L630,344.2 L660,355.3 L690,362.7 L720,365.9 L750,365.0 L780,360.1 L810,351.8 L840,340.7 L870,327.7 L900,313.9 L930,300.2 L960,287.7 L990,277.2 L1020,269.6 L1050,265.3 L1080,264.7 L1110,267.7 L1140,274.0 L1170,283.3 L1200,294.7 L1230,307.4 L1260,320.3 L1290,332.5 L1320,343.0 L1350,350.9 L1380,355.5 L1410,356.3 L1440,353.1 L1470,346.0 L1500,335.2 L1530,321.5 L1560,305.4 L1590,288.2 L1620,270.7 L1650,254.1 L1680,239.4 L1710,227.7 L1740,219.6 L1770,215.7 L1800,216.3 L1830,221.4 L1860,230.6 L1890,243.5 L1920,259.2 L1950,276.8 L1980,295.2 L2010,313.2 L2040,329.9 L2070,344.2 L2100,355.3 L2130,362.7 L2160,365.9 L2190,365.0 L2220,360.1 L2250,351.8 L2280,340.7 L2310,327.7 L2340,313.9 L2370,300.2 L2400,287.7 L2430,277.2 L2460,269.6 L2490,265.3 L2520,264.7 L2550,267.7 L2580,274.0 L2610,283.3 L2640,294.7 L2670,307.4 L2700,320.3 L2730,332.5 L2760,343.0 L2790,350.9 L2820,355.5 L2850,356.3 L2880,353.1 L2880,600 Z"/></svg><svg class="waves b" viewBox="0 0 2880 600" preserveAspectRatio="none"><path fill="url(#wg2)" d="M0,600 L0,340.7 L30,337.3 L60,334.6 L90,332.3 L120,330.3 L150,328.3 L180,326.1 L210,323.5 L240,320.3 L270,316.4 L300,311.8 L330,306.5 L360,300.5 L390,294.2 L420,287.8 L450,281.5 L480,275.7 L510,270.9 L540,267.3 L570,265.2 L600,264.9 L630,266.7 L660,270.4 L690,276.2 L720,284.0 L750,293.4 L780,304.2 L810,316.0 L840,328.3 L870,340.7 L900,352.6 L930,363.8 L960,373.6 L990,381.8 L1020,388.2 L1050,392.5 L1080,394.8 L1110,395.1 L1140,393.5 L1170,390.3 L1200,385.7 L1230,380.2 L1260,374.0 L1290,367.6 L1320,361.2 L1350,355.1 L1380,349.6 L1410,344.8 L1440,340.7 L1470,337.3 L1500,334.6 L1530,332.3 L1560,330.3 L1590,328.3 L1620,326.1 L1650,323.5 L1680,320.3 L1710,316.4 L1740,311.8 L1770,306.5 L1800,300.5 L1830,294.2 L1860,287.8 L1890,281.5 L1920,275.7 L1950,270.9 L1980,267.3 L2010,265.2 L2040,264.9 L2070,266.7 L2100,270.4 L2130,276.2 L2160,284.0 L2190,293.4 L2220,304.2 L2250,316.0 L2280,328.3 L2310,340.7 L2340,352.6 L2370,363.8 L2400,373.6 L2430,381.8 L2460,388.2 L2490,392.5 L2520,394.8 L2550,395.1 L2580,393.5 L2610,390.3 L2640,385.7 L2670,380.2 L2700,374.0 L2730,367.6 L2760,361.2 L2790,355.1 L2820,349.6 L2850,344.8 L2880,340.7 L2880,600 Z"/><path fill="url(#wg3)" d="M0,600 L0,473.0 L30,476.5 L60,475.9 L90,471.7 L120,464.5 L150,455.1 L180,444.7 L210,434.1 L240,424.2 L270,415.7 L300,409.0 L330,404.2 L360,401.4 L390,400.3 L420,400.6 L450,402.1 L480,404.5 L510,407.6 L540,411.5 L570,416.0 L600,421.4 L630,427.6 L660,434.5 L690,442.0 L720,449.6 L750,456.9 L780,463.2 L810,467.8 L840,469.9 L870,469.1 L900,465.1 L930,457.7 L960,447.6 L990,435.2 L1020,421.6 L1050,408.1 L1080,395.9 L1110,386.3 L1140,380.2 L1170,378.4 L1200,381.1 L1230,388.1 L1260,398.8 L1290,412.1 L1320,426.9 L1350,441.6 L1380,454.9 L1410,465.7 L1440,473.0 L1470,476.5 L1500,475.9 L1530,471.7 L1560,464.5 L1590,455.1 L1620,444.7 L1650,434.1 L1680,424.2 L1710,415.7 L1740,409.0 L1770,404.2 L1800,401.4 L1830,400.3 L1860,400.6 L1890,402.1 L1920,404.5 L1950,407.6 L1980,411.5 L2010,416.0 L2040,421.4 L2070,427.6 L2100,434.5 L2130,442.0 L2160,449.6 L2190,456.9 L2220,463.2 L2250,467.8 L2280,469.9 L2310,469.1 L2340,465.1 L2370,457.7 L2400,447.6 L2430,435.2 L2460,421.6 L2490,408.1 L2520,395.9 L2550,386.3 L2580,380.2 L2610,378.4 L2640,381.1 L2670,388.1 L2700,398.8 L2730,412.1 L2760,426.9 L2790,441.6 L2820,454.9 L2850,465.7 L2880,473.0 L2880,600 Z"/></svg></div>
@@ -573,6 +739,8 @@ mark { background: rgba(20, 184, 166, .18); color: var(--cyan); border-radius: 5
 <script src="chuqur.js"></script>
 <script src="gapirish.js"></script>
 <script src="audio.js"></script>
+<script src="ielts.js"></script>
+<script src="ielts_audio.js"></script>
 <script>
 "use strict";
 // ---------- holat (telefonda saqlanadi) ----------
@@ -788,6 +956,8 @@ const CHECK = I('<path d="M5 12.5l4.5 4.5L19 7.5"/>');
 const T_WORDS = I('<rect x="3" y="7" width="13" height="14" rx="2.5"/><path d="M8 3.5h10.5A2.5 2.5 0 0 1 21 6v11"/>');
 const T_LESS = I('<path d="M2 9.5 12 4.5l10 5-10 5z"/><path d="M6 11.5v4.8c3.2 2.6 8.8 2.6 12 0v-4.8M22 9.5v5"/>');
 const T_PLAN = I('<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>');
+const T_UST = I('<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17M9 15l2 2 4-4"/>');
+const M_IELTS = I('<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>');
 const T_PRAC = I('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/>');
 const M_ORDER = I('<rect x="3" y="4" width="8" height="6" rx="1.5"/><rect x="13" y="4" width="8" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/>');
 const M_LISTEN = I('<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="5" height="7" rx="2"/><rect x="16" y="14" width="5" height="7" rx="2"/>');
@@ -818,18 +988,26 @@ function on(sel, fn) { $app.querySelectorAll(sel).forEach((el) => el.addEventLis
 const $ = (id) => document.getElementById(id);
 
 const TABS = { words: () => home(), lessons: () => lessonsTab(), practice: () => practiceTab(), plan: () => planTab() };
+// Ustoz yoqilgan bo'lsa birinchi bo'lim Ustoz, eski Reja esa Ustoz ichida
+const ustOn = () => typeof uOn === "function" && uOn();
+// Ustoz qadamlari tugaganini bildiradi (paket, dars, mashq, AI suhbat)
+const uev = (t, d) => { try { if (typeof ustozEvent === "function") ustozEvent(t, d || {}); } catch (e) { console.error(e); } };
 function html(s, tab) {
   stopTimers(); stopHear();
   document.querySelectorAll(".toast, .sheet").forEach((e) => e.remove());
-  $app.innerHTML = s + (tab ? `<div class="tabs"><nav aria-label="Bo'limlar">
-      <button class="tab ${tab === "words" ? "on" : ""}" data-t="words" type="button">${T_WORDS}So'zlar</button>
-      <button class="tab ${tab === "lessons" ? "on" : ""}" data-t="lessons" type="button">${T_LESS}Darslar</button>
-      <button class="tab ${tab === "practice" ? "on" : ""}" data-t="practice" type="button">${T_PRAC}Mashq</button>
-      <button class="tab ${tab === "plan" ? "on" : ""}" data-t="plan" type="button">${T_PLAN}Reja</button>
+  const T = [["words", T_WORDS, "So'zlar"], ["lessons", T_LESS, "Darslar"], ["practice", T_PRAC, "Mashq"]];
+  if (ustOn()) T.unshift(["ustoz", T_UST, "Ustoz"]); else T.push(["plan", T_PLAN, "Reja"], ["ustoz", T_UST, "Ustoz"]);
+  $app.innerHTML = s + (tab ? `<div class="tabs"><nav aria-label="Bo'limlar" style="grid-template-columns:repeat(${T.length},minmax(0,1fr))">
+      ${T.map(([k, ic, n]) => `<button class="tab ${tab === k ? "on" : ""}" data-t="${k}" type="button">${ic}${n}</button>`).join("")}
     </nav></div>` : "");
   $app.classList.toggle("has-tabs", !!tab); $app.classList.remove("aipage");
   window.scrollTo(0, 0);
-  if (tab) on(".tab", (e) => { const t = e.currentTarget.dataset.t; if (t === "words") FOLDER.w = null; if (t === "lessons") FOLDER.l = null; TABS[t](); });
+  if (tab) on(".tab", (e) => {
+    const t = e.currentTarget.dataset.t;
+    if (typeof ustozLock === "function" && ustozLock(t)) return;
+    if (t === "words") FOLDER.w = null; if (t === "lessons") FOLDER.l = null;
+    TABS[t]();
+  });
 }
 function topBar() {
   return `<div class="top">
@@ -900,7 +1078,7 @@ function home() {
   const due = dueWords().length;
   const doneN = Object.keys(S.packs).length;
   const wr = lvRank(workLv());
-  let nextPack = PACKS.findIndex((p) => !S.packs[p.title] && !p.free && lvRank(p.lv) >= wr);
+  let nextPack = PACKS.findIndex((p) => !S.packs[p.title] && !p.free && !p.ielts && lvRank(p.lv) >= wr);
   if (nextPack < 0) nextPack = PACKS.findIndex((p) => !S.packs[p.title] && !p.free);
   if (nextPack < 0) nextPack = PACKS.findIndex((p) => !S.packs[p.title]);
   const learned = Object.keys(S.words).length, tx = todayXP();
@@ -921,7 +1099,7 @@ function home() {
         ${nextPack >= 0 ? `<button class="btn ${due ? "ghost" : "main"}" id="nxt" type="button">${due ? "Yangi paket" : "Boshlash"}</button>` : ""}
       </div>
     </section>
-    ${S.plan ? missionCard() : `<button class="card plancta" id="pcta" type="button"><span class="tag pink">Yangi</span><b>6 oylik reja</b><span class="muted">O'yindagidek boblar, vazifalar va yutuqlar. Oxirida bir daraja yuqoriga chiqasan.</span></button>`}
+    ${ustOn() ? "" : S.plan ? missionCard() : `<button class="card plancta" id="pcta" type="button"><span class="tag pink">Yangi</span><b>6 oylik reja</b><span class="muted">O'yindagidek boblar, vazifalar va yutuqlar. Oxirida bir daraja yuqoriga chiqasan.</span></button>`}
     <div class="sec">Papkalar</div>
     ${folderGrid(packFolders(nextPack, wr))}
     <div class="foot"><button id="howb" type="button">Qanday ishlaydi?</button></div>
@@ -951,9 +1129,11 @@ function folderGrid(fs) {
 }
 function packFolders(nextPack, wr) {
   const out = LVS.map((lv) => {
-    const ps = PACKS.filter((p) => !p.free && (p.lv || "A1") === lv);
+    const ps = PACKS.filter((p) => !p.free && !p.ielts && (p.lv || "A1") === lv);
     return { key: lv, big: lv, name: LV_NAME[lv], n: ps.length, done: ps.filter((p) => S.packs[p.title]).length, unit: "paket", cls: (lv === workLv() ? "mine " : "") + (nextPack >= 0 && !PACKS[nextPack].free && (PACKS[nextPack].lv || "A1") === lv ? "next" : "") };
   }).filter((f) => f.n);
+  const ie = PACKS.filter((p) => p.ielts);
+  if (ie.length) out.unshift({ key: "ielts", big: "IELTS", name: "IELTS so'zlari", n: ie.length, done: ie.filter((p) => S.packs[p.title]).length, unit: "paket", ic: M_IELTS, cls: "ielts" + (ustOn() ? " next" : "") });
   const st = PACKS.filter((p) => p.free);
   out.push({ key: "street", big: "Ko'cha", name: "Ko'cha inglizchasi", n: st.length, done: st.filter((p) => S.packs[p.title]).length, unit: "paket", ic: STREET_IC, cls: "street" });
   return out;
@@ -962,18 +1142,18 @@ const folderTitle = (t) => { const m = t.match(/^Ko'cha inglizchasi (\d+)(?:: (.
 function packFolder() {
   const key = FOLDER.w;
   const wr = lvRank(workLv());
-  let nextPack = PACKS.findIndex((p) => !S.packs[p.title] && !p.free && lvRank(p.lv) >= wr);
+  let nextPack = PACKS.findIndex((p) => !S.packs[p.title] && !p.free && !p.ielts && lvRank(p.lv) >= wr);
   if (nextPack < 0) nextPack = PACKS.findIndex((p) => !S.packs[p.title] && !p.free);
   if (nextPack < 0) nextPack = PACKS.findIndex((p) => !S.packs[p.title]);
-  const idx = PACKS.map((p, i) => i).filter((i) => key === "street" ? PACKS[i].free : !PACKS[i].free && (PACKS[i].lv || "A1") === key);
-  const title = key === "street" ? "Ko'cha inglizchasi" : `${key} · ${LV_NAME[key]}`;
+  const idx = PACKS.map((p, i) => i).filter((i) => key === "street" ? PACKS[i].free : key === "ielts" ? PACKS[i].ielts : !PACKS[i].free && !PACKS[i].ielts && (PACKS[i].lv || "A1") === key);
+  const title = key === "street" ? "Ko'cha inglizchasi" : key === "ielts" ? "IELTS so'zlari" : `${key} · ${LV_NAME[key]}`;
   const done = idx.filter((i) => S.packs[PACKS[i].title]).length;
   html(`
     <div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>${esc(title)}</h2></div>
-    <div class="fhead"><span class="muted">${done} / ${idx.length} paket tugatildi${key === "street" ? " · istalgan payt ochiq" : key === workLv() ? " · sening darajang" : ""}</span><div class="meter"><i style="width:${idx.length ? (done / idx.length) * 100 : 0}%"></i></div></div>
+    <div class="fhead"><span class="muted">${done} / ${idx.length} paket tugatildi${key === "street" || key === "ielts" ? " · istalgan payt ochiq" : key === workLv() ? " · sening darajang" : ""}</span><div class="meter"><i style="width:${idx.length ? (done / idx.length) * 100 : 0}%"></i></div></div>
     <div class="list">
       ${idx.map((i, k) => {
-        const p = PACKS[i], st = S.packs[p.title], locked = !p.free && i > nextPack && nextPack >= 0 && !st && lvRank(p.lv) >= wr;
+        const p = PACKS[i], st = S.packs[p.title], locked = !p.free && !p.ielts && i > nextPack && nextPack >= 0 && !st && lvRank(p.lv) >= wr;
         const cls = st ? "done" : i === nextPack ? "next" : locked ? "locked" : "";
         return `<button class="item ${cls}" data-p="${i}" type="button" ${locked ? 'aria-disabled="true"' : ""}>
           <span class="num">${st ? CHECK : k + 1}</span>
@@ -1969,7 +2149,7 @@ function listenCard() {
     <div class="mhead"><b>Tinglash</b><span class="muted">Jami: ${listenH()} soat ${listenRec().min % 60} daq</span></div>
     <div class="qrow"><span>Bugun: ${t} / ${LISTEN_GOAL} daqiqa</span><small>${t >= LISTEN_GOAL ? "bajarildi ✓" : ""}</small></div>
     <div class="meter sm"><i style="width:${Math.min(100, (t / LISTEN_GOAL) * 100)}%"></i></div>
-    ${dayPlanHtml()}
+    ${ustOn() ? "" : dayPlanHtml()}
     ${quloqHtml()}
     <details class="cando-box" ${run ? "open" : ""}><summary>Boshqa narsa tingladim</summary>
       <span class="muted">O'zing tanlagan narsani tinglasang, taymerni yoq yoki daqiqani qo'lda qo'sh.</span>
@@ -2245,7 +2425,7 @@ function aiDownload(st) {
   if (busy) later(aiHome, 1500);
 }
 window.yodlaAI = (m) => { if (AI && AI.on) AI.on(m); };
-window.yodlaGapirdi = () => { const c = AI && AI.spoke; if (AI) AI.spoke = null; if (c) c(); };
+window.yodlaGapirdi = () => { const n = window.__nsay; if (n) { window.__nsay = null; n(); return; } const c = AI && AI.spoke; if (AI) AI.spoke = null; if (c) c(); };
 function aiSay(text, cb) {
   if (!AI) return;
   AI.spoke = cb || null;
@@ -2278,7 +2458,7 @@ function aiChat(tp) {
   // faqat chat qutisi aylanadi; o'qish uchun yuqoriga chiqsang, yangi gap seni pastga tortib ketmaydi
   const stick = (force) => { if (force || chat.scrollHeight - chat.scrollTop - chat.clientHeight < 140) chat.scrollTop = chat.scrollHeight; };
   const alive = () => AI && document.body.contains(chat);
-  $("quit").onclick = () => { try { NATIVE.gapirToxtat(); } catch {} AI = null; if (S.lstep && S.lstep.id === "ai") { creditStep(); planTab(); } else aiHome(); };
+  $("quit").onclick = () => { try { NATIVE.gapirToxtat(); } catch {} if (AI) uev("ai", { turns: AI.turns }); AI = null; if (S.lstep && S.lstep.id === "ai") { creditStep(); planTab(); } else aiHome(); };
   const setBusy = (b) => { AI.busy = b; ["mic", "slow", "end", "aisend"].forEach((id) => { $(id).disabled = b || (id === "mic" && !canHear) || (id === "end" && !AI.turns); }); };
   function add(cls, who, text) {
     const el = document.createElement("div");
@@ -2351,7 +2531,7 @@ function aiChat(tp) {
     else if (m.t === "bolak") { AI.buf += m.s; render(false); }
     else if (m.t === "tugadi") {
       render(true); AI.bub.classList.remove("now");
-      if (AI.ending) { AI.bub.classList.add("sum"); setBusy(false); $("mic").disabled = true; msg.textContent = "Suhbat tugadi. Zo'r ish!"; addXP(15); bumpStreak(); save(); dayMark("lesson"); return; }
+      if (AI.ending) { AI.bub.classList.add("sum"); setBusy(false); $("mic").disabled = true; msg.textContent = "Suhbat tugadi. Zo'r ish!"; addXP(15); bumpStreak(); save(); dayMark("lesson"); uev("ai", { turns: AI.turns }); return; }
       msg.textContent = "Andrew gapiryapti...";
       aiSay(AI.last, () => { if (!alive()) return; setBusy(false); msg.textContent = "Mikrofonni bosib javob ber"; if (AI.auto) later(listen, 300); });
     } else if (m.t === "xato") { setBusy(false); msg.textContent = "Miya xato berdi: " + m.s; }
@@ -2373,7 +2553,7 @@ function finishPack(pi, marks, misses) {
   const prev = S.packs[PACKS[pi].title];
   S.packs[PACKS[pi].title] = { stars: Math.max(st, prev ? prev.stars : 0), at: Date.now() };
   PACKS[pi].words.forEach((w) => { if (!S.words[w.id]) S.words[w.id] = { box: 0, due: startOfDay() + INTERVALS[0] * DAY }; });
-  addXP(20); bumpStreak(); save(); dayMark("words");
+  addXP(20); bumpStreak(); save(); dayMark("words"); uev("pack", { pi });
   html(`
     <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>Natija</h2></div>
     <div class="big-stars" role="img" aria-label="${st} yulduz">${stars(st)}</div>
@@ -2387,7 +2567,7 @@ function finishPack(pi, marks, misses) {
 }
 
 function reviewDone(ids, missed) {
-  dayMark("words");
+  dayMark("words"); uev("review", { n: ids.length });
   html(`
     <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>Takrorlash tugadi</h2></div>
     <div class="score">${ids.length - missed.size}/${ids.length}</div>
@@ -2496,7 +2676,7 @@ function lessonResult(li, misses) {
   const st = misses === 0 ? 3 : misses <= 2 ? 2 : 1;
   const prev = S.lessons[L.id];
   S.lessons[L.id] = { stars: Math.max(st, prev ? prev.stars : 0), at: Date.now() };
-  addXP(20); bumpStreak(); save(); dayMark("lesson");
+  addXP(20); bumpStreak(); save(); dayMark("lesson"); uev("lesson", { pass: misses <= 2, id: L.id });
   html(`
     <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>Dars tugadi</h2></div>
     <div class="big-stars" role="img" aria-label="${st} yulduz">${stars(st)}</div>
@@ -2638,7 +2818,7 @@ function deepResult(li, ok, total) {
   const st = sc === 1 ? 3 : pass ? 2 : 1, prev = S.lessons[L.id] || {};
   S.lessons[L.id] = { stars: Math.max(st, prev.stars || 0), at: Date.now(), m: !!(prev.m || pass), sc: Math.max(sc, prev.sc || 0) };
   if (pass) { S.lrev = S.lrev || {}; if (!S.lrev[L.id]) S.lrev[L.id] = { n: 0, due: Date.now() + RINT[0] * 864e5 }; }
-  addXP(pass ? 30 : 10); bumpStreak(); save(); dayMark("lesson");
+  addXP(pass ? 30 : 10); bumpStreak(); save(); dayMark("lesson"); uev("lesson", { pass, id: L.id });
   html(`
     <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>${pass ? "Dars o'zlashtirildi" : "Hali to'liq emas"}</h2></div>
     <div class="big-stars" role="img" aria-label="${st} yulduz">${stars(st)}</div>
@@ -2664,7 +2844,7 @@ function reviewLessons() {
     back: lessonsTab, pool: queue.filter((t) => t.uz).map((t) => t.uz), onMiss: (t) => bad.add(t.lid),
     onDone: (misses, ok, total) => {
       ids.forEach((id) => { const r = S.lrev[id]; r.n = bad.has(id) ? Math.max(0, r.n - 1) : Math.min(RINT.length - 1, r.n + 1); r.due = Date.now() + RINT[r.n] * 864e5; });
-      addXP(15); bumpStreak(); save(); dayMark("lesson");
+      addXP(15); bumpStreak(); save(); dayMark("lesson"); uev("lrev", {});
       html(`
         <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>Takrorlash tugadi</h2></div>
         <div class="score">${ok} / ${total}</div>
@@ -2762,6 +2942,7 @@ function practiceTab() {
       <div><h2>Mashq zali</h2><p>${ok ? `O'rgangan ${n} ta so'zingiz va ularning misol gaplari bilan mashq qiling.` : "Mashqlar o'rgangan so'zlaringizdan tuziladi. Avval So'zlar bo'limida 1-paketni tugating."}</p></div>
     </section>
     ${brainCard()}
+    <button class="card aicta" id="m10" type="button"><span class="ic">${M_IELTS}</span><span><b>IELTS zali</b><span class="muted">Reading, Listening, Writing, Speaking: imtihondagidek, vaqt bilan va ball bilan</span></span></button>
     <button class="card aicta" id="m9" type="button"><span class="ic">${M_BRAIN}</span><span><b>AI suhbatdosh</b><span class="muted">Andrew bilan erkin gaplash: u tushunadi, javob beradi va xatolaringni tuzatadi</span></span></button>
     <div class="modes">
       <button class="mode v" id="m5" type="button"><span class="ic">${MIC}</span><b>Gapirish</b><span>Gaplarni ovoz chiqarib ayting, ilova tekshiradi</span></button>
@@ -2778,6 +2959,7 @@ function practiceTab() {
   if (ok) { $("m1").onclick = practiceOrder; $("m2").onclick = practiceListen; $("m3").onclick = speedQuiz; }
   $("m4").onclick = vocab;
   bindBrain(); $("m9").onclick = aiHome;
+  $("m10").onclick = () => { if (typeof ustozLock === "function" && ustozLock("hub")) return; IEFROM = "practice"; ieHub(); };
   $("m5").onclick = practiceSpeak; $("m6").onclick = dialogsList; $("m7").onclick = aboutMe; $("m8").onclick = storiesList;
 }
 
@@ -2800,6 +2982,7 @@ function practiceListen() {
 
 function practiceDone(title, ok, n, again) {
   if (S.lstep && !S.lstep.ext) creditStep();
+  uev("practice", { title });
   addXP(10); bumpStreak(); save();
   html(`
     <div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>${esc(title)}</h2></div>
@@ -2877,11 +3060,13 @@ function vocab() {
   on("[data-say]", (e) => speak(e.currentTarget.dataset.say));
 }
 
-home();
+document.addEventListener("DOMContentLoaded", () => (window.ustozStart || home)());
 setTimeout(() => { if (quloqSync(true) && $("lcard")) { $("lcard").outerHTML = listenCard(); bindListen(); } }, 800);
 if ("serviceWorker" in navigator && location.hostname.endsWith("github.io")) {
   try { navigator.serviceWorker.register("sw.js").catch(() => {}); } catch {}
 }
 </script>
+<script src="imtihon.js"></script>
+<script src="ustoz.js"></script>
 
 </body></html>

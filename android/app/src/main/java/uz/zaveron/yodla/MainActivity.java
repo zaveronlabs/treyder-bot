@@ -3,6 +3,8 @@ package uz.zaveron.yodla;
 import android.Manifest;
 import android.app.Activity;
 import android.app.DownloadManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -47,7 +49,7 @@ public class MainActivity extends Activity {
     private static final int MIK = 7;
     // orqaga tugmasi: ochiq mashqdan chiqish, boshqa bo'limdan So'zlarga qaytish, keyin ilovadan chiqish
     private static final String ORQAGA = "(function(){var q=document.getElementById('quit');if(q){q.click();return 1}"
-            + "var t=document.querySelector('.tab.on');if(t&&t.dataset.t!=='words'){document.querySelector('.tab[data-t=words]').click();return 1}return 0})()";
+            + "var t=document.querySelector('.tab.on'),f=document.querySelector('.tab');if(t&&f&&t!==f){f.click();return 1}return 0})()";
     private WebView web;
     private SpeechRecognizer sr;
     private String kutilganTil = null;
@@ -230,6 +232,58 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void gapirToxtat() { runOnUiThread(() -> { if (tts != null) tts.stop(); }); }
+
+        // uzun javob: "Tugatdim" bosilganda telefon shu paytgacha eshitganini qaytaradi
+        @JavascriptInterface
+        public void yakunla() { runOnUiThread(() -> { if (sr != null && eshityapti) sr.stopListening(); }); }
+
+        @JavascriptInterface
+        public void nusxa(String matn) {
+            runOnUiThread(() -> {
+                try { ((ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE)).setPrimaryClip(ClipData.newPlainText("Yodla", matn)); } catch (Exception e) { }
+            });
+        }
+
+        // --- Ustoz: jadval bo'yicha eslatmalar ---
+        @JavascriptInterface
+        public void ustozJadval(String json) { Ustoz.saqla(MainActivity.this, json); }
+
+        @JavascriptInterface
+        public void ustozTugadi(String kalit) { Ustoz.tugadi(MainActivity.this, kalit); }
+
+        @JavascriptInterface
+        public String ustozHolat() { return Ustoz.holat(MainActivity.this); }
+
+        @JavascriptInterface
+        public void ustozSinov() { Ustoz.sinov(MainActivity.this); }
+
+        @JavascriptInterface
+        public void ustozRuxsat(String k) { runOnUiThread(() -> ruxsatOch(k)); }
+    }
+
+    // eslatmalar ishonchli kelishi uchun telefon sozlamalari
+    private void ruxsatOch(String k) {
+        String pkg = getPackageName();
+        try {
+            if ("bildirish".equals(k)) {
+                Ustoz.kanal(this);
+                SharedPreferences p = getPreferences(MODE_PRIVATE);
+                if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED && !p.getBoolean("bildSorandi", false)) {
+                    p.edit().putBoolean("bildSorandi", true).apply();
+                    requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 8);
+                } else startActivity(new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, pkg));
+            } else if ("batareya".equals(k)) {
+                try { startActivity(new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:" + pkg))); }
+                catch (Exception e) { startActivity(new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)); }
+            } else if ("aniq".equals(k)) {
+                if (Build.VERSION.SDK_INT >= 31) startActivity(new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + pkg)));
+            } else if ("xiaomi".equals(k)) {
+                try { startActivity(new Intent().setComponent(new ComponentName("com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"))); }
+                catch (Exception e) { startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + pkg))); }
+            }
+        } catch (Exception e) {
+            try { startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + pkg))); } catch (Exception e2) { }
+        }
     }
 
     private void aiXabar(String json) { runOnUiThread(() -> js("window.yodlaAI&&window.yodlaAI(" + json + ")")); }
@@ -393,14 +447,23 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onNewIntent(Intent i) {
+        super.onNewIntent(i);
+        setIntent(i);
+        if (web != null && i != null && i.getBooleanExtra("ustoz", false)) js("window.yodlaUstoz&&window.yodlaUstoz()");
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        Ustoz.oldinda = true;
         if (web != null) js("window.yodlaQaytdi&&window.yodlaQaytdi()");
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        Ustoz.oldinda = false;
         if (sr != null && eshityapti) { eshityapti = false; sr.cancel(); xato("aborted"); }
     }
 
