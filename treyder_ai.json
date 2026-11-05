@@ -1,10 +1,10 @@
 {
- "sham": "2026-11-05 00:00",
- "vaqt": "2026-11-05 04:16",
+ "sham": "2026-11-05 04:00",
+ "vaqt": "2026-11-05 08:23",
  "model": "qwen2.5:14b",
  "tangalar": {
   "BTC": {
-   "tahlil": "BTC/USDT is currently in an uptrend with the EMA 50/150/600 trend rule intact. The price structure shows a bullish continuation pattern with higher lows and higher highs, and the recent breakout above the resistance level is confirmed by volume. However, the RSI is in overbought territory, indicating potential near-term correction. The ML forecast is negative, and the market news score is slightly negative, adding some caution.",
+   "tahlil": "BTC/USDT is currently in a bullish trend with the EMA 50/150/600 indicating a strong uptrend. The latest 4-hour candle shows a bullish structure with higher lows and higher highs, and the price has broken above the recent swing high, confirming a breakout. However, the RSI is in overbought territory at 64.6, suggesting potential near-term correction. The nearest resistance is at 80684.36, and the nearest support is at 79800.0. The ML forecast is negative (-0.559), and the market news score is slightly negative (-0.14), adding some caution. Overall, the trend is strong, but there are signs of potential near-term consolidation.",
    "qaror": "kutish",
    "ishonch": 70,
    "sabablar": [
@@ -13,52 +13,54 @@
     "kunlik_salbiy",
     "miya_qarshi"
    ],
-   "narx": 80543.11
+   "narx": 80358.95
   },
   "ETH": {
-   "tahlil": "ETH/USDT is currently in a bullish trend with a strong structure, showing higher lows and higher highs. The price is near resistance at 2446.27, and the RSI is overbought at 70.5, indicating potential near-term correction. However, the daily structure and trend are still bullish, and the ML forecast is negative, suggesting a possible pullback before continuation.",
+   "tahlil": "ETH/USDT is currently in a bullish trend with a strong market structure, showing higher lows and higher highs. The price is near resistance at 2446.27, but the RSI is overbought at 68.3, indicating potential near-term correction. The daily timeframe aligns with the 4-hour trend, but the ML forecast is negative (-0.882), suggesting caution. The market context (BTC) is also bullish, but the news score is slightly negative (-0.2), adding some risk.",
    "qaror": "kutish",
-   "ishonch": 70,
+   "ishonch": 65,
    "sabablar": [
     "struktura_salbiy",
     "qarshilik_yaqin",
-    "rsi_juda_baland",
-    "kunlik_salbiy"
-   ],
-   "narx": 2424.41
-  },
-  "SOL": {
-   "tahlil": "SOL/USDT is currently in an ambiguous market structure with a higher high and lower low pattern, indicating a lack of clear trend direction. The price is near resistance at 98.62, and the RSI is moderately overbought at 56.2, suggesting potential for a pullback. The daily structure is also mixed, with the price below the EMA 50, adding to the bearish sentiment. The ML forecast is negative, and the news score is slightly negative, further discouraging a long position.",
-   "qaror": "kutish",
-   "ishonch": 30,
-   "sabablar": [
-    "trend_past",
+    "kunlik_salbiy",
     "miya_qarshi"
    ],
-   "narx": 96.28
+   "narx": 2416.13
+  },
+  "SOL": {
+   "tahlil": "SOL/USDT is currently in an unclear market structure with a mixed trend, as indicated by the EMA crossovers and the RSI at neutral levels. The price is near resistance, and the daily structure is also mixed, suggesting caution. The ML forecast and news score are negative, adding to the bearish sentiment. The recent price action shows a lack of strong momentum, with volume not confirming the price movements.",
+   "qaror": "kutish",
+   "ishonch": 40,
+   "sabablar": [
+    "trend_past",
+    "miya_qarshi",
+    "yangilik_salbiy"
+   ],
+   "narx": 95.9
   },
   "BNB": {
-   "tahlil": "BNB/USDT is currently in an ambiguous market structure with a lateral trend, neither clearly bullish nor bearish. The price is near resistance at 717.07, with the RSI at 54.8 indicating a neutral to slightly overbought condition. The daily context shows a bearish trend, and the ML forecast is negative, suggesting a cautious approach.",
+   "tahlil": "BNB/USDT is currently in an unclear market structure with a lateral movement, showing neither strong uptrend nor downtrend signals. The price is near resistance but also has support relatively close, indicating a potential range-bound scenario. RSI is neutral at 53, and volume is slightly below average, suggesting limited buying pressure. The ML forecast is negative, and the market news score is also negative, adding to the bearish sentiment. Overall, the setup does not favor a long position given the lack of clear trend and structure.",
    "qaror": "kutish",
    "ishonch": 30,
    "sabablar": [
     "trend_past",
     "qarshilik_yaqin",
-    "miya_qarshi"
+    "miya_qarshi",
+    "yangilik_salbiy"
    ],
-   "narx": 714.9
+   "narx": 712.38
   },
   "XRP": {
-   "tahlil": "XRP/USDT is currently in an uptrend but not aligned with the broader BTC trend, showing a mixed market structure with recent higher lows and higher highs but also facing resistance. The price is near the nearest resistance level at 1.3159, with RSI at 64.7 indicating overbought conditions. Volume is slightly above average, but the daily structure is bearish, suggesting caution. The ML forecast is negative, and the news score is slightly negative, adding to the risk.",
+   "tahlil": "XRP/USDT is currently in an unclear trend with the EMA 50 above the price, indicating a potential resistance. The price structure shows an indecisive pattern with recent higher lows and lower highs, suggesting a lack of clear direction. The RSI is overbought at 66.1, and the ML forecast is negative (-1.11), indicating a higher risk of a downward correction. The market context for BTC is trending upwards, but XRP is not aligned with this trend, adding to the risk.",
    "qaror": "kutish",
-   "ishonch": 45,
+   "ishonch": 30,
    "sabablar": [
     "trend_past",
     "qarshilik_yaqin",
     "kunlik_salbiy",
     "miya_qarshi"
    ],
-   "narx": 1.3094
+   "narx": 1.3141
   }
  }
 }
