@@ -1,39 +1,39 @@
 {
  "chat_id": 8859413416,
  "update_id": 74030512,
- "oxirgi_sana": "2026-11-05 04:00",
+ "oxirgi_sana": "2026-11-05 08:00",
  "holat": {
-  "BTC": 1,
+  "BTC": 0,
   "ETH": 1,
   "SOL": 0,
   "BNB": 0,
   "XRP": 0
  },
  "narx": {
-  "BTC": 80358.95,
-  "ETH": 2416.13,
-  "SOL": 95.9,
-  "BNB": 712.38,
-  "XRP": 1.3141,
+  "BTC": 80390.01,
+  "ETH": 2421.0,
+  "SOL": 96.52,
+  "BNB": 716.91,
+  "XRP": 1.3185,
   "DOGE": 0.08007,
   "ADA": 0.2228,
   "AVAX": 9.897,
   "LINK": 12.074,
   "LTC": 59.36,
-  "PAXG": 4118.46
+  "PAXG": 4126.32
  },
  "rejim": "4h-5-avto3",
  "miya": {
-  "BTC": -0.5585690575063565,
-  "ETH": -0.8815025598222679,
-  "SOL": -0.4588971769400369,
-  "BNB": -0.7368521163596872,
-  "XRP": -1.1096854614598892,
-  "DOGE": -0.6006074613241164,
-  "ADA": -0.9578941990216951,
-  "AVAX": -0.18248126198370881,
-  "LINK": -0.05261592308639947,
-  "LTC": -0.39839111914223857
+  "BTC": -0.39106983003216367,
+  "ETH": -0.7893835473911237,
+  "SOL": -0.4146364528886858,
+  "BNB": -0.6291679477233075,
+  "XRP": -1.0223156642947016,
+  "DOGE": -0.46876651654026325,
+  "ADA": -0.7921838168982986,
+  "AVAX": -0.21976448709590443,
+  "LINK": -0.0018241656791595968,
+  "LTC": -0.31447694595868675
  },
  "sinov_boshi": "2026-10-17 20:00",
  "oxirgi_hisobot": 1793505630.837596,
@@ -106,11 +106,6 @@
      "miqdor": 0.16488114130726014,
      "kirish_narx": 2425.99,
      "kirish_sana": "2026-11-04 12:00"
-    },
-    "BTC": {
-     "miqdor": 0.0049686965903934475,
-     "kirish_narx": 80504.01,
-     "kirish_sana": "2026-11-04 20:00"
     }
    },
    "jurnal": [
@@ -194,10 +189,19 @@
      "chiqish_narx": 698.46,
      "foyda": -27.733818589025738,
      "sabab": "trend tugadi"
+    },
+    {
+     "belgi": "BTC",
+     "kirish_sana": "2026-11-04 20:00",
+     "kirish_narx": 80504.01,
+     "chiqish_sana": "2026-11-05 08:00",
+     "chiqish_narx": 80390.01,
+     "foyda": -0.7661481955992006,
+     "sabab": "trend tugadi"
     }
    ],
-   "naqd": 550.0646004586804,
-   "komissiya": 3.9770208106346585
+   "naqd": 749.2984522630811,
+   "komissiya": 4.176737594929006
   },
   "miya": {
    "portfel": {},
@@ -733,18 +737,6 @@
      "kirish_narx": 93.59,
      "kirish_sana": "2026-11-04 08:00",
      "yon": -1
-    },
-    "BTC": {
-     "miqdor": 0.005000137503781353,
-     "kirish_narx": 79997.8,
-     "kirish_sana": "2026-11-04 16:00",
-     "yon": -1
-    },
-    "BNB": {
-     "miqdor": 0.5595188138201147,
-     "kirish_narx": 714.9,
-     "kirish_sana": "2026-11-05 00:00",
-     "yon": -1
     }
    },
    "jurnal": [
@@ -945,10 +937,28 @@
      "chiqish_narx": 2424.41,
      "foyda": -21.95558077941733,
      "sabab": "signal tugadi"
+    },
+    {
+     "belgi": "BTC",
+     "kirish_sana": "2026-11-04 16:00",
+     "kirish_narx": 79997.8,
+     "chiqish_sana": "2026-11-05 08:00",
+     "chiqish_narx": 80390.01,
+     "foyda": -2.162084482323223,
+     "sabab": "signal tugadi"
+    },
+    {
+     "belgi": "BNB",
+     "kirish_sana": "2026-11-05 00:00",
+     "kirish_narx": 714.9,
+     "chiqish_sana": "2026-11-05 08:00",
+     "chiqish_narx": 716.91,
+     "foyda": -1.3251951321863147,
+     "sabab": "signal tugadi"
     }
    ],
-   "naqd": 332.18238311781755,
-   "komissiya": 9.420949540254622
+   "naqd": 728.695103503308,
+   "komissiya": 9.82249240862769
   },
   "qoida_iz": {
    "portfel": {
@@ -957,12 +967,6 @@
      "kirish_narx": 2425.99,
      "kirish_sana": "2026-11-04 12:00",
      "eng": 2446.28
-    },
-    "BTC": {
-     "miqdor": 0.0049686965903934475,
-     "kirish_narx": 80504.01,
-     "kirish_sana": "2026-11-04 20:00",
-     "eng": 80918.01
     }
    },
    "jurnal": [
@@ -1046,10 +1050,19 @@
      "chiqish_narx": 698.46,
      "foyda": -27.733818589025738,
      "sabab": "trend tugadi"
+    },
+    {
+     "belgi": "BTC",
+     "kirish_sana": "2026-11-04 20:00",
+     "kirish_narx": 80504.01,
+     "chiqish_sana": "2026-11-05 08:00",
+     "chiqish_narx": 80390.01,
+     "foyda": -0.7661481955992006,
+     "sabab": "trend tugadi"
     }
    ],
-   "naqd": 549.1681645441399,
-   "komissiya": 3.9765723684562992,
+   "naqd": 748.4020163485407,
+   "komissiya": 4.1762891527506465,
    "blok": {}
   },
   "oltin": {
@@ -1342,12 +1355,6 @@
      "kirish_narx": 93.59,
      "kirish_sana": "2026-11-04 08:00",
      "yon": -1
-    },
-    "BNB": {
-     "miqdor": 0.5595188138201147,
-     "kirish_narx": 714.9,
-     "kirish_sana": "2026-11-05 00:00",
-     "yon": -1
     }
    },
    "jurnal": [
@@ -1494,10 +1501,19 @@
      "chiqish_narx": 2424.41,
      "foyda": -21.95558077941733,
      "sabab": "signal tugadi"
+    },
+    {
+     "belgi": "BNB",
+     "kirish_sana": "2026-11-05 00:00",
+     "kirish_narx": 714.9,
+     "chiqish_sana": "2026-11-05 08:00",
+     "chiqish_narx": 716.91,
+     "foyda": -1.3251951321863147,
+     "sabab": "signal tugadi"
     }
    ],
-   "naqd": 352.18006731873885,
-   "komissiya": 7.011342707574187
+   "naqd": 550.8548721865525,
+   "komissiya": 7.211905023982076
   },
   "super": {
    "portfel": {
@@ -1510,12 +1526,6 @@
      "miqdor": 6.410941339886739,
      "kirish_narx": 93.59,
      "kirish_sana": "2026-11-04 08:00",
-     "yon": -1
-    },
-    "BNB": {
-     "miqdor": 0.8392782207301721,
-     "kirish_narx": 714.9,
-     "kirish_sana": "2026-11-05 00:00",
      "yon": -1
     }
    },
@@ -1663,10 +1673,19 @@
      "chiqish_narx": 2424.41,
      "foyda": -32.933371169126,
      "sabab": "signal tugadi"
+    },
+    {
+     "belgi": "BNB",
+     "kirish_sana": "2026-11-05 00:00",
+     "kirish_narx": 714.9,
+     "chiqish_sana": "2026-11-05 08:00",
+     "chiqish_narx": 716.91,
+     "foyda": -1.987792698279472,
+     "sabab": "signal tugadi"
     }
    ],
-   "naqd": 324.34115361001335,
-   "komissiya": 11.115348755024062
+   "naqd": 522.353360911734,
+   "komissiya": 11.416192229635897
   },
   "super20": {
    "portfel": {
@@ -1679,12 +1698,6 @@
      "miqdor": 4.273960893257827,
      "kirish_narx": 93.59,
      "kirish_sana": "2026-11-04 08:00",
-     "yon": -1
-    },
-    "BNB": {
-     "miqdor": 0.5595188138201147,
-     "kirish_narx": 714.9,
-     "kirish_sana": "2026-11-05 00:00",
      "yon": -1
     }
    },
@@ -1823,10 +1836,19 @@
      "chiqish_narx": 2424.41,
      "foyda": -21.95558077941733,
      "sabab": "signal tugadi"
+    },
+    {
+     "belgi": "BNB",
+     "kirish_sana": "2026-11-05 00:00",
+     "kirish_narx": 714.9,
+     "chiqish_sana": "2026-11-05 08:00",
+     "chiqish_narx": 716.91,
+     "foyda": -1.3251951321863147,
+     "sabab": "signal tugadi"
     }
    ],
-   "naqd": 351.9078453207026,
-   "komissiya": 6.6110064284356,
+   "naqd": 550.5826501885163,
+   "komissiya": 6.8115687448434885,
    "signal": {
     "BTC": {
      "hakam": [
@@ -1928,46 +1950,46 @@
  },
  "ai_vaqt": "2026-11-05 08:23",
  "yangilik": {
-  "vaqt": "2026-11-05 07:23",
+  "vaqt": "2026-11-05 11:24",
   "soni": 50,
   "model": "qwen2.5:7b",
   "bozor": {
-   "baho": -0.2,
-   "izoh": "Umumiy bozor: 50 ta yangilik (6 yaxshi, 21 yomon). Kayfiyat salbiy."
+   "baho": -0.05,
+   "izoh": "Umumiy bozor: 50 ta yangilik (11 yaxshi, 17 yomon). Kayfiyat betaraf."
   },
   "tangalar": {
    "BTC": {
-    "baho": -0.14,
-    "izoh": "Bitcoin haqida 18 ta yangilik (5 yaxshi, 5 yomon). Kayfiyat betaraf."
+    "baho": 0.12,
+    "izoh": "Bitcoin haqida 17 ta yangilik (10 yaxshi, 1 yomon). Kayfiyat ijobiy."
    },
    "ETH": {
-    "baho": -0.1,
-    "izoh": "Ethereum haqida 3 ta yangilik (2 yaxshi, 1 yomon). Kayfiyat betaraf."
+    "baho": 0.23,
+    "izoh": "Ethereum haqida 3 ta yangilik (2 yaxshi, 0 yomon). Kayfiyat ijobiy."
    },
    "SOL": {
-    "baho": -0.2,
+    "baho": -0.05,
     "izoh": "Alohida yangilik yo'q, umumiy bozorga qaraldi."
    },
    "BNB": {
-    "baho": -0.23,
-    "izoh": "BNB haqida 6 ta yangilik (1 yaxshi, 3 yomon). Kayfiyat salbiy."
+    "baho": -0.15,
+    "izoh": "BNB haqida 2 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat salbiy."
    },
    "XRP": {
-    "baho": -0.1,
-    "izoh": "XRP haqida 1 ta yangilik (0 yaxshi, 0 yomon). Kayfiyat betaraf."
+    "baho": -0.15,
+    "izoh": "XRP haqida 2 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat salbiy."
    }
   }
  },
  "short_miya": {
-  "BTC": 0.4563701025429707,
-  "ETH": 0.38098325756433654,
-  "SOL": 0.689200685443257,
-  "BNB": 0.45222239613249976,
-  "XRP": 0.4299327949888756,
-  "DOGE": 0.60929611768242,
-  "ADA": 0.5501283394646075,
-  "AVAX": 0.6262398580161027,
-  "LINK": 0.2681281867233322,
-  "LTC": 0.3501987525950643
+  "BTC": 0.43541471707187474,
+  "ETH": 0.351006731555185,
+  "SOL": 0.6486820796139835,
+  "BNB": 0.3658257285358585,
+  "XRP": 0.42716524772369363,
+  "DOGE": 0.6149587542105964,
+  "ADA": 0.5031006825574496,
+  "AVAX": 0.6118323699249976,
+  "LINK": 0.27910132938328996,
+  "LTC": 0.38060730405182686
  }
 }
