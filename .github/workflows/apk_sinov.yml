@@ -1,0 +1,41 @@
+name: Yodla APK o'rnatish sinovi
+on:
+  push:
+    branches: [apk-sinov]
+jobs:
+  sinov:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        api: [34, 35]
+    steps:
+      - name: KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: APK'larni yuklab olish
+        run: |
+          curl -sL -o old.apk https://github.com/zaveronlabs/treyder-bot/raw/5c3f2d7/Yodla.apk
+          curl -sL -o new.apk https://github.com/zaveronlabs/treyder-bot/releases/download/yodla-apk/Yodla.apk
+          ls -l *.apk; sha256sum *.apk
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api }}
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          script: |
+            adb shell getprop ro.product.cpu.abilist
+            adb install old.apk && echo "ESKI_ORNATILDI"
+            adb shell dumpsys package uz.zaveron.yodla | grep -m2 -E "versionCode|versionName" || true
+            adb install -r new.apk; echo "YANGILASH_EXIT=$?"
+            adb shell dumpsys package uz.zaveron.yodla | grep -m2 -E "versionCode|versionName" || true
+            adb shell monkey -p uz.zaveron.yodla -c android.intent.category.LAUNCHER 1 || true
+            sleep 15
+            adb shell pidof uz.zaveron.yodla && echo "ILOVA_ISHLAYAPTI" || echo "ILOVA_ISHLAMAYAPTI"
+            adb uninstall uz.zaveron.yodla || true
+            adb install new.apk; echo "TOZA_ORNATISH_EXIT=$?"
+            adb logcat -d | grep -iE "PackageManager|PackageInstaller|INSTALL_|FATAL|AndroidRuntime|yodla" | tail -80 || true
