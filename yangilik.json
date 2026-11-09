@@ -1,31 +1,31 @@
 {
- "vaqt": "2026-11-09 19:25",
+ "vaqt": "2026-11-09 23:23",
  "soni": 50,
  "model": "qwen2.5:7b",
  "bozor": {
-  "baho": 0.04,
-  "izoh": "Umumiy bozor: 50 ta yangilik (14 yaxshi, 11 yomon). Kayfiyat betaraf."
+  "baho": -0.21,
+  "izoh": "Umumiy bozor: 50 ta yangilik (8 yaxshi, 24 yomon). Kayfiyat salbiy."
  },
  "tangalar": {
   "BTC": {
-   "baho": -0.03,
-   "izoh": "Bitcoin haqida 22 ta yangilik (3 yaxshi, 7 yomon). Kayfiyat betaraf."
+   "baho": -0.3,
+   "izoh": "Bitcoin haqida 18 ta yangilik (0 yaxshi, 13 yomon). Kayfiyat salbiy."
   },
   "ETH": {
-   "baho": 0.14,
-   "izoh": "Ethereum haqida 8 ta yangilik (4 yaxshi, 0 yomon). Kayfiyat ijobiy."
+   "baho": -0.07,
+   "izoh": "Ethereum haqida 8 ta yangilik (3 yaxshi, 2 yomon). Kayfiyat betaraf."
   },
   "SOL": {
-   "baho": 0.02,
-   "izoh": "Solana haqida 1 ta yangilik (0 yaxshi, 0 yomon). Kayfiyat betaraf."
+   "baho": -0.1,
+   "izoh": "Solana haqida 2 ta yangilik (0 yaxshi, 0 yomon). Kayfiyat betaraf."
   },
   "BNB": {
-   "baho": -0.15,
-   "izoh": "BNB haqida 6 ta yangilik (0 yaxshi, 4 yomon). Kayfiyat salbiy."
+   "baho": -0.53,
+   "izoh": "BNB haqida 7 ta yangilik (0 yaxshi, 7 yomon). Kayfiyat salbiy."
   },
   "XRP": {
-   "baho": 0.04,
-   "izoh": "Alohida yangilik yo'q, umumiy bozorga qaraldi."
+   "baho": -0.35,
+   "izoh": "XRP haqida 1 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat salbiy."
   }
  }
 }
