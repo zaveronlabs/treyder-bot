@@ -3,7 +3,7 @@ const fs = require("fs"), vm = require("vm");
 const dir = process.argv[2], mode = process.argv[3] || "asosiy";
 const ctx = { window: {} };
 vm.createContext(ctx);
-for (const f of ["words.js", "lessons.js", "chuqur.js", "gapirish.js", "ielts.js"]) if (fs.existsSync(dir + "/" + f)) vm.runInContext(fs.readFileSync(dir + "/" + f, "utf8").replace(/^const (PACKS|LESSONS|TEST|SAVOLLAR|HIKOYALAR|DEEP|IELTS)\b/gm, "var $1"), ctx);
+for (const f of ["words.js", "lessons.js", "chuqur.js", "gapirish.js", "ielts.js", "yol_data.js", "yol_data2.js"]) if (fs.existsSync(dir + "/" + f)) vm.runInContext(fs.readFileSync(dir + "/" + f, "utf8").replace(/^const (PACKS|LESSONS|TEST|SAVOLLAR|HIKOYALAR|DEEP|IELTS|YOL)\b/gm, "var $1"), ctx);
 // IELTS ovozlari alohida paketda (ielts.mp3): kalit "§ovoz§matn", har xil aksentlar
 if (mode === "ielts") {
   const EXAM_V = /const EXAM_V = "([^"]+)"/.exec(fs.readFileSync(dir + "/imtihon.js", "utf8"))[1];
@@ -52,5 +52,11 @@ for (const id in ctx.DEEP || {}) {
   (D.parts || []).forEach((p) => (p.rows || []).forEach((r) => { if (!/\+|[oOgG]'(?!s\b)|\.\.\./.test(r[0])) add(sayable(P(r[0]))); }));
   (D.say || []).forEach((t) => add(t.en));
   (D.tasks || []).forEach(task); (D.final || []).forEach(task);
+}
+// Yo'l darslari: namuna gaplar, mashq va test savollari, eshitib yozish
+for (const U of ctx.YOL || []) {
+  for (const k of ["tush", "nam"]) for (const c of U[k] || []) (c.ex || []).forEach((e) => add(e[0]));
+  const ts = [...(U.mashq || []), ...(U.sinov || []), ...((U.main && U.main.tasks) || [])];
+  ts.forEach((t) => { task(t); if (t.k === "dict") add(t.en); });
 }
 console.log(JSON.stringify([...S]));

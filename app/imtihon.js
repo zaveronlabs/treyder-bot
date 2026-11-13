@@ -104,11 +104,15 @@ const ieRight = (q, X) => (q.k === "mcq" ? `${LET[q.a]}. ${q.o[q.a]}` : q.k === 
 // ---------- READING ----------
 function ieReading(id, a) {
   a = a || {};
-  const R = ieGet("reading", id), n = R.qs.length, ans = new Array(n).fill(null), lim = R.min * 60, t0 = Date.now();
+  const R0 = ieGet("reading", id);
+  let R = R0;
+  // yo'l darslarida faqat o'tilgan savol turlari beriladi (qi: asl savol raqamlari)
+  if (a.only) { const qi = []; R0.qs.forEach((q, i) => { if (a.only.includes(q.k)) qi.push(i); }); R = Object.assign({}, R0, { qs: qi.map((i) => R0.qs[i]), qi }); }
+  const n = R.qs.length, ans = new Array(n).fill(null), lim = Math.round(R.min * 60 * (a.xt || 1)), t0 = Date.now();
   let over = false;
   html(`<div class="bar iebar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><div class="ietime" id="tm">${mmss(lim)}</div><button class="btn main iesub" id="sub" type="button">Topshirish</button></div>
     <div class="seg"><button class="on" data-v="m" type="button">Matn</button><button data-v="q" type="button">Savollar · <span id="qc">0/${n}</span></button></div>
-    <article id="vm" class="iepass"><span class="tag pink">${a.mock ? "Sinov imtihoni · " : ""}Reading · ${R.min} daqiqa</span><h2>${esc(R.title)}</h2>${R.paras.map((p, i) => `<p>${R.heads ? `<b class="plet">${LET[i]}</b>` : ""}${esc(p)}</p>`).join("")}
+    <article id="vm" class="iepass"><span class="tag pink">${a.mock ? "Sinov imtihoni · " : ""}Reading · ${Math.round(lim / 60)} daqiqa</span><h2>${esc(R.title)}</h2>${R.paras.map((p, i) => `<p>${R.heads ? `<b class="plet">${LET[i]}</b>` : ""}${esc(p)}</p>`).join("")}
       <button class="btn ghost" id="toq" type="button">Savollarga o'tish →</button></article>
     <div id="vq" class="ieqs" hidden>${ieQHtml(R)}<button class="btn main" id="sub2" type="button">Topshirish</button></div>`);
   const pos = { m: 0, q: 0 };
@@ -258,7 +262,7 @@ function ieResult(kind, X, ans, sec, a) {
   H[kind].push({ id: X.id, ok, n, band, sec: Math.round(sec), at: Date.now(), mock: !!a.mock });
   ieUsed(kind, X.id);
   const ms = ieMistStore();
-  qs.forEach((q, i) => { if (!okv[i]) ms.push({ k: kind, id: X.id, q: i, u: ans[i], at: Date.now() }); });
+  qs.forEach((q, i) => { if (!okv[i]) ms.push({ k: kind, id: X.id, q: X.qi ? X.qi[i] : i, u: ans[i], at: Date.now() }); });
   addXP(10 + ok * 3); bumpStreak(); save();
   ustozEvent(kind, { id: X.id, ok, n });
   const wrong = qs.map((q, i) => i).filter((i) => !okv[i]), seen = new Set();
@@ -384,26 +388,37 @@ const W2TIPS = ["Kirish (2 gap): savolni o'z so'zing bilan qayta yoz va fikringn
 const W1TIPS = ["Kirish: grafik nimani ko'rsatishini o'z so'zing bilan yoz (savolni ko'chirma).", "Overview: 2 ta eng asosiy tendensiya, raqamsiz. Bu paragrafsiz 6 dan oshmaydi.", "2 ta tafsilot paragrafi: eng muhim raqamlar va taqqoslashlar.", "O'z fikringni yozma: faqat ma'lumot."];
 function ieWriting(kind, id, a) {
   a = a || {};
-  const W = ieGet(kind, id), minW = kind === "w2" ? 250 : 150, lim = (kind === "w2" ? 40 : 20) * 60;
+  const W = ieGet(kind, id), minW = a.minW || (kind === "w2" ? 250 : 150), lim = (a.lim || (kind === "w2" ? 40 : 20)) * 60;
   const dr = S.wdraft && S.wdraft.id === W.id && S.wdraft.kind === kind ? S.wdraft : null;
   if (dr) return ieWrEditor(kind, W, a, dr);
   html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>Writing ${kind === "w2" ? "Task 2" : "Task 1"}</h2></div>
-    <div class="card"><span class="tag pink">${a.mock ? "Sinov imtihoni · " : ""}${kind === "w2" ? "40 daqiqa · kamida 250 so'z" : "20 daqiqa · kamida 150 so'z"}</span>
+    <div class="card"><span class="tag pink">${a.mock ? "Sinov imtihoni · " : ""}${lim / 60} daqiqa · kamida ${minW} so'z</span>
       <div class="rule wq">${esc(W.q)}</div>${kind === "w1" ? ieChart(W) : ""}
       <details><summary class="muted">O'zbekchasi</summary><span class="muted">${esc(W.uz || "")}</span></details></div>
-    <section class="card"><b>Reja (yozishdan oldin 3–5 daqiqa o'yla)</b><ol class="urules">${(kind === "w2" ? W2TIPS : W1TIPS).map((t) => `<li>${esc(t)}</li>`).join("")}</ol>
+    ${a.part ? `<section class="card ypart"><b>Bugungi vazifa</b><span>${esc(a.part)}</span><span class="muted small">Yozish oynasida “Shablon” tugmasi bor: tayyor gaplarni bosib qo'yib, bo'sh joylarini to'ldirsang bo'ladi.</span></section>` : ""}
+    <section class="card"${a.part ? " hidden" : ""}><b>Reja (yozishdan oldin 3–5 daqiqa o'yla)</b><ol class="urules">${(kind === "w2" ? W2TIPS : W1TIPS).map((t) => `<li>${esc(t)}</li>`).join("")}</ol>
       ${W.ideas ? `<details><summary class="muted">G'oyalar kerak bo'lsa</summary><ul class="cando">${W.ideas.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></details>` : ""}</section>
     <div class="grow"></div>
     <button class="btn main" id="go" type="button">Yozishni boshlash · ${lim / 60}:00</button>`);
   $("quit").onclick = ieBack;
   $("go").onclick = () => ieWrEditor(kind, W, a, null);
 }
+// shablon: bo'sh joyli tayyor gaplar. Bosilsa, matnga qo'shiladi; ___ lar to'ldirilmaguncha topshirib bo'lmaydi
+const WTPL = {
+  line: [["Kirish", ["The line graph illustrates ___ in ___ from ___ to ___."]], ["Overview", ["Overall, ___ increased over the period, while ___ decreased.", "___ had the highest figure during the whole period."]], ["Tafsilot", ["In ___, ___ stood at ___.", "It then rose to ___ in ___ and reached ___ in ___.", "By contrast, ___ fell from ___ to ___.", "___ was higher than ___ until ___."]]],
+  bar: [["Kirish", ["The bar chart compares ___ in ___ and ___."]], ["Overview", ["Overall, ___ was the most popular, while ___ was the least common.", "The biggest change was in ___."]], ["Tafsilot", ["In ___, ___% of ___ ___, compared with ___% in ___.", "The figure for ___ fell from ___% to ___%.", "By contrast, ___ rose from ___% to ___%.", "___ stayed the same at ___%."]]],
+  pie: [["Kirish", ["The pie charts compare ___ in ___ and ___."]], ["Overview", ["Overall, ___ made up the largest share in ___, while ___ was the smallest.", "___ grew the most, while ___ fell."]], ["Tafsilot", ["___ accounted for ___% in ___, but this fell to ___% in ___.", "By contrast, ___ rose from ___% to ___%.", "___ remained the same at ___%."]]],
+  table: [["Kirish", ["The table shows ___ in ___."]], ["Overview", ["Overall, ___ had the highest figures, while ___ had the lowest.", "In all cases, the largest amount was for ___."]], ["Tafsilot", ["___ spent ___ on ___, compared with ___ in ___.", "The lowest figure was for ___, at ___.", "___ was about twice as high as ___."]]],
+  w2: [["Kirish", ["It is often argued that ___.", "I completely agree with this view because ___.", "I partly agree with this view because ___, but ___."]], ["Asosiy paragraf", ["Firstly, ___.", "This is because ___.", "For example, ___.", "As a result, ___.", "Secondly, ___.", "On the other hand, ___. However, I believe ___."]], ["Xulosa", ["In conclusion, I believe that ___ because ___."]]],
+};
 function ieWrEditor(kind, W, a, dr) {
-  const minW = kind === "w2" ? 250 : 150, lim = (kind === "w2" ? 40 : 20) * 60;
+  const minW = a.minW || (kind === "w2" ? 250 : 150), lim = (a.lim || (kind === "w2" ? 40 : 20)) * 60;
+  const tpl = a.mock ? null : WTPL[kind === "w2" ? "w2" : W.kind] || WTPL.line;
   const d = dr || { id: W.id, kind, text: "", t0: Date.now(), mock: !!a.mock };
   S.wdraft = d; save();
   html(`<div class="bar iebar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><div class="ietime" id="tm">${mmss(lim)}</div><span class="wcount" id="wc">0/${minW}</span></div>
     <details class="card wqd"><summary><b>Savol</b> <span class="muted">(ochish)</span></summary><div class="rule wq">${esc(W.q)}</div>${kind === "w1" ? ieChart(W) : ""}</details>
+    ${tpl ? `<details class="card wqd wtpl"><summary><b>Shablon</b> <span class="muted">(tayyor gaplar)</span></summary><span class="muted small tplt">Gapni bossang, matnga qo'shiladi. Keyin ___ o'rniga o'z so'z va raqamlaringni yoz.</span>${tpl.map((g, gi) => `<span class="tplh">${esc(g[0])}</span>${g[1].map((f) => `<button class="tplb" data-g="${gi}" data-f="${esc(f)}" type="button">${esc(f)}</button>`).join("")}`).join("")}</details>` : ""}
     <textarea class="wbox" id="wb" spellcheck="false" autocapitalize="sentences" placeholder="Shu yerga yoz. Paragraflar orasida bo'sh qator qoldir."></textarea>
     <button class="btn main" id="sub" type="button" disabled>Topshirish</button>`);
   const tb = $("wb");
@@ -412,11 +427,21 @@ function ieWrEditor(kind, W, a, dr) {
   const upd = () => {
     const wc = (tb.value.trim().match(/\S+/g) || []).length;
     $("wc").textContent = `${wc}/${minW}`; $("wc").classList.toggle("ok", wc >= minW);
-    $("sub").disabled = wc < minW;
-    $("sub").textContent = wc < minW ? `Yana ${minW - wc} so'z kerak` : "Topshirish";
+    const gaps = /_{3}/.test(tb.value);
+    $("sub").disabled = wc < minW || gaps;
+    $("sub").textContent = wc < minW ? `Yana ${minW - wc} so'z kerak` : gaps ? "Bo'sh joylarni (___) to'ldir" : "Topshirish";
     d.text = tb.value; clearTimeout(tSave); tSave = setTimeout(save, 800);
   };
   tb.oninput = upd; upd();
+  on(".tplb", (e) => {
+    // bir bo'limning gaplari bitta xatboshida, yangi bo'lim (Kirish -> Overview) yangi xatboshidan
+    const f = e.currentTarget.dataset.f, gi = e.currentTarget.dataset.g, v = tb.value.replace(/\s+$/, "");
+    tb.value = v + (!v ? "" : d.tg === gi ? " " : "\n\n") + f; d.tg = gi;
+    e.currentTarget.classList.add("used");
+    const dt = e.currentTarget.closest("details"); if (dt) dt.open = false;
+    upd(); tb.focus();
+    const k = tb.value.indexOf("___"); if (k >= 0) try { tb.setSelectionRange(k, k + 3); } catch {}
+  });
   every(() => {
     const el = $("tm"); if (!el) return;
     const left = lim - (Date.now() - d.t0) / 1000;
@@ -433,12 +458,14 @@ function ieWrEditor(kind, W, a, dr) {
 function ieWrResult(kind, W, text, sec, a) {
   WR_TOPIC = (W.q.toLowerCase().match(/[a-z]+/g) || []).join(" ");
   const st = wrStats(text, kind), bd = wrBand(st, kind), H = ieH();
-  const entry = { k: kind, id: W.id, words: st.wc, sec: Math.round(sec), at: Date.now(), band: bd.all, text, mock: !!a.mock };
+  const entry = { k: kind, id: W.id, words: st.wc, sec: Math.round(sec), at: Date.now(), band: a.part ? null : bd.all, text, mock: !!a.mock };
+  if (a.part) entry.part = 1;
   H.wr.push(entry);
   if (H.wr.length > 60) H.wr.splice(0, H.wr.length - 60);
   ieUsed(kind, W.id);
-  addXP(40); bumpStreak(); save();
+  addXP(a.part ? 20 : 40); bumpStreak(); save();
   ustozEvent(kind, { id: W.id, words: st.wc });
+  if (a.part) return ieWrPart(kind, W, text, sec, a, st);
   const tips = [];
   if (kind === "w2" && st.paras < 4) tips.push(`Paragraflar ${st.paras} ta. Task 2 da 4–5 paragraf bo'lsin: kirish, 2 asosiy, xulosa.`);
   if (kind === "w2" && !st.conc) tips.push("Xulosa yo'q. Oxirida \"In conclusion, ...\" bilan fikringni qayta ayt.");
@@ -484,6 +511,24 @@ Mistakes:
 4. ...
 5. ...
 Tip: <the one most important thing to improve>`, `${kind === "w2" ? "Task 2" : "Task 1"} question: ${W.q}${kind === "w1" ? `\nData: ${ieDataText(W)}` : ""}\n\nEssay (${st.wc} words):\n${text}`, $("aifb"), (b) => { if (b) { entry.ab = b; save(); } });
+  };
+}
+// yo'l darsidagi qisman yozuv (faqat kirish yoki bitta paragraf): namuna bilan solishtirish
+function ieWrPart(kind, W, text, sec, a, st) {
+  const mins = Math.max(1, Math.round(sec / 60));
+  html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Chiqish">×</button><h2>Yozganing</h2></div>
+    <div class="stats"><div class="stat"><b>${st.wc}</b><span>so'z</span></div><div class="stat"><b>${mins}</b><span>daqiqa</span></div></div>
+    <section class="card"><b>Sening javobing</b><div class="aifb">${esc(text)}</div></section>
+    ${a.model ? `<section class="card"><b>Namuna javob</b><div class="aifb">${esc(a.model)}</div><span class="muted small">Bir xil bo'lishi shart emas. Tuzilishi o'xshashmi, shunga qara.</span></section>` : ""}
+    ${a.chk ? `<section class="card"><b>O'zingni tekshir</b>${a.chk.map((c, i) => `<button class="mrow" data-ck="${i}" type="button"><span class="mchk"></span><span>${esc(c)}</span></button>`).join("")}</section>` : ""}
+    <section class="card"><b>Claude'ga yubor: aniq tekshiruv</b><span class="muted">Nusxa ol va loyihadagi suhbatga joylashtir. Xatolaringni yozib beraman.</span><button class="btn ghost" id="cp" type="button">Nusxa olish</button></section>
+    <div class="grow"></div>
+    <button class="btn main" id="go" type="button">Davom etish</button>`);
+  $("go").onclick = ieBack; $("quit").onclick = ieBack;
+  on("[data-ck]", (e) => { const b = e.currentTarget, onn = b.classList.toggle("on"); b.querySelector(".mchk").innerHTML = onn ? CHECK : ""; });
+  $("cp").onclick = () => {
+    const t = `IELTS Writing ${kind === "w2" ? "Task 2" : "Task 1"} (qisman mashq)\nSavol: ${W.q}\nVazifa: ${a.part}\n\nMening javobim (${st.wc} so'z):\n\n${text}\n\nXatolarimni ko'rsatib ber.`;
+    lateToast(ieCopy(t) ? "Nusxa olindi. Loyihadagi suhbatga joylashtir." : "Nusxa olinmadi");
   };
 }
 const ieDataText = (W) => W.series.map((s) => `${s.n}: ${W.cats.map((c, i) => `${c} ${s.v[i]}`).join(", ")}`).join("; ") + (W.unit ? ` (${W.unit})` : "");

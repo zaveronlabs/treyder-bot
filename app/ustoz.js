@@ -23,6 +23,7 @@ const KIND = {
   analysis: { t: "Xatolar tahlili", ic: "🔍", d: "Haftaning xatolarini qayta ishlash", why: "Xatoni tushunmasang, u imtihonda yana qaytadi." },
   speakday: { t: "Speaking kuni", ic: "🎤", d: "To'liq speaking imtihoni va AI imtihonchi", why: "Dam olish kunida ovoz chiqarib uzoqroq gapiramiz." },
   week: { t: "Hafta yakuni", ic: "📈", d: "Haftalik hisobot va takrorlash", why: "Qayerda o'sding, qayerda ortda qolding: rejani shunga qarab to'g'rilaymiz." },
+  yol: { t: "Bugungi mavzu", ic: "🧭", d: "Bitta mavzu, 5 qadam: tushuntirish, namuna, mashq, vazifa, test", why: "Bitta mavzu, boshidan oxirigacha. Tushunmaguningcha keyingisiga o'tmaymiz." },
   eve: { t: "Kun yakuni", ic: "🌙", d: "Bugungi so'zlar, qisqa", why: "Uxlashdan oldingi takror xotirada mustahkam qoladi." },
 };
 const hm = (s) => { const m = /^(\d{1,2}):(\d{2})$/.exec(s || ""); return m ? +m[1] * 60 + +m[2] : 0; };
@@ -53,17 +54,20 @@ function ucfg(t = Date.now()) {
 function uBlocks(t) {
   const c = ucfg(t), d0 = startOfDay(t), dow = new Date(t).getDay(), dk = todayStr(t), out = [];
   const add = (id, kind, s, len, dead, o) => out.push(Object.assign({ id, kind, dk, key: dk + "|" + id, start: d0 + s * 60000, end: d0 + (s + len) * 60000, dead: d0 + dead * 60000, len }, o || {}));
-  const sl = hm(c.sleep) || 23 * 60;
+  const sl = hm(c.sleep) || 23 * 60, yl = yOnAt(d0);
   if (c.work.includes(dow)) {
     const m = hm(c.morn), mn = hm(c.main);
     add("ert", "words", m, 30, m + 60, { core: true, light: true });
     add("yol", "listen", m + 60, 0, sl - 15, { passive: true });
     add("tush", "lunch", 13 * 60, 15, 14 * 60, { opt: true });
-    add("asosiy", MAIN_OF[dow], mn, 90, sl - 15, { core: true, main: true });
+    add("asosiy", yl ? "yol" : MAIN_OF[dow], mn, 90, sl - 15, { core: true, main: true });
     add("kech", "eve", Math.max(hm(c.eve), mn + 95), 20, sl, { core: true, light: true });
   } else {
     const w = hm(c.wk);
-    if (dow === 6) {
+    if (yl) {
+      add("asosiy", "yol", w, 90, sl - 30, { core: true, main: true });
+      if (dow === 0) add("hafta", "week", w + 100, 45, sl - 15, { core: true });
+    } else if (dow === 6) {
       add("mock", "mock", w, 180, Math.min(w + 7 * 60, sl - 30), { core: true, main: true });
       add("tahlil", "analysis", Math.max(15 * 60, w + 240), 60, sl - 15, { core: true, main: true });
     } else {
@@ -119,10 +123,10 @@ const USTEP = {
   shadow: { t: (a) => `Soya: ${HIKOYALAR[uShadowOf(a)].title}`, d: "Andrew'dan keyin darhol takrorla: talaffuz va ravonlik", min: 10, ev: "practice", go: (a) => shadow(uShadowOf(a)) },
   listen: { t: (a) => `${a.m || 60} daqiqa inglizcha tinglash`, d: () => `Bugun: ${listenToday()} / 60 daqiqa. Yodla o'zi sanaydi`, min: 60, passive: true, go: () => uListen(), auto: (a) => listenToday() >= (a.m || 60) },
   today: { t: "Bugungi so'zlar", d: "Bugun o'rgangan va adashgan so'zlaringni mustahkamlash", min: 5, ev: "today", go: () => uTodayQuiz(), auto: () => !uTodayWords().length },
-  rd: { t: (a) => `Reading: ${ieTitle("reading", a.id)}`, d: (a) => ieDesc("reading", a.id), min: (a) => ieMin("reading", a.id), ev: "rd", ok: (d, st) => d.id === st.a.id, go: (a) => ieReading(a.id, a) },
+  rd: { t: (a) => `Reading: ${ieTitle("reading", a.id)}`, d: (a) => (a.only ? "Faqat o'tilgan savol turlari, qo'shimcha vaqt bilan" : ieDesc("reading", a.id)), min: (a) => Math.round(ieMin("reading", a.id) * (a.xt || 1)), ev: "rd", ok: (d, st) => d.id === st.a.id, go: (a) => ieReading(a.id, a) },
   ls: { t: (a) => `Listening: ${ieTitle("listening", a.id)}`, d: (a) => ieDesc("listening", a.id), min: (a) => ieMin("listening", a.id), ev: "ls", ok: (d, st) => d.id === st.a.id, go: (a) => ieListening(a.id, a) },
-  w2: { t: "Writing Task 2: insho", d: (a) => ieDesc("w2", a.id), min: 40, ev: "w2", go: (a) => ieWriting("w2", a.id, a) },
-  w1: { t: "Writing Task 1: grafik tasviri", d: (a) => ieDesc("w1", a.id), min: 20, ev: "w1", go: (a) => ieWriting("w1", a.id, a) },
+  w2: { t: (a) => a.lbl || "Writing Task 2: insho", d: (a) => a.part || ieDesc("w2", a.id), min: (a) => a.lim || 40, ev: "w2", go: (a) => ieWriting("w2", a.id, a) },
+  w1: { t: (a) => a.lbl || "Writing Task 1: grafik tasviri", d: (a) => a.part || ieDesc("w1", a.id), min: (a) => a.lim || 20, ev: "w1", go: (a) => ieWriting("w1", a.id, a) },
   model: { t: "Namunaviy insho: tuzilishni o'rgan", d: "Band 7 insho qanday qurilganini ko'r", min: 10, ev: "model", go: (a) => ieModel(a.id) },
   sp1: { t: "Speaking Part 1", d: (a) => `Mavzu: ${ieTitle("p1", a.id)} · 4 savol`, min: 5, ev: "sp", ok: (d) => d.part === 1, go: (a) => ieSpeaking(1, a) },
   sp2: { t: "Speaking Part 2: kartochka", d: (a) => ieTitle("p2", a.id), min: 5, ev: "sp", ok: (d) => d.part === 2, go: (a) => ieSpeaking(2, a) },
@@ -135,6 +139,7 @@ const USTEP = {
 
 // blok qadamlari: blok boshlanganda tuziladi (kontent shu payt tanlanadi va o'zgarmaydi)
 function uPlan(b, isDebt) {
+  if (b.kind === "yol") return yPlan(b);
   const out = [], st = (k, a) => out.push({ id: "s" + out.length, k, a: a || {} });
   const due = dueWords().length, rec = uDay(b.dk);
   const pk = () => st("pack", { pi: uNextPack() });
@@ -172,7 +177,7 @@ function uAutoMark(ctx) {
   const steps = uSteps(ctx), done = uDoneMap(ctx);
   let ch = false;
   for (const st of steps) { const K = USTEP[st.k]; if (!done[st.id] && K && K.auto && K.auto(st.a)) { done[st.id] = Date.now(); ch = true; } }
-  if (ch) save();
+  if (ch) { save(); yMirror(ctx); }
   if (steps.every((st) => done[st.id])) uFinish(ctx);
 }
 function uFinish(ctx) {
@@ -188,9 +193,10 @@ function uFinish(ctx) {
   const rec = uDay(ctx.b.dk);
   if (rec.fin[ctx.b.id]) return;
   rec.fin[ctx.b.id] = now; save();
+  if (ctx.b.kind === "yol") yDone(ctx.b);
   try { if (NATIVE && NATIVE.ustozTugadi) NATIVE.ustozTugadi(ctx.b.key); } catch {}
   uSync();
-  if (!ctx.b.passive) { addXP(ctx.b.main ? 50 : 20); lateToast(`${KIND[ctx.b.kind].ic} ${esc(KIND[ctx.b.kind].t)} bajarildi! <small>+${ctx.b.main ? 50 : 20} XP</small>`); }
+  if (!ctx.b.passive) { addXP(ctx.b.main ? 50 : 20); lateToast(`${KIND[ctx.b.kind].ic} ${esc(ctx.b.kind === "yol" ? "Bugungi kun" : KIND[ctx.b.kind].t)} bajarildi! <small>+${ctx.b.main ? 50 : 20} XP</small>`); }
 }
 function uFindCtx(c) {
   if (!c) return null;
@@ -210,6 +216,7 @@ function ustozEvent(type, d) {
   const done = uDoneMap(ctx);
   if (done[st.id]) return;
   done[st.id] = Date.now(); c.fresh = true; save();
+  yMirror(ctx);
   uAutoMark(ctx);
 }
 
@@ -236,18 +243,22 @@ function uProcess() {
 }
 function uAddDebt(b, rec) {
   const u = S.ust, id = b.key;
+  // yo'l bosqichida qarz yo'q: yopilmagan kun ertaga o'zi davom etadi
+  if (b.kind === "yol" || yOnAt(Date.now())) return;
   if (u.debt.some((x) => x.id === id)) return;
   const steps = rec.plan[b.id] || uPlan(b, true);
   u.debt.push({ id, dk: b.dk, bid: b.id, kind: b.kind, steps, done: Object.assign({}, rec.done[b.id] || {}), at: Date.now() });
   while (u.debt.length > 2) { u.debt.shift(); u.lost = (u.lost || 0) + 1; }
 }
 // intizom: o'z vaqtida bajarilgan asosiy bloklar ulushi (kech yopilgan qarz yarim ball)
+// intizom hisobi qayerdan boshlanadi: Yo'l yoqilgan paytdan (eski qoldiqlar hisobga kirmaydi)
+function uBase() { const u = S.ust, y = u.yol; return y && y.t0 ? Math.max(u.start, y.t0) : u.start; }
 function uDisc(days) {
   const u = S.ust; let tot = 0, got = 0;
   for (let k = days - 1; k >= 0; k--) {
     const mid = addDays(Date.now(), -k) + 12 * 3600000, dk = todayStr(mid), rec = u.days[dk] || { fin: {}, exc: {} };
     for (const b of uBlocks(mid)) {
-      if (!b.core || (b.start < u.start && !rec.fin[b.id]) || rec.exc[b.id]) continue;
+      if (!b.core || (b.start < uBase() && !rec.fin[b.id]) || rec.exc[b.id]) continue;
       if (k === 0 && Date.now() < b.dead && !rec.fin[b.id]) continue;
       tot++;
       if (rec.fin[b.id]) got++; else if (rec.late && rec.late[b.id]) got += 0.5;
@@ -259,12 +270,12 @@ function uFullDays() {
   const u = S.ust; let n = 0;
   for (let k = 1; k < 120; k++) {
     const mid = addDays(Date.now(), -k) + 12 * 3600000;
-    if (mid < startOfDay(u.start)) break;
+    if (mid < startOfDay(uBase())) break;
     const rec = u.days[todayStr(mid)] || { fin: {}, exc: {} };
-    if (uBlocks(mid).filter((b) => b.core && (b.start >= u.start || rec.fin[b.id])).every((b) => rec.fin[b.id] || rec.exc[b.id])) n++; else break;
+    if (uBlocks(mid).filter((b) => b.core && (b.start >= uBase() || rec.fin[b.id])).every((b) => rec.fin[b.id] || rec.exc[b.id])) n++; else break;
   }
   const rec = u.days[todayStr()] || { fin: {}, exc: {} };
-  const tb = uBlocks(Date.now()).filter((b) => b.core && (b.start >= u.start || rec.fin[b.id]));
+  const tb = uBlocks(Date.now()).filter((b) => b.core && (b.start >= uBase() || rec.fin[b.id]));
   if (tb.length && tb.every((b) => rec.fin[b.id] || rec.exc[b.id])) n++;
   return n;
 }
@@ -292,7 +303,7 @@ function ustozLock(t) {
   const g = uGate();
   if (!g) return false;
   document.querySelectorAll(".sheet").forEach((e) => e.remove());
-  const what = g.b ? `${KIND[g.b.kind].ic} <b>${esc(KIND[g.b.kind].t)}</b> (${hhmm(g.b.start)})` : `qarz: <b>${esc(KIND[g.debt.kind].t)}</b> (${esc(dateUz(dkMs(g.debt.dk)))})`;
+  const what = g.b ? `${KIND[g.b.kind].ic} <b>${esc(uTitle(g.b))}</b> (${hhmm(g.b.start)})` : `qarz: <b>${esc(KIND[g.debt.kind].t)}</b> (${esc(dateUz(dkMs(g.debt.dk)))})`;
   const el = document.createElement("div");
   el.className = "sheet ulock";
   el.innerHTML = `<div class="in"><h3>🔒 Hozir dars vaqti</h3><p>Avval ${what}. Tugatsang, boshqa bo'limlar o'zi ochiladi.</p><button class="btn main" id="ulgo" type="button">Darsga o'tish</button><button class="btn ghost" id="ulx" type="button">Yopish</button></div>`;
@@ -320,7 +331,7 @@ function uEvents() {
     const c = ucfg(mid);
     for (const b of uBlocks(mid)) {
       if (rec.fin[b.id] || rec.exc[b.id] || b.dead < now) continue;
-      const K = KIND[b.kind], title = `${K.ic} ${hhmm(b.start)} · ${K.t}`;
+      const K = KIND[b.kind], title = `${K.ic} ${hhmm(b.start)} · ${uTitle(b)}`;
       ev.push({ at: b.start, k: b.key, t: title, m: uStartMsg(b), o: b.main ? 1 : 0 });
       if (b.opt || b.passive) continue;
       (b.main ? [10, 25, 45, 70] : [15, 35]).forEach((n, j) => {
@@ -393,6 +404,8 @@ function uMsg(g, disc) {
   const seed = todayStr() + (g ? (g.b ? g.b.id : "q") : "");
   if (g && g.b) return dpick([`${KIND[g.b.kind].t} vaqti. Bahona yo'q: boshlaymiz.`, "Hozir telefon faqat dars uchun. Qolgani keyin.", "Bugungi dars bugun bajariladi. Boshla.", "Charchagansan, bilaman. Lekin shu 90 daqiqa seni Koreyaga olib boradi."], seed);
   if (g && g.debt) return "Qarzing bor. Avval qarzni yopamiz, keyin dam.";
+  const y = S.ust.yol, fresh = y && y.t0 && Date.now() - y.t0 < 7 * DAY; // yangi tartibning birinchi haftasida tanbeh yo'q
+  if (fresh && (disc === null || disc < 80)) return dpick(["Yangi tartib: har kuni bitta mavzu. Bugungisini yopsak bo'ldi.", "Bitta kun, bitta mavzu. Shoshmaymiz, lekin to'xtamaymiz.", "Bugun faqat bitta ish: bugungi mavzuni oxirigacha yetkazish."], seed);
   if (disc !== null && disc < 50) return `Intizom ${disc}%. Bu tezlikda maqsadga yetmaymiz. Ertadan boshlab har kun to'liq.`;
   if (disc !== null && disc < 80) return `Intizom ${disc}%. Yomon emas, lekin 6.5 uchun kamida 85% kerak.`;
   if (disc !== null && disc >= 95) return dpick(["Zo'r ketyapsan. Shu tezlikni ushla.", "Intizoming a'lo. Imtihonga shunday tayyorlanadi.", "Rejadan chiqmayapsan. Mana shu seni boshqalardan ajratadi."], seed);
@@ -412,16 +425,17 @@ function uExamLeft() {
 function ustozHome() {
   if (!S.ust) return ustozIntro();
   if (!uOn()) return ustozIntro(false);
+  yInit();
   uProcess();
   UCTX = null;
   const now = Date.now(), g = uGate(now), disc = uDisc(7), rec = uDay(todayStr(now)), blocks = uBlocks(now);
   blocks.forEach((b) => { if (b.passive && listenToday() >= 60 && !rec.fin[b.id]) uFinish({ b }); });
   const next = blocks.find((b) => !b.opt && !b.passive && now < b.start && !rec.fin[b.id] && !rec.exc[b.id]);
-  const tm = new Date(addDays(now, 1) + 12 * 3600000), tb = uBlocks(tm.getTime()).find((b) => b.core);
+  const tm = new Date(addDays(now, 1) + 12 * 3600000), tb = uBlocks(tm.getTime()).find((b) => b.main) || uBlocks(tm.getTime()).find((b) => b.core);
   let big;
   if (g && g.b) {
     const steps = g.plan || [], done = rec.done[g.b.id] || {}, n = steps.filter((s) => done[s.id]).length;
-    big = `<div class="ubig now"><span class="tag pink">Hozir · ${hhmm(g.b.start)}–${hhmm(g.b.end)}</span><h2>${KIND[g.b.kind].ic} ${esc(KIND[g.b.kind].t)}</h2>
+    big = `<div class="ubig now"><span class="tag pink">Hozir · ${hhmm(g.b.start)}–${hhmm(g.b.end)}</span><h2>${KIND[g.b.kind].ic} ${esc(uTitle(g.b))}</h2>
       <p>${n}/${steps.length} qadam · tugatish muddati ${hhmm(g.b.dead)}</p><div class="meter"><i style="width:${steps.length ? (n / steps.length) * 100 : 0}%"></i></div>
       <button class="btn main" id="ugo" type="button">${n ? "Davom etish" : "Boshlash"}</button></div>`;
   } else if (g && g.debt) {
@@ -429,21 +443,21 @@ function ustozHome() {
     big = `<div class="ubig debt"><span class="tag pink">Qarz · ${esc(dateUz(dkMs(d.dk)))}</span><h2>${KIND[d.kind].ic} ${esc(KIND[d.kind].t)}</h2>
       <p>${n}/${d.steps.length} qadam. Qarz yopilmaguncha boshqa bo'limlar yopiq.</p><button class="btn main" id="ugo" type="button">Qarzni yopish</button></div>`;
   } else if (next) {
-    big = `<div class="ubig"><span class="tag pink">Keyingi · ${hhmm(next.start)}</span><h2>${KIND[next.kind].ic} ${esc(KIND[next.kind].t)}</h2>
+    big = `<div class="ubig"><span class="tag pink">Keyingi · ${hhmm(next.start)}</span><h2>${KIND[next.kind].ic} ${esc(uTitle(next))}</h2>
       <p data-cd="${next.start}">${dur(next.start - now)}dan keyin boshlanadi</p><span class="muted">Hozir erkin vaqt: istagan bo'limda mashq qilsang bo'ladi.</span></div>`;
   } else {
-    big = `<div class="ubig ok"><span class="tag pink">Bugun</span><h2>Bugungi reja bajarildi</h2><p>${tb ? `Ertaga ${hhmm(tb.start)}: ${esc(KIND[tb.kind].t)}.` : ""} Vaqtida uxla.</p></div>`;
+    big = `<div class="ubig ok"><span class="tag pink">Bugun</span><h2>Bugungi reja bajarildi</h2><p>${tb ? `Ertaga ${hhmm(tb.start)}: ${esc(tb.kind === "yol" && yCur() ? yName(yCur()) : KIND[tb.kind].t)}.` : ""} Vaqtida uxla.</p></div>`;
   }
   const tl = blocks.map((b) => {
     const s = uStatus(b, rec, now), K = KIND[b.kind];
     const steps = rec.plan[b.id], dn = rec.done[b.id] || {};
     const prog = b.passive ? `${Math.min(60, listenToday())}/60 daq` : steps ? `${steps.filter((x) => dn[x.id]).length}/${steps.length}` : `${b.len} daq`;
-    return `<button class="tli ${s}" data-b="${b.id}" type="button"><span class="tt">${hhmm(b.start)}</span><span class="tic">${K.ic}</span><span class="tb"><b>${esc(K.t)}${b.opt ? " <small>ixtiyoriy</small>" : ""}</b><small>${esc(K.d)}</small></span><span class="ts"><em>${ST_TXT[s]}</em><small>${prog}</small></span></button>`;
+    return `<button class="tli ${s}" data-b="${b.id}" type="button"><span class="tt">${hhmm(b.start)}</span><span class="tic">${K.ic}</span><span class="tb"><b>${esc(uTitle(b))}${b.opt ? " <small>ixtiyoriy</small>" : ""}</b><small>${esc(K.d)}</small></span><span class="ts"><em>${ST_TXT[s]}</em><small>${prog}</small></span></button>`;
   }).join("");
   const debts = S.ust.debt.map((d) => `<button class="tli miss" data-q="${esc(d.id)}" type="button"><span class="tt">qarz</span><span class="tic">${KIND[d.kind].ic}</span><span class="tb"><b>${esc(KIND[d.kind].t)}</b><small>${esc(dateUz(dkMs(d.dk)))}dan qolgan</small></span><span class="ts"><em>${d.steps.filter((s) => d.done[s.id]).length}/${d.steps.length}</em></span></button>`).join("");
   const days = [...Array(7)].map((_, k) => {
     const mid = addDays(now, k - 6) + 12 * 3600000, r = S.ust.days[todayStr(mid)] || { fin: {}, exc: {} };
-    const bl = uBlocks(mid).filter((b) => b.core && (b.start >= S.ust.start || r.fin[b.id]));
+    const bl = uBlocks(mid).filter((b) => b.core && (b.start >= uBase() || r.fin[b.id]));
     const pend = k === 6 && bl.some((b) => now < b.dead && !r.fin[b.id]);
     const cls = !bl.length ? "na" : bl.every((b) => r.fin[b.id] || r.exc[b.id]) ? "ok" : pend ? "cur" : bl.some((b) => r.fin[b.id]) ? "half" : "no";
     return `<span class="wd ${cls}"><i></i>${UZ_QISQA[new Date(mid).getDay()]}</span>`;
@@ -455,6 +469,7 @@ function ustozHome() {
       <p class="usay">“${esc(uMsg(g, disc))}”</p>
     </section>
     ${uPhoneCard()}
+    ${yHomeCard()}
     <div class="sec">Bugungi jadval</div>
     <div class="tline">${tl}</div>
     ${debts ? `<div class="sec">Qarzlar</div><div class="tline">${debts}</div>` : ""}
@@ -469,7 +484,7 @@ function ustozHome() {
   $("uprog").onclick = () => uProgress();
   $("uset").onclick = () => ustozSettings();
   $("uhub").onclick = () => { if (uGate()) return ustozLock("hub"); IEFROM = "ustoz"; ieHub(); };
-  uBindPhone();
+  uBindPhone(); yBindHome();
   uSync();
 }
 function uRefresh() {
@@ -488,13 +503,16 @@ function uBlockView(c, fresh) {
   } else {
     K = KIND[b.kind]; isToday = b.dk === todayStr(now);
     if (now < b.start - 30 * 60000 && !uDay(b.dk).plan[b.id]) {
-      html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>${K.ic} ${esc(K.t)}</h2></div>
-        <div class="card"><span class="tag pink">${hhmm(b.start)} da boshlanadi</span><b>${esc(K.d)}</b><span class="muted">${esc(K.why)}</span><span class="muted">Qadamlar dars boshlanishiga 30 daqiqa qolganda tuziladi: o'sha paytgi takrorlash va xatolaringga qarab.</span></div>`);
+      const early = b.kind === "yol" && isToday;
+      html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>${K.ic} ${esc(uTitle(b))}</h2></div>
+        <div class="card"><span class="tag pink">${hhmm(b.start)} da boshlanadi</span><b>${esc(K.d)}</b><span class="muted">${esc(K.why)}</span><span class="muted">${early ? "Vaqting bo'lsa, hozir ham boshlashing mumkin. Boshlasang, shu dars tugaguncha boshqa bo'limlar yopiladi." : "Qadamlar dars boshlanishiga 30 daqiqa qolganda tuziladi: o'sha paytgi takrorlash va xatolaringga qarab."}</span></div>
+        ${early ? `<div class="grow"></div><button class="btn main" id="early" type="button">Hozir boshlash</button>` : ""}`);
       $("quit").onclick = ustozHome;
+      if ($("early")) $("early").onclick = () => { uEnsure(b, true); uBlockView(c); };
       return;
     }
     steps = uEnsure(b, true); done = uDoneMap(ctx);
-    head = `${K.t}`; sub = `${hhmm(b.start)}–${hhmm(b.end)} · muddat ${hhmm(b.dead)}`;
+    head = uTitle(b); sub = `${hhmm(b.start)}–${hhmm(b.end)} · muddat ${hhmm(b.dead)}`;
     const s = uStatus(b, uDay(b.dk), now);
     if (s === "miss" || s === "skip") canGo = !!b.opt;
   }
@@ -580,11 +598,12 @@ function ustozIntro(first) {
   html(`${topBar()}
     <section class="panel hero"><div><h2>Ustoz rejimi</h2><p>Endi men tavsiya qilmayman: jadval bo'yicha o'qishga majbur qilaman. Maqsad aniq: IELTS ${tgt} va GKS granti bilan Koreya.</p></div></section>
     <section class="card"><b>Qoidalar</b><ol class="urules">
-      <li>Har kuni aniq jadval: ertalab so'zlar, yo'lda tinglash, kechqurun 90 daqiqalik asosiy dars (Reading, Writing, Listening, Speaking navbat bilan), uxlashdan oldin qisqa takror. Shanba sinov imtihoni, yakshanba speaking.</li>
+      <li>Har kuni aniq jadval: ertalab so'zlar, yo'lda tinglash, kechqurun asosiy dars, uxlashdan oldin qisqa takror.</li>
+      <li>Asosiy dars: har kuni <b>bitta mavzu</b>, 5 qadamda: tushuntirish, namuna, mashq, asosiy vazifa va test. Mavzular birin-ketin ochiladi: bugungisi yopilmaguncha keyingisi yo'q.</li>
       <li>Dars vaqti kelganda ilova faqat shu darsni ochadi. Dars tugaguncha boshqa bo'limlar yopiq.</li>
       <li>Qadamlar tartib bilan bajariladi. Grammatika darsi sinovdan 80% bilan o'tmaguncha yopilmaydi.</li>
       <li>Telefon vaqtida eslatadi va boshlamaguningcha qayta-qayta eslatadi.</li>
-      <li>Bajarilmagan asosiy dars ertaga qarz bo'lib qaytadi. Ikkitadan ortiq qarz kuyadi va intizomni tushiradi.</li>
+      <li>Bajarilmagan dars intizom foizini tushiradi va o'sha mavzu ertaga davom etadi.</li>
       <li>Haftasiga bitta uzrli sabab mumkin.</li>
       <li>Jadvalni o'zgartirish ertadan, Ustozni o'chirish esa 24 soatdan keyin kuchga kiradi.</li>
     </ol></section>
@@ -662,7 +681,7 @@ function uWeekStats() {
   for (let k = 6; k >= 0; k--) {
     const mid = addDays(Date.now(), -k) + 12 * 3600000, rec = u.days[todayStr(mid)] || { fin: {}, exc: {} };
     for (const b of uBlocks(mid)) {
-      if (!b.core || (b.start < u.start && !rec.fin[b.id]) || rec.exc[b.id] || (k === 0 && Date.now() < b.dead && !rec.fin[b.id])) continue;
+      if (!b.core || (b.start < uBase() && !rec.fin[b.id]) || rec.exc[b.id] || (k === 0 && Date.now() < b.dead && !rec.fin[b.id])) continue;
       tot++; if (rec.fin[b.id]) got++; else missed.push(`${UZ_QISQA[new Date(mid).getDay()]}: ${KIND[b.kind].t}`);
     }
   }
@@ -743,6 +762,7 @@ TABS.ustoz = () => ustozHome();
 function ustozStart() {
   if (!S.ust) return ustozIntro(true);
   if (!uOn()) return home();
+  yInit();
   uProcess();
   uSync();
   ustozHome();
@@ -762,6 +782,7 @@ const planTabRaw = planTab;
 });
 function uResume() {
   if (!uOn()) return;
+  yInit();
   uProcess();
   const onTab = !!document.querySelector(".tabs"), onUst = !!document.querySelector(".tab.on[data-t=ustoz]");
   if (!UCTX && onTab && (onUst || uGate())) ustozHome();
