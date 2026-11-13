@@ -656,6 +656,14 @@ mark { background: rgba(20, 184, 166, .18); color: var(--cyan); border-radius: 5
 .ydict { gap: 10px; }
 .ydict .btn svg { width: 20px; height: 20px; vertical-align: -4px; margin-right: 6px; }
 .ypart { border-color: rgba(20, 184, 166, .5); }
+.gtx { min-height: 170px; }
+.gchk:empty { display: none; }
+.gline { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 15px; line-height: 1.45; }
+.gline:last-child { border-bottom: 0; }
+.gline.no { color: var(--red); }
+.gline small { display: block; color: var(--soft); margin-top: 2px; }
+#tp li.ok { color: var(--teal, #0f766e); font-weight: 600; }
+#tp li.ok::after { content: " ✓"; }
 .wtpl { gap: 8px; }
 .tplt { display: block; margin-top: 8px; }
 .tplh { display: block; font: 600 11.5px var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--soft); margin-top: 12px; }
@@ -766,6 +774,7 @@ mark { background: rgba(20, 184, 166, .18); color: var(--cyan); border-radius: 5
 <script src="words.js"></script>
 <script src="lessons.js"></script>
 <script src="chuqur.js"></script>
+<script src="chuqur2.js"></script>
 <script src="gapirish.js"></script>
 <script src="audio.js"></script>
 <script src="ielts.js"></script>
@@ -2723,6 +2732,7 @@ function lessonResult(li, misses) {
 // ---------- Chuqur darslar ----------
 // Har dars 6 bosqich: kontekst (hikoya) → payqash (shaklni topish) → qoida (ma'no, tuzilish, o'zbekchadan farqi, xatolar)
 // → tushunish tekshiruvi → bosqichma-bosqich mashq → yakuniy sinov (80% dan o'tsa o'zlashtirildi) → 1, 3, 7, 21, 60 kundan keyin takrorlash
+const inUst = () => typeof UCTX !== "undefined" && !!UCTX;
 const DSTEPS = ["Kontekst", "Payqash", "Qoida", "Tushunish", "Mashq", "Sinov"];
 const RINT = [1, 3, 7, 21, 60];
 const deepOf = (L) => (L && typeof DEEP !== "undefined" && DEEP[L.id]) || null;
@@ -2856,8 +2866,8 @@ function deepResult(li, ok, total) {
     <p class="center muted">"${esc(L.title)}": ${ok} / ${total} to'g'ri. ${pass ? (sc === 1 ? "Mukammal! Qoida to'liq tushunilgan." : "Zo'r, qoida tushunilgan. Takrorlash kunlari qolganini mustahkamlaydi.") : `O'tish uchun ${total} tadan ${Math.ceil(total * 0.8)} tasi kerak. Qoidani yana bir ko'rib chiq va sinovni qayta topshir.`}</p>
     <p class="center"><span class="xpgain">+${pass ? 30 : 10} XP</span></p>
     <div class="grow"></div>
-    ${pass ? (nextLessonOf(li) !== undefined ? `<button class="btn main" id="nx" type="button">Keyingi dars</button>` : "") : `<button class="btn main" id="rt" type="button">Qoidani ko'rib, qayta topshirish</button>`}
-    <button class="btn ghost" id="bk" type="button">Darslar ro'yxati</button>
+    ${pass ? (!inUst() && nextLessonOf(li) !== undefined ? `<button class="btn main" id="nx" type="button">Keyingi dars</button>` : "") : `<button class="btn main" id="rt" type="button">Qoidani ko'rib, qayta topshirish</button>`}
+    <button class="btn ${pass && inUst() ? "main" : "ghost"}" id="bk" type="button">${inUst() ? "Davom etish" : "Darslar ro'yxati"}</button>
   `);
   $("quit").onclick = lessonsTab; $("bk").onclick = lessonsTab;
   if ($("nx")) $("nx").onclick = () => lessonTheory(nextLessonOf(li));
@@ -3101,5 +3111,6 @@ if ("serviceWorker" in navigator && location.hostname.endsWith("github.io")) {
 <script src="yol_data.js"></script>
 <script src="yol_data2.js"></script>
 <script src="yol.js"></script>
+<script src="yol_gram.js"></script>
 
 </body></html>

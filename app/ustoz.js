@@ -23,7 +23,7 @@ const KIND = {
   analysis: { t: "Xatolar tahlili", ic: "🔍", d: "Haftaning xatolarini qayta ishlash", why: "Xatoni tushunmasang, u imtihonda yana qaytadi." },
   speakday: { t: "Speaking kuni", ic: "🎤", d: "To'liq speaking imtihoni va AI imtihonchi", why: "Dam olish kunida ovoz chiqarib uzoqroq gapiramiz." },
   week: { t: "Hafta yakuni", ic: "📈", d: "Haftalik hisobot va takrorlash", why: "Qayerda o'sding, qayerda ortda qolding: rejani shunga qarab to'g'rilaymiz." },
-  yol: { t: "Bugungi mavzu", ic: "🧭", d: "Bitta mavzu, 5 qadam: tushuntirish, namuna, mashq, vazifa, test", why: "Bitta mavzu, boshidan oxirigacha. Tushunmaguningcha keyingisiga o'tmaymiz." },
+  yol: { t: "Bugungi mavzu", ic: "🧭", d: "Bitta mavzu, qadam-baqadam: dars, mashq, o'zing gap tuzish, takrorlash", why: "Bitta mavzu, boshidan oxirigacha. Tushunmaguningcha keyingisiga o'tmaymiz." },
   eve: { t: "Kun yakuni", ic: "🌙", d: "Bugungi so'zlar, qisqa", why: "Uxlashdan oldingi takror xotirada mustahkam qoladi." },
 };
 const hm = (s) => { const m = /^(\d{1,2}):(\d{2})$/.exec(s || ""); return m ? +m[1] * 60 + +m[2] : 0; };
@@ -599,7 +599,7 @@ function ustozIntro(first) {
     <section class="panel hero"><div><h2>Ustoz rejimi</h2><p>Endi men tavsiya qilmayman: jadval bo'yicha o'qishga majbur qilaman. Maqsad aniq: IELTS ${tgt} va GKS granti bilan Koreya.</p></div></section>
     <section class="card"><b>Qoidalar</b><ol class="urules">
       <li>Har kuni aniq jadval: ertalab so'zlar, yo'lda tinglash, kechqurun asosiy dars, uxlashdan oldin qisqa takror.</li>
-      <li>Asosiy dars: har kuni <b>bitta mavzu</b>, 5 qadamda: tushuntirish, namuna, mashq, asosiy vazifa va test. Mavzular birin-ketin ochiladi: bugungisi yopilmaguncha keyingisi yo'q.</li>
+      <li>Asosiy dars: har kuni <b>bitta grammatika mavzusi</b> (am / is / are dan zamonlargacha): dars va test, qo'shimcha mashq, o'zing gap tuzish, eski mavzularni takrorlash. Mavzular birin-ketin ochiladi: bugungisi yopilmaguncha keyingisi yo'q.</li>
       <li>Dars vaqti kelganda ilova faqat shu darsni ochadi. Dars tugaguncha boshqa bo'limlar yopiq.</li>
       <li>Qadamlar tartib bilan bajariladi. Grammatika darsi sinovdan 80% bilan o'tmaguncha yopilmaydi.</li>
       <li>Telefon vaqtida eslatadi va boshlamaguningcha qayta-qayta eslatadi.</li>

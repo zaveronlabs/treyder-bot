@@ -12,10 +12,17 @@ function yOnAt(t) { const y = yState(); return !!(y && t >= y.from && (!y.end ||
 function yCur() { const y = yState(); return y ? YOL[y.i] || null : null; }
 function yInit() {
   const u = S.ust;
-  if (!u || !u.on || u.yol) return;
+  if (!u || !u.on || (u.yol && u.yol.v === 2)) return;
   const now = Date.now(), rec = u.days[todayStr(now)];
+  if (u.yol) {
+    // 1-versiya (IELTS mavzulari) → grammatika yo'li, boshidan; bugungi tugallanmagan blok qayta tuziladi
+    Object.assign(u.yol, { v: 2, i: 0, done: {}, miss: {}, prog: null, end: 0, intro: 2 });
+    if (rec && !rec.fin.asosiy) { delete rec.plan.asosiy; delete rec.done.asosiy; }
+    save();
+    return;
+  }
   const mainDone = !!rec && ["asosiy", "mock", "gapir"].some((id) => rec.fin[id]);
-  u.yol = { from: mainDone ? addDays(now, 1) : startOfDay(now), t0: now, i: 0, done: {}, miss: {}, intro: 1 };
+  u.yol = { v: 2, from: mainDone ? addDays(now, 1) : startOfDay(now), t0: now, i: 0, done: {}, miss: {}, intro: 2 };
   if (!mainDone && rec && !rec.fin.asosiy) { delete rec.plan.asosiy; delete rec.done.asosiy; }
   u.debt = [];
   save();
@@ -28,14 +35,17 @@ function yBlockUnit(b) {
 }
 function uTitle(b) {
   if (b.kind !== "yol") return KIND[b.kind].t;
-  const U = yBlockUnit(b);
-  return U ? yName(U) : KIND.yol.t;
+  const U = yBlockUnit(b), y = yState();
+  return U && y && (y.done[U.id] || U === yCur()) ? yName(U) : KIND.yol.t;
 }
 function yPlan(b) {
   const y = S.ust.yol, U = YOL[y.i];
   if (!U) return [];
   const out = [], st = (k, a) => out.push({ id: "s" + out.length, k, a: Object.assign({ u: U.id }, a || {}) });
-  if (U.rev) { st("yrevq"); st("yweak"); if (U.extra) st(U.extra.k, U.extra.a); }
+  const gi = GTOPICS().indexOf(U);
+  if (U.g) { st("gdars", { g: U.g }); st("gmashq", { g: U.g }); st("gyoz", { g: U.g }); if (gi > 0) st("gtak"); }
+  else if (U.grev) { st("grevq"); st("gweak"); st("gyoz"); }
+  else if (U.rev) { st("yrevq"); st("yweak"); if (U.extra) st(U.extra.k, U.extra.a); }
   else {
     st("ytush"); st("ynam"); st("ymashq");
     if (Array.isArray(U.main)) U.main.forEach((m) => st(m.k, m.a)); else if (U.main) st("ymain");
@@ -205,11 +215,11 @@ function yHomeCard() {
     if (!y.end) return "";
     return `<section class="card yhome"><div class="mhead"><b>Asoslar bosqichi tugadi 🎉</b><button class="yg" id="yroad" type="button">Yo'lni ko'rish</button></div><span class="muted">Endi mashq bosqichi: har kuni navbat bilan Reading, Writing, Listening va Speaking, shanba kuni esa to'liq sinov imtihoni.</span></section>`;
   }
-  const n = YOL.filter((U) => y.done[U.id]).length, U = yCur();
-  return `<section class="card yhome"><div class="mhead"><b>Yo'l: IELTS asoslari</b><button class="yg" id="yroad" type="button">Hamma kunlar</button></div>
-    <div class="meter"><i style="width:${(n / YOL.length) * 100}%"></i></div>
-    <span class="muted">${n} / ${YOL.length} kun yopildi${U ? ` · navbatda: <b>${esc(yName(U))}</b>` : ""}</span>
-    ${y.intro ? `<div class="ynote">Yangi tartib: endi har kuni <b>bitta mavzu</b>, 5 qadamda: tushuntirish, namuna, mashq, asosiy vazifa va test. Kun yopilsa, keyingisi ochiladi. Eski qarzlar o'chirildi, toza sahifadan boshlaymiz. <button class="yg" id="yok" type="button">Tushundim</button></div>` : ""}</section>`;
+  const U = yCur(), stg = U ? U.st : 1, SU = YOL.filter((x) => x.st === stg), n = SU.filter((x) => y.done[x.id]).length;
+  return `<section class="card yhome"><div class="mhead"><b>${stg === 1 ? "Yo'l: grammatika" : "Yo'l: IELTS ko'nikmalari"}</b><button class="yg" id="yroad" type="button">Hamma kunlar</button></div>
+    <div class="meter"><i style="width:${(n / SU.length) * 100}%"></i></div>
+    <span class="muted">${n} / ${SU.length} kun yopildi${U ? ` · navbatda: <b>${esc(yName(U))}</b>` : ""}</span>
+    ${y.intro ? `<div class="ynote">Yangi tartib: har kuni <b>bitta grammatika mavzusi</b>, am / is / are dan boshlab zamonlargacha. Har kun: dars (qoida, misollar, test), qo'shimcha mashq, o'zing gap tuzish va eski mavzularni takrorlash. Kun yopilsa, keyingisi ochiladi. <button class="yg" id="yok" type="button">Tushundim</button></div>` : ""}</section>`;
 }
 function yBindHome() {
   if ($("yroad")) $("yroad").onclick = yRoad;
@@ -222,13 +232,13 @@ function yRoad() {
   let out = "";
   YOL.forEach((U, i) => {
     const done = !!y.done[U.id], cur = !done && i === y.i, lock = !done && !cur;
-    if (i % 7 === 0) out += `${i ? "</div>" : ""}<div class="sec">${i / 7 + 1}-hafta</div><div class="list">`;
+    if (i % 7 === 0) out += `${i ? "</div>" : ""}<div class="sec">${i / 7 + 1}-hafta · ${U.st === 1 ? "Grammatika" : "IELTS ko'nikmalari"}</div><div class="list">`;
     out += `<button class="item ${done ? "done" : cur ? "next" : "locked"}" data-y="${U.id}" type="button"><span class="num">${done ? CHECK : i + 1}</span><span class="body"><span class="title">${U.ic} ${esc(U.t)}</span><span class="sub">${U.rev ? "Hafta testi va takrorlash" : esc(U.sk)}${cur ? " · navbatdagi kun" : ""}</span></span>${lock ? `<span class="end">${LOCK}</span>` : ""}</button>`;
   });
   out += `</div>`;
   const n = YOL.filter((U) => y.done[U.id]).length;
-  html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>Yo'l: IELTS asoslari</h2></div>
-    <section class="card"><span class="tag pink">${n} / ${YOL.length} kun</span><span class="muted">Har kuni bitta mavzu. Kun 5 qadamdan iborat va testdan o'tsang yopiladi. Yopilgan kunlarning tushuntirishini istagan payt qayta o'qishing mumkin.</span><div class="meter"><i style="width:${(n / YOL.length) * 100}%"></i></div></section>
+  html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>Yo'l</h2></div>
+    <section class="card"><span class="tag pink">${n} / ${YOL.length} kun</span><span class="muted">1-bosqich: grammatika, har kuni bitta mavzu (8 hafta). 2-bosqich: IELTS ko'nikmalari (4 hafta). Kun testdan o'tsang yopiladi. Yopilgan kunlarni istagan payt qayta ko'rishing mumkin.</span><div class="meter"><i style="width:${(n / YOL.length) * 100}%"></i></div></section>
     ${out}`);
   $("quit").onclick = ustozHome;
   on("[data-y]", (e) => {
@@ -243,6 +253,7 @@ function yRoad() {
 // yopilgan kunni qayta ko'rish (hisobga kirmaydi)
 function yView(U) {
   if (U.rev) return lateToast("Bu hafta takrori yopilgan.");
+  if (U.g) return gView(U);
   html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>${esc(yName(U))}</h2></div>
     <section class="card"><span class="tag pink">${esc(U.sk)} · yopilgan</span><span class="muted">${esc(U.goal || "")}</span></section>
     <div class="list">
