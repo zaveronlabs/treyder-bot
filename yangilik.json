@@ -1,31 +1,31 @@
 {
- "vaqt": "2026-11-13 19:22",
+ "vaqt": "2026-11-13 23:24",
  "soni": 50,
  "model": "qwen2.5:7b",
  "bozor": {
-  "baho": -0.05,
-  "izoh": "Umumiy bozor: 50 ta yangilik (12 yaxshi, 19 yomon). Kayfiyat betaraf."
+  "baho": -0.01,
+  "izoh": "Umumiy bozor: 50 ta yangilik (14 yaxshi, 15 yomon). Kayfiyat betaraf."
  },
  "tangalar": {
   "BTC": {
-   "baho": -0.06,
-   "izoh": "Bitcoin haqida 28 ta yangilik (7 yaxshi, 13 yomon). Kayfiyat betaraf."
+   "baho": 0.0,
+   "izoh": "Bitcoin haqida 27 ta yangilik (9 yaxshi, 8 yomon). Kayfiyat betaraf."
   },
   "ETH": {
-   "baho": -0.03,
-   "izoh": "Ethereum haqida 1 ta yangilik (0 yaxshi, 0 yomon). Kayfiyat betaraf."
+   "baho": -0.01,
+   "izoh": "Alohida yangilik yo'q, umumiy bozorga qaraldi."
   },
   "SOL": {
-   "baho": -0.05,
+   "baho": -0.01,
    "izoh": "Alohida yangilik yo'q, umumiy bozorga qaraldi."
   },
   "BNB": {
-   "baho": -0.05,
+   "baho": -0.01,
    "izoh": "Alohida yangilik yo'q, umumiy bozorga qaraldi."
   },
   "XRP": {
-   "baho": -0.05,
-   "izoh": "Alohida yangilik yo'q, umumiy bozorga qaraldi."
+   "baho": -0.26,
+   "izoh": "XRP haqida 1 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat salbiy."
   }
  }
 }
