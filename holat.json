@@ -2484,12 +2484,12 @@
  },
  "ai_sham": "2026-10-18 00:00",
  "ai": {
-  "sham": "2026-11-14 20:00",
-  "vaqt": "2026-11-15 00:56",
+  "sham": "2026-11-15 00:00",
+  "vaqt": "2026-11-15 04:16",
   "model": "qwen2.5:14b",
   "tangalar": {
    "BTC": {
-    "tahlil": "BTC/USDT is currently in a bearish trend with the EMA 50, 150, and 600 all below the current price, indicating a downtrend. The recent price action shows a breakdown below the support level, confirming the bearish structure. The RSI is in oversold territory at 15.9, suggesting potential short-term oversold conditions, but the overall market sentiment and ML forecast are negative, with a news score of -0.38, indicating further downside pressure.",
+    "tahlil": "BTC is currently in a downtrend with the EMA 50, 150, and 600 all below the current price, indicating a bearish market structure. The RSI is at 22.1, suggesting the market is oversold, but the recent breakout below support at 62006.00 indicates further downside pressure. Volume is high relative to the past 50 days, confirming the bearish move. The ML forecast is slightly positive, but the market news score is negative, adding to the bearish sentiment.",
     "qaror": "kutish",
     "ishonch": 75,
     "sabablar": [
@@ -2498,10 +2498,10 @@
      "sinish_past",
      "kunlik_salbiy"
     ],
-    "narx": 64150.0
+    "narx": 64825.99
    },
    "ETH": {
-    "tahlil": "ETH/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The structure shows lower highs and lower lows, confirming the bearish trend. The price is near support at 1729.16, but the RSI is in oversold territory, suggesting potential for a bounce. However, the market context and ML forecast are negative, and the Fear & Greed index is at extreme fear, indicating high risk.",
+    "tahlil": "ETH/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The structure shows lower highs and lower lows, confirming the bearish trend. The price is near support at 1711.08, but the RSI is in oversold territory, suggesting potential for a bounce. However, the market context and ML forecast are negative, and the news score is low, indicating continued bearish sentiment.",
     "qaror": "kutish",
     "ishonch": 70,
     "sabablar": [
@@ -2510,21 +2510,22 @@
      "sinish_past",
      "kunlik_salbiy"
     ],
-    "narx": 1769.2
+    "narx": 1818.81
    },
    "SOL": {
-    "tahlil": "SOL/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The structure shows lower highs and lower lows, confirming the bearish trend. The price is near support at 68.6, but the RSI is in oversold territory at 18.9, suggesting potential for a bounce. However, the market context and daily timeframe also show bearish trends, and the ML forecast is slightly positive but not strong enough to outweigh the current bearish setup.",
+    "tahlil": "SOL/USDT is currently in a bearish trend with lower highs and lower lows, indicating a downtrend. The price is near support at 67.41, but the RSI is in oversold territory, suggesting potential for a bounce. However, the market context and daily timeframe show a weak trend and structure, with the price below key EMAs and a negative volume confirmation. The ML forecast is slightly positive, but the news score is negative, adding to the bearish sentiment.",
     "qaror": "kutish",
-    "ishonch": 75,
+    "ishonch": 30,
     "sabablar": [
      "trend_past",
      "struktura_salbiy",
-     "sinish_past"
+     "sinish_past",
+     "yangilik_salbiy"
     ],
-    "narx": 70.28
+    "narx": 71.37
    },
    "BNB": {
-    "tahlil": "BNB/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The structure shows lower highs and lower lows, confirming the bearish trend. The price is near support at 568.88, but the RSI is in oversold territory at 16.3, suggesting potential for a bounce. However, the market context and daily timeframe also show a downtrend, and the ML forecast is slightly positive but not strong enough to outweigh the bearish setup.",
+    "tahlil": "BNB/USDT is currently in a bearish trend with lower highs and lower lows, indicating a downtrend. The price is near support at 566.0, but the RSI is in oversold territory, suggesting potential for a bounce. However, the trend and structure are not favorable for a long position, and the market context (BTC) is also bearish.",
     "qaror": "kutish",
     "ishonch": 70,
     "sabablar": [
@@ -2533,23 +2534,23 @@
      "sinish_past",
      "kunlik_salbiy"
     ],
-    "narx": 581.9
+    "narx": 594.32
    },
    "XRP": {
-    "tahlil": "XRP/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The structure shows lower highs and lower lows, confirming the bearish trend. The price is near the nearest support level at 0.893, but the RSI is in oversold territory at 20.9, suggesting potential for a bounce. However, the market context and daily timeframe also show bearish trends, and the ML forecast is neutral to slightly positive, but the news score is negative, indicating potential risks.",
+    "tahlil": "XRP/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The recent structure shows lower highs and lower lows, confirming the bearish trend. The price is near the nearest support level at 0.893, but the RSI is neutral at 38.1, suggesting potential for a bounce but not a strong reversal signal. Volume is slightly above average, but not confirming a strong move. The ML forecast is slightly positive, but the news score is negative, adding to the bearish sentiment.",
     "qaror": "kutish",
-    "ishonch": 40,
+    "ishonch": 45,
     "sabablar": [
      "trend_past",
      "struktura_salbiy",
      "sinish_past",
      "kunlik_salbiy"
     ],
-    "narx": 0.9144
+    "narx": 0.9671
    }
   }
  },
- "ai_vaqt": "2026-11-15 00:56",
+ "ai_vaqt": "2026-11-15 04:16",
  "yangilik": {
   "vaqt": "2026-11-15 03:23",
   "soni": 41,
