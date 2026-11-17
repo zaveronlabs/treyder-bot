@@ -1,21 +1,10 @@
 {
- "sham": "2026-11-16 20:00",
- "vaqt": "2026-11-17 00:17",
+ "sham": "2026-11-17 00:00",
+ "vaqt": "2026-11-17 04:24",
  "model": "qwen2.5:14b",
  "tangalar": {
   "BTC": {
-   "tahlil": "BTC is currently in a downtrend with the EMA 50, 150, and 600 all below the current price, indicating a bearish market structure. The RSI is at 34.8, suggesting the market is in oversold territory but not necessarily indicating an imminent reversal. The nearest support is at 62006.0, and the nearest resistance is at 72727.27, with the price currently sitting near the support level. The ML forecast is positive, but the market news score is negative, indicating potential risks.",
-   "qaror": "kutish",
-   "ishonch": 40,
-   "sabablar": [
-    "trend_past",
-    "struktura_salbiy",
-    "kunlik_salbiy"
-   ],
-   "narx": 64882.87
-  },
-  "ETH": {
-   "tahlil": "ETH/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The structure shows lower highs and lower lows, confirming the bearish trend. The price is near support at 1711.08, but the RSI is neutral at 38, suggesting potential for a bounce but not a strong reversal. Volume is below average, indicating a lack of conviction in the current trend.",
+   "tahlil": "BTC/USDT is currently in a downtrend with the EMA 50, 150, and 600 all below the current price, indicating a bearish market structure. The recent price action shows lower highs and lower lows, confirming the downtrend. The price is currently above the nearest support level at 62006.0 but far below the nearest resistance at 72727.27, suggesting limited upside potential. The RSI is at 36.4, indicating the market is neither overbought nor oversold, and the volume is near its average, showing no significant buying pressure. The ML forecast is positive, but the market news score is negative, and the Fear & Greed index is at extreme fear, indicating a cautious market sentiment.",
    "qaror": "kutish",
    "ishonch": 30,
    "sabablar": [
@@ -23,31 +12,31 @@
     "struktura_salbiy",
     "kunlik_salbiy"
    ],
-   "narx": 1820.67
+   "narx": 65056.52
+  },
+  "ETH": {
+   "tahlil": "ETH/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The structure shows lower highs and lower lows, confirming the bearish trend. The price is near support at 1711.08, but the RSI is neutral at 40.9, suggesting potential for a bounce but not a strong reversal signal. Volume is slightly below average, indicating a lack of conviction in the current price action.",
+   "qaror": "kutish",
+   "ishonch": 30,
+   "sabablar": [
+    "trend_past",
+    "struktura_salbiy",
+    "kunlik_salbiy"
+   ],
+   "narx": 1832.77
   },
   "SOL": {
-   "tahlil": "SOL/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The structure shows lower highs and lower lows, confirming the bearish trend. The price is near support at 67.41, but the RSI is at 36.3, suggesting it's not oversold yet. The ML forecast is positive, but the market news score is negative, adding some uncertainty.",
+   "tahlil": "SOL/USDT is currently in a bearish trend with lower highs and lower lows, indicating a downtrend. The price is near support at 67.41, but the RSI is neutral at 42.4, suggesting potential for a bounce but not a strong reversal signal. The ML forecast is positive, but the market context and BTC trend are bearish, increasing risk.",
    "qaror": "kutish",
-   "ishonch": 45,
+   "ishonch": 30,
    "sabablar": [
     "trend_past",
     "struktura_salbiy"
    ],
-   "narx": 71.58
+   "narx": 72.83
   },
   "BNB": {
-   "tahlil": "BNB/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The structure is bearish with lower highs and lower lows, and the price is near support at 566.0 USDT. The RSI is at 34.7, suggesting the market is oversold but not yet in overbought territory, and volume is below average. The ML forecast is positive, but the market context and daily timeframe trends are bearish.",
-   "qaror": "kutish",
-   "ishonch": 30,
-   "sabablar": [
-    "trend_past",
-    "struktura_salbiy",
-    "kunlik_salbiy"
-   ],
-   "narx": 591.23
-  },
-  "XRP": {
-   "tahlil": "XRP/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The structure shows lower highs and lower lows, confirming the bearish trend. The price is near support at 0.893, but the RSI is neutral at 39.9, suggesting potential for a bounce but not a strong reversal signal. Volume is below average, indicating a lack of conviction in the current trend.",
+   "tahlil": "BNB/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The structure is bearish with lower highs and lower lows, and the price is near support at 566.0 USDT. The RSI is at 37.7, suggesting the market is neither overbought nor oversold but leaning towards bearish. Volume is below average, indicating a lack of strong buying pressure. The ML forecast is slightly positive, but the market context and structure are bearish.",
    "qaror": "kutish",
    "ishonch": 40,
    "sabablar": [
@@ -55,7 +44,18 @@
     "struktura_salbiy",
     "kunlik_salbiy"
    ],
-   "narx": 0.9553
+   "narx": 594.48
+  },
+  "XRP": {
+   "tahlil": "XRP/USDT is currently in a downtrend with the EMA 50, 150, and 600 all below the current price, indicating a bearish market structure. The recent price action shows lower lows and lower highs, confirming the downtrend. Price is currently near the nearest support level at 0.893, but the RSI is neutral at 44.4, suggesting limited near-term momentum. The daily timeframe also shows a downtrend with the price below the EMA 50 and 200, and the RSI is oversold at 28.0, indicating potential for a short-term bounce but the overall trend remains bearish.",
+   "qaror": "kutish",
+   "ishonch": 70,
+   "sabablar": [
+    "trend_past",
+    "struktura_salbiy",
+    "kunlik_salbiy"
+   ],
+   "narx": 0.9676
   }
  }
 }
