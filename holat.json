@@ -1,7 +1,7 @@
 {
  "chat_id": 8859413416,
  "update_id": 74030518,
- "oxirgi_sana": "2026-11-20 12:00",
+ "oxirgi_sana": "2026-11-20 16:00",
  "holat": {
   "BTC": 0,
   "ETH": 0,
@@ -10,30 +10,30 @@
   "XRP": 0
  },
  "narx": {
-  "BTC": 59475.47,
-  "ETH": 1655.57,
-  "SOL": 68.36,
-  "BNB": 546.75,
-  "XRP": 0.9105,
+  "BTC": 58558.66,
+  "ETH": 1607.97,
+  "SOL": 68.22,
+  "BNB": 535.64,
+  "XRP": 0.8949,
   "DOGE": 0.08007,
   "ADA": 0.2228,
   "AVAX": 9.897,
   "LINK": 12.074,
   "LTC": 59.36,
-  "PAXG": 3546.5
+  "PAXG": 3520.77
  },
  "rejim": "4h-5-avto3",
  "miya": {
-  "BTC": 0.671534171571311,
-  "ETH": 0.5248822372737381,
-  "SOL": -0.05135574272492112,
-  "BNB": 0.3227024660484243,
-  "XRP": -0.04492532975509719,
-  "DOGE": 0.24992402163847893,
-  "ADA": 0.025858237735762835,
-  "AVAX": -0.11908699384470653,
-  "LINK": 0.2862350894459749,
-  "LTC": 0.4941123279812553
+  "BTC": 0.7501341428976753,
+  "ETH": 0.6360101166630489,
+  "SOL": 0.21459920236510635,
+  "BNB": 0.5042994183994222,
+  "XRP": 0.22672031393771577,
+  "DOGE": 0.3719269953942333,
+  "ADA": 0.19631301140089438,
+  "AVAX": 0.1289250087891345,
+  "LINK": 0.3718302140436626,
+  "LTC": 0.5979721299566628
  },
  "sinov_boshi": "2026-10-17 20:00",
  "oxirgi_hisobot": 1794715251.5867326,
@@ -222,6 +222,16 @@
      "miqdor": 0.6992762490822,
      "kirish_narx": 572.02,
      "kirish_sana": "2026-11-20 04:00"
+    },
+    "SOL": {
+     "miqdor": 5.8633831720902965,
+     "kirish_narx": 68.22,
+     "kirish_sana": "2026-11-20 16:00"
+    },
+    "XRP": {
+     "miqdor": 446.977315901218,
+     "kirish_narx": 0.8949,
+     "kirish_sana": "2026-11-20 16:00"
     }
    },
    "jurnal": [
@@ -505,8 +515,8 @@
      "sabab": "miya salbiy (-0.10)"
     }
    ],
-   "naqd": 241.3645973157885,
-   "komissiya": 12.927145871593684
+   "naqd": -159.03540268421148,
+   "komissiya": 13.327145871593682
   },
   "ai": {
    "portfel": {},
@@ -2664,46 +2674,46 @@
  },
  "ai_vaqt": "2026-11-20 16:29",
  "yangilik": {
-  "vaqt": "2026-11-20 15:25",
+  "vaqt": "2026-11-20 19:24",
   "soni": 50,
   "model": "qwen2.5:7b",
   "bozor": {
-   "baho": -0.28,
-   "izoh": "Umumiy bozor: 50 ta yangilik (7 yaxshi, 27 yomon). Kayfiyat salbiy."
+   "baho": -0.45,
+   "izoh": "Umumiy bozor: 50 ta yangilik (3 yaxshi, 32 yomon). Kayfiyat salbiy."
   },
   "tangalar": {
    "BTC": {
-    "baho": -0.39,
-    "izoh": "Bitcoin haqida 19 ta yangilik (1 yaxshi, 16 yomon). Kayfiyat salbiy."
+    "baho": -0.54,
+    "izoh": "Bitcoin haqida 27 ta yangilik (0 yaxshi, 21 yomon). Kayfiyat salbiy."
    },
    "ETH": {
-    "baho": -0.06,
-    "izoh": "Ethereum haqida 3 ta yangilik (1 yaxshi, 0 yomon). Kayfiyat ijobiy."
+    "baho": -0.35,
+    "izoh": "Ethereum haqida 2 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat salbiy."
    },
    "SOL": {
-    "baho": -0.14,
-    "izoh": "Solana haqida 1 ta yangilik (0 yaxshi, 0 yomon). Kayfiyat betaraf."
+    "baho": -0.35,
+    "izoh": "Solana haqida 2 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat salbiy."
    },
    "BNB": {
-    "baho": -0.22,
-    "izoh": "BNB haqida 3 ta yangilik (1 yaxshi, 1 yomon). Kayfiyat salbiy."
+    "baho": -0.72,
+    "izoh": "BNB haqida 1 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat salbiy."
    },
    "XRP": {
-    "baho": -0.27,
-    "izoh": "XRP haqida 2 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat salbiy."
+    "baho": -0.45,
+    "izoh": "Alohida yangilik yo'q, umumiy bozorga qaraldi."
    }
   }
  },
  "short_miya": {
-  "BTC": 0.04895664972732865,
-  "ETH": 0.05608752623339757,
-  "SOL": 0.07779974266729624,
-  "BNB": 0.05870513138960725,
-  "XRP": 0.16143732807044195,
-  "DOGE": 0.06805103477234671,
-  "ADA": 0.15031396437820263,
-  "AVAX": 0.14512024295220013,
-  "LINK": 0.10562301038768876,
-  "LTC": 0.07728678675590017
+  "BTC": 0.05868322405950176,
+  "ETH": 0.06811760969520733,
+  "SOL": 0.09896097226298238,
+  "BNB": 0.0719045514849569,
+  "XRP": 0.1660814468613163,
+  "DOGE": 0.08463098299469682,
+  "ADA": 0.1400155655500627,
+  "AVAX": 0.1227236909432105,
+  "LINK": 0.10326447107042075,
+  "LTC": 0.08832808103849282
  }
 }
