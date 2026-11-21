@@ -1,10 +1,10 @@
 {
- "sham": "2026-11-20 16:00",
- "vaqt": "2026-11-20 20:17",
+ "sham": "2026-11-20 20:00",
+ "vaqt": "2026-11-21 00:16",
  "model": "qwen2.5:14b",
  "tangalar": {
   "BTC": {
-   "tahlil": "BTC is currently in a bearish trend with the EMA 50, 150, and 600 all below the current price, indicating a downtrend. The price structure shows a lower low and lower high pattern, suggesting continued selling pressure. The RSI is in oversold territory at 20.5, but the volume is not confirming a potential reversal, and the ML forecast is neutral at 0.75. The market news score is negative at -0.54, adding to the bearish sentiment. The price is near support at 57778.35, but the risk of further decline is high given the current trend and structure.",
+   "tahlil": "BTC is currently in a bearish trend with EMA 50, 150, and 600 all below the current price, indicating a downtrend. The price structure shows a lower low and lower high pattern, suggesting continued selling pressure. The RSI is in oversold territory at 24.3, but volume is not confirming a potential reversal. The nearest support is at 57778.35, and resistance is at 62006.0, with the price currently sitting near support. The market sentiment is negative with a news score of -0.43 and Fear & Greed index at 10, indicating extreme fear.",
    "qaror": "kutish",
    "ishonch": 30,
    "sabablar": [
@@ -13,34 +13,33 @@
     "sinish_past",
     "kunlik_salbiy"
    ],
-   "narx": 58558.66
+   "narx": 58951.51
   },
   "ETH": {
-   "tahlil": "ETH/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a strong downtrend. The structure shows lower highs and lower lows, confirming the bearish trend. The price is near support at 1581.47, but the RSI is in oversold territory at 20.9, suggesting potential for a bounce. However, the market context and daily timeframe also show bearish trends, and the ML forecast is neutral to slightly positive, but the news score is negative, indicating potential risks.",
+   "tahlil": "ETH/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The structure shows lower highs and lower lows, confirming the bearish trend. The price is near support at 1581.47, but the RSI is in oversold territory at 24.8, suggesting potential for a bounce. However, the market context and daily timeframe also show bearish trends, and the ML forecast and news score are negative, indicating continued pressure on the price.",
    "qaror": "kutish",
-   "ishonch": 40,
+   "ishonch": 75,
    "sabablar": [
     "trend_past",
     "struktura_salbiy",
     "sinish_past",
     "kunlik_salbiy"
    ],
-   "narx": 1607.97
+   "narx": 1623.09
   },
   "SOL": {
-   "tahlil": "SOL/USDT is currently in a downtrend with the EMA 50, 150, and 600 all below the current price, indicating a bearish market structure. The RSI is at 26.9, suggesting the market is oversold, but the recent price action shows a breakout below support, indicating further downside pressure. The nearest resistance is at 69.93, and the nearest support is at 67.41, with the price currently trading near support. The ML forecast is slightly positive, but the market news score is negative, adding to the bearish sentiment.",
+   "tahlil": "SOL/USDT is currently in a bearish market structure with lower highs and lower lows, indicating a downtrend. The price is near support at 67.41, but the RSI is in oversold territory, suggesting potential for a bounce. However, the trend and daily structure are bearish, and the ML forecast and news score are negative, increasing the risk of further declines.",
    "qaror": "kutish",
-   "ishonch": 40,
+   "ishonch": 70,
    "sabablar": [
     "trend_past",
     "sinish_past",
-    "kunlik_salbiy",
     "yangilik_salbiy"
    ],
-   "narx": 68.22
+   "narx": 68.88
   },
   "BNB": {
-   "tahlil": "BNB/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The structure shows lower highs and lower lows, confirming the bearish trend. The price is near support at 530 USDT, but the RSI is in oversold territory, suggesting potential for a bounce. However, the market context and ML forecast are negative, and the news score is low, indicating continued bearish sentiment.",
+   "tahlil": "BNB/USDT is currently in a bearish trend with the price below the EMA 50, 150, and 600, indicating a downtrend. The structure shows lower highs and lower lows, confirming the bearish trend. The price is near support at 530 USDT, but the RSI is in oversold territory, suggesting potential for a bounce. However, the market context and ML forecast are negative, and the Fear & Greed index is at extreme fear, indicating high risk.",
    "qaror": "kutish",
    "ishonch": 70,
    "sabablar": [
@@ -49,19 +48,19 @@
     "sinish_past",
     "kunlik_salbiy"
    ],
-   "narx": 535.64
+   "narx": 540.84
   },
   "XRP": {
-   "tahlil": "XRP/USDT is currently in a bearish trend with the EMA 50, 150, and 600 all below the current price, indicating a downtrend. The price structure shows an indecisive pattern with recent lower highs and lower lows, suggesting continued selling pressure. The price is near support at 0.893, but the RSI is in oversold territory at 27.8, hinting at potential short-term oversold conditions. Volume is slightly above average, confirming the price action. The daily context also shows a bearish trend with the price below the daily EMA 50 and 200. The ML forecast is slightly positive, but the news score is negative, indicating potential market headwinds.",
+   "tahlil": "XRP/USDT is currently in a bearish market structure with lower highs and lower lows, indicating a downtrend. The price is near support at 0.893, but the RSI is at 34.4, suggesting it's not oversold yet. The market context for BTC is also bearish, reinforcing the negative sentiment. The ML forecast and news score are negative, adding to the bearish outlook.",
    "qaror": "kutish",
-   "ishonch": 30,
+   "ishonch": 75,
    "sabablar": [
     "trend_past",
     "sinish_past",
     "kunlik_salbiy",
     "yangilik_salbiy"
    ],
-   "narx": 0.8949
+   "narx": 0.9107
   }
  }
 }
