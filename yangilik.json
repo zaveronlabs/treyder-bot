@@ -1,5 +1,5 @@
 {
- "vaqt": "2026-11-21 23:23",
+ "vaqt": "2026-11-22 03:24",
  "soni": 38,
  "model": "qwen2.5:7b",
  "bozor": {
@@ -8,8 +8,8 @@
  },
  "tangalar": {
   "BTC": {
-   "baho": -0.2,
-   "izoh": "Bitcoin haqida 16 ta yangilik (4 yaxshi, 7 yomon). Kayfiyat salbiy."
+   "baho": -0.25,
+   "izoh": "Bitcoin haqida 18 ta yangilik (4 yaxshi, 9 yomon). Kayfiyat salbiy."
   },
   "ETH": {
    "baho": -0.25,
