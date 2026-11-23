@@ -1,7 +1,7 @@
 {
  "chat_id": 8859413416,
  "update_id": 74030518,
- "oxirgi_sana": "2026-11-22 20:00",
+ "oxirgi_sana": "2026-11-23 00:00",
  "holat": {
   "BTC": 0,
   "ETH": 0,
@@ -10,30 +10,30 @@
   "XRP": 0
  },
  "narx": {
-  "BTC": 61271.08,
-  "ETH": 1724.33,
-  "SOL": 70.73,
-  "BNB": 559.59,
-  "XRP": 0.929,
+  "BTC": 61285.93,
+  "ETH": 1732.42,
+  "SOL": 71.39,
+  "BNB": 558.02,
+  "XRP": 0.9327,
   "DOGE": 0.08007,
   "ADA": 0.2228,
   "AVAX": 9.897,
   "LINK": 12.074,
   "LTC": 59.36,
-  "PAXG": 3578.89
+  "PAXG": 3601.17
  },
  "rejim": "4h-5-avto3",
  "miya": {
-  "BTC": 0.3008835486550388,
-  "ETH": 0.35201102650517624,
-  "SOL": 0.2148227516533195,
-  "BNB": 0.2356350158337136,
-  "XRP": 0.26482695533607137,
-  "DOGE": 0.34038919395445594,
-  "ADA": 0.1432333091945239,
-  "AVAX": -0.29095557302924646,
-  "LINK": 0.19197992318960477,
-  "LTC": 0.5253397085856393
+  "BTC": 0.2595971999479687,
+  "ETH": 0.29546166121008277,
+  "SOL": 0.1554762364942754,
+  "BNB": 0.2252165524536339,
+  "XRP": 0.1690372140528755,
+  "DOGE": 0.2964940362577694,
+  "ADA": 0.1742685419399544,
+  "AVAX": -0.24172962693744093,
+  "LINK": 0.15487517296522993,
+  "LTC": 0.44970881620646136
  },
  "sinov_boshi": "2026-10-17 20:00",
  "oxirgi_hisobot": 1795320053.660734,
@@ -2742,29 +2742,29 @@
  },
  "ai_vaqt": "2026-11-23 00:22",
  "yangilik": {
-  "vaqt": "2026-11-22 23:23",
-  "soni": 32,
+  "vaqt": "2026-11-23 03:23",
+  "soni": 34,
   "model": "qwen2.5:7b",
   "bozor": {
-   "baho": -0.23,
-   "izoh": "Umumiy bozor: 32 ta yangilik (5 yaxshi, 14 yomon). Kayfiyat salbiy."
+   "baho": -0.25,
+   "izoh": "Umumiy bozor: 34 ta yangilik (3 yaxshi, 14 yomon). Kayfiyat salbiy."
   },
   "tangalar": {
    "BTC": {
-    "baho": -0.17,
-    "izoh": "Bitcoin haqida 14 ta yangilik (4 yaxshi, 5 yomon). Kayfiyat salbiy."
+    "baho": -0.23,
+    "izoh": "Bitcoin haqida 15 ta yangilik (3 yaxshi, 6 yomon). Kayfiyat salbiy."
    },
    "ETH": {
-    "baho": -0.55,
-    "izoh": "Ethereum haqida 4 ta yangilik (0 yaxshi, 4 yomon). Kayfiyat salbiy."
+    "baho": -0.54,
+    "izoh": "Ethereum haqida 3 ta yangilik (0 yaxshi, 3 yomon). Kayfiyat salbiy."
    },
    "SOL": {
-    "baho": -0.37,
-    "izoh": "Solana haqida 1 ta yangilik (0 yaxshi, 1 yomon). Kayfiyat salbiy."
+    "baho": -0.38,
+    "izoh": "Solana haqida 2 ta yangilik (0 yaxshi, 2 yomon). Kayfiyat salbiy."
    },
    "BNB": {
-    "baho": -0.12,
-    "izoh": "BNB haqida 1 ta yangilik (0 yaxshi, 0 yomon). Kayfiyat betaraf."
+    "baho": -0.25,
+    "izoh": "Alohida yangilik yo'q, umumiy bozorga qaraldi."
    },
    "XRP": {
     "baho": -0.12,
@@ -2773,15 +2773,15 @@
   }
  },
  "short_miya": {
-  "BTC": 0.13357227949103623,
-  "ETH": 0.11734558661144072,
-  "SOL": 0.12772698780884814,
-  "BNB": 0.1170801215425082,
-  "XRP": 0.17318396111294784,
-  "DOGE": 0.08755238423587905,
-  "ADA": 0.13422831588616638,
-  "AVAX": 0.06395519776944977,
-  "LINK": 0.08875593836169952,
-  "LTC": 0.06004029808150449
+  "BTC": 0.15225384040766346,
+  "ETH": 0.13581247595661772,
+  "SOL": 0.14203222870012763,
+  "BNB": 0.13680749134841158,
+  "XRP": 0.18173686668589253,
+  "DOGE": 0.10247686963946759,
+  "ADA": 0.14716927571607402,
+  "AVAX": 0.0742647641879597,
+  "LINK": 0.11101044155097098,
+  "LTC": 0.06843926485808861
  }
 }
