@@ -68,7 +68,8 @@ public class Qulf extends AccessibilityService {
     private View oyna;
     private boolean qoshilgan = false;
     private TextView tSarlavha, tMatn, tKut;
-    private Button bDars, bQong, bFavq;
+    private Button bDars, bQong, bFavq, bOch;
+    private String joriyK = "";
     private long favqKut = 0;
     private long imtiyoz = 0;
     private String uyPaket = "";
@@ -221,6 +222,7 @@ public class Qulf extends AccessibilityService {
         String rejim = "", k = "", t = "";
         long gacha = 0;
         boolean uy = false, oyna = false, joyRejim = false;
+        boolean sinovKun = false;   // dastlabki 3 kun: qulfni bir bosishda ochsa bo'ladi
         long dam = 0;   // uyga keldi: shu vaqtgacha yuvinish va ovqat, keyin qulf
     }
 
@@ -234,6 +236,7 @@ public class Qulf extends AccessibilityService {
             if (p.getLong("sinov", 0) > now) { x.rejim = "sinov"; x.k = "sinov"; x.gacha = p.getLong("sinov", 0); x.uy = true; return x; }
             if (q == null || !q.optBoolean("on", false)) return x;
             if (p.getLong("favq", 0) > now) return x;
+            x.sinovKun = now < q.optLong("sinovGacha", 0);
             String usul = q.optString("uy", "wifi");
             boolean har = "har".equals(usul);
             x.joyRejim = "joy".equals(usul);
@@ -259,6 +262,7 @@ public class Qulf extends AccessibilityService {
             if (x.joyRejim) { x.uy = joy == 1 || (joy == 0 && s > 0 && now >= s); uzoqda = joy == -1; }
             else { x.uy = har || uydami(c); uzoqda = !x.uy; }
             x.oyna = !rej.isEmpty();
+            if (x.oyna && x.sinovKun && k.equals(p.getString("ochiqK", ""))) return x;   // sinov kunlarida ochib qo'yilgan
             String latch = p.getString("latch", "");
             if (rej.isEmpty()) { if (yoz && !latch.isEmpty()) p.edit().remove("latch").remove("uzoq").apply(); return x; }
             // uyga kelgach odat vaqti (yuvinish, ovqat): qulf kelgan paytdan "odat" daqiqa keyin boshlanadi
@@ -510,6 +514,7 @@ public class Qulf extends AccessibilityService {
             o.put("uyJoy", !p.getString("uyLat", "").isEmpty());
             o.put("joyda", joyda(c));
             o.put("dam", x.dam);
+            o.put("ochiq", x.sinovKun && !p.getString("ochiqK", "").isEmpty());
             o.put("rejim", x.rejim);
             o.put("k", x.k);
             o.put("gacha", x.gacha);
@@ -573,6 +578,13 @@ public class Qulf extends AccessibilityService {
         l.addView(bDars);
         l.addView(bQong);
         l.addView(bFavq);
+        bOch = tugma("🔓 Ochish (sinov kunlari)", 0x00000000, 0xFFFDE68A);
+        bOch.setTextSize(14);
+        l.addView(bOch);
+        bOch.setOnClickListener(v -> {
+            if (!joriyK.isEmpty()) prefs(this).edit().putString("ochiqK", joriyK).apply();
+            tekshir();
+        });
         l.addView(tKut);
         bDars.setOnClickListener(v -> {
             imtiyoz = System.currentTimeMillis() + 20000;
@@ -625,7 +637,9 @@ public class Qulf extends AccessibilityService {
             bFavq.setEnabled(qoldi > 0);
             tKut.setText("");
         }
-        bFavq.setVisibility("sinov".equals(x.rejim) ? View.GONE : View.VISIBLE);
+        bFavq.setVisibility("sinov".equals(x.rejim) || x.sinovKun ? View.GONE : View.VISIBLE);
+        joriyK = x.k;
+        bOch.setVisibility(x.sinovKun && !"sinov".equals(x.rejim) ? View.VISIBLE : View.GONE);
         if (!qoshilgan) {
             WindowManager.LayoutParams lp = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT,

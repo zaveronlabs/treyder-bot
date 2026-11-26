@@ -824,6 +824,13 @@ function qUsul() {
   if (q.pend && Date.now() >= q.pend.at) { q.uy = q.pend.uy; delete q.pend; save(); }
   return q.uy || "wifi";
 }
+// dastlabki 3 kun sinov: qulf oynasida "Ochish" tugmasi bor, o'chirish darhol
+function qSinovGacha() {
+  const q = S.ust.qulf;
+  if (!q.t0) { q.t0 = Date.now(); save(); }
+  return addDays(q.t0, 3);
+}
+const qSinovda = () => !!(S.ust.qulf && S.ust.qulf.on && Date.now() < qSinovGacha());
 // uyga kelgach yuvinish va ovqat uchun daqiqalar (qulf shundan keyin)
 const qOdat = () => { const v = S.ust.qulf && S.ust.qulf.odat; return v == null ? 60 : v; };
 function qReady(h, usul = qUsul()) { return !!(h && h.xizmat && (usul === "har" || (usul === "wifi" && h.uyBor) || (usul === "joy" && h.uyJoy))); }
@@ -849,7 +856,7 @@ function qWins() {
 }
 function qPayload() {
   if (!qOn()) return { on: false };
-  return Object.assign({ on: true, uy: qUsul(), odat: qOdat() }, qWins());
+  return Object.assign({ on: true, uy: qUsul(), odat: qOdat(), sinovGacha: qSinovGacha() }, qWins());
 }
 function qHolatMatn(h = qHolat()) {
   if (!h) return "";
@@ -908,7 +915,7 @@ function qulfView() {
       <li>Qo'ng'iroq har doim mumkin. Juda zarur bo'lsa, haftasiga 2 marta 10 daqiqaga favqulodda ochsa bo'ladi.</li>
       <li>Qulfni o'chirish 24 soatdan keyin kuchga kiradi.</li>
     </ol></section>
-    ${qon ? `<section class="card"><b>Holat</b><span class="muted">${esc(qHolatMatn(h))}</span></section>` : ""}
+    ${qon ? `<section class="card"><b>Holat</b><span class="muted">${esc(qHolatMatn(h))}</span>${qSinovda() ? `<span class="muted small">🧪 Sinov kunlari: ${esc(dateUz(qSinovGacha() - 60000))} oxirigacha qulf oynasida «🔓 Ochish» tugmasi bor, o'chirish ham darhol bo'ladi.</span>` : ""}</section>` : ""}
     <section class="card"><b>Uyda ekaningni qanday bilsin</b>
       <div class="grid3">${Object.keys(QUSUL).map((k) => `<button class="opt ${k === (q.pend ? q.pend.uy : usul) ? "sel" : ""}" data-qu="${k}" type="button">${QUSUL[k]}</button>`).join("")}</div>
       ${q.pend ? `<span class="muted small">${esc(QUSUL[q.pend.uy])} ${hhmm(q.pend.at)} da (${esc(dateUz(q.pend.at))}) kuchga kiradi.</span>` : ""}</section>
@@ -917,7 +924,7 @@ function qulfView() {
     <section class="card"><b>Sozlash (bir marta)</b>${steps.join("")}</section>
     ${h.xizmat ? `<button class="btn ghost" id="qtest" type="button">Sinab ko'rish: 1 daqiqa qulf</button>` : ""}
     ${qon ? (q.offAt ? `<section class="card"><span class="muted">Qulf ${hhmm(q.offAt)} da (${dateUz(q.offAt)}) o'chadi.</span><button class="btn main" id="qon" type="button">Bekor qilish, qulf qolsin</button></section>`
-        : `<button class="btn ghost" id="qoff" type="button">O'chirish so'rovi (24 soatdan keyin)</button>`)
+        : `<button class="btn ghost" id="qoff" type="button">${qSinovda() ? "O'chirish" : "O'chirish so'rovi (24 soatdan keyin)"}</button>`)
       : `<button class="btn main" id="qon" type="button" ${ready ? "" : "disabled"}>Qulfni yoqish</button>${ready ? "" : `<p class="center muted small">Avval yuqoridagi qadamlarni bajar.</p>`}`}
   `);
   $("quit").onclick = ustozSettings;
@@ -950,7 +957,7 @@ function qulfView() {
   $("qapp").onclick = () => { try { NATIVE.qulfRuxsat("ilova"); } catch {} };
   if ($("qtest")) $("qtest").onclick = () => { try { NATIVE.qulfSinov(); lateToast("Telefon 1 daqiqaga qulf. Boshqa ilovani ochib ko'r."); } catch {} };
   if ($("qon")) $("qon").onclick = () => { if (!qon && !ready) return; q.on = true; delete q.offAt; save(); uSync(); lateToast("📵 Telefon qulfi yoqildi"); qulfView(); };
-  if ($("qoff")) $("qoff").onclick = () => { q.offAt = Date.now() + DAY; save(); uSync(); qulfView(); };
+  if ($("qoff")) $("qoff").onclick = () => { if (qSinovda()) { q.on = false; delete q.offAt; } else q.offAt = Date.now() + DAY; save(); uSync(); qulfView(); };
 }
 window.yodlaQulfUy = (r) => {
   if (r && r.ok) lateToast(`📍 Uy belgilandi ✓${r.aniq ? ` <small>(±${r.aniq} m)</small>` : ""}`);
