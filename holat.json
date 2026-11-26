@@ -2732,68 +2732,66 @@
  },
  "ai_sham": "2026-10-18 00:00",
  "ai": {
-  "sham": "2026-11-26 04:00",
-  "vaqt": "2026-11-26 08:17",
+  "sham": "2026-11-26 08:00",
+  "vaqt": "2026-11-26 12:18",
   "model": "qwen2.5:14b",
   "tangalar": {
    "BTC": {
-    "tahlil": "BTC is currently in a bearish trend with the EMA 50, 150, and 600 all showing negative divergence. The price is below support at 55130 and approaching the nearest resistance at 62006. The RSI is neutral at 51.3, and volume is slightly above average, indicating some selling pressure. The daily structure is also bearish, with the price below the EMA 50 and 200. The ML forecast is slightly positive, but the market news score is negative, suggesting caution.",
+    "tahlil": "BTC/USDT is currently in a bearish trend with EMA 50, 150, and 600 all showing negative divergence. The price is below the nearest support level at 57300.38, indicating a weak market structure. RSI is at 52.6, suggesting a neutral to slightly overbought condition, but the daily RSI is at 28.3, indicating a strong oversold condition. Volume is near average, and the market news score is negative, adding to the bearish sentiment. The ML forecast is slightly positive, but the overall trend and structure do not support a long position.",
     "qaror": "kutish",
-    "ishonch": 30,
+    "ishonch": 75,
     "sabablar": [
      "trend_past",
-     "struktura_salbiy",
      "kunlik_salbiy"
     ],
-    "narx": 60521.78
+    "narx": 60714.01
    },
    "ETH": {
-    "tahlil": "ETH/USDT is currently in a bearish market structure with lower highs and lower lows, indicating a downtrend. The price is near support at 1538.0, but the RSI is neutral at 49.1, suggesting potential for a bounce but not a strong reversal signal. The daily structure also shows a bearish trend with the price below the EMA 50, 150, and 600, and the daily RSI at 29.2, indicating oversold conditions but not enough to confirm a reversal. The ML forecast is slightly positive, but the market news score is negative, adding to the bearish sentiment.",
+    "tahlil": "ETH/USDT is currently in a bearish trend with the EMA 50, 150, and 600 all below the current price, indicating a downtrend. The price structure shows a declining pattern with higher lows and lower highs, suggesting a weakening bearish trend. The RSI is at 51.6, slightly above neutral, indicating some buying pressure but not overbought. The price is near the nearest support level at 1608.86, which is 5.38% below the current price, offering potential support. However, the daily structure is bearish, and the market context from BTC is also bearish, adding to the risk.",
+    "qaror": "kutish",
+    "ishonch": 40,
+    "sabablar": [
+     "trend_past",
+     "qarshilik_yaqin",
+     "kunlik_salbiy"
+    ],
+    "narx": 1700.36
+   },
+   "SOL": {
+    "tahlil": "SOL/USDT is currently in a bearish market structure with lower highs and lower lows, indicating a downtrend. The price is near resistance at 71.12, and the RSI is neutral at 52.2, suggesting no overbought or oversold conditions. The daily structure is also bearish, with the price below the EMA 50 and 150. The ML forecast is slightly positive, but the market news score is negative, and the Fear & Greed index is at extreme fear levels, indicating high risk.",
+    "qaror": "kutish",
+    "ishonch": 75,
+    "sabablar": [
+     "trend_past",
+     "qarshilik_yaqin",
+     "kunlik_salbiy"
+    ],
+    "narx": 70.88
+   },
+   "BNB": {
+    "tahlil": "BNB/USDT is currently in a sideways market structure with the price near support at 526.72 and resistance at 566.0. The RSI is neutral at 49.3, and the daily structure is bearish with the price below the 50 EMA. The ML forecast is slightly positive, but the market news score is negative, indicating potential downward pressure. The trend is not favorable, and the price is below key EMAs, suggesting a bearish bias.",
     "qaror": "kutish",
     "ishonch": 30,
     "sabablar": [
      "trend_past",
-     "qarshilik_yaqin",
-     "kunlik_salbiy"
-    ],
-    "narx": 1689.76
-   },
-   "SOL": {
-    "tahlil": "SOL/USDT is currently in a bearish market structure with lower highs and lower lows, indicating a downtrend. The price is near support at 69.93, but the RSI is neutral at 52, suggesting limited near-term momentum. The daily timeframe also shows a bearish trend with the price below the EMA50 and EMA150, reinforcing the bearish bias. The ML forecast is slightly positive, but the overall market context and structure are bearish.",
-    "qaror": "kutish",
-    "ishonch": 70,
-    "sabablar": [
-     "trend_past",
-     "qarshilik_yaqin",
-     "kunlik_salbiy"
-    ],
-    "narx": 70.84
-   },
-   "BNB": {
-    "tahlil": "BNB/USDT is currently in a bearish trend with the EMA 50, 150, and 600 all indicating a downtrend. The price is near support at 503.75, but the RSI is neutral at 51.3, suggesting limited near-term momentum. Volume is below average, indicating a lack of conviction. The daily structure is also bearish, with the price below the daily EMA 50 and 200. The ML forecast is slightly positive, but the market news score is negative, adding to the bearish sentiment.",
-    "qaror": "kutish",
-    "ishonch": 45,
-    "sabablar": [
-     "trend_past",
-     "struktura_salbiy",
      "kunlik_salbiy",
      "yangilik_salbiy"
     ],
-    "narx": 554.24
+    "narx": 551.87
    },
    "XRP": {
-    "tahlil": "XRP/USDT is currently in a bearish market structure with lower highs and lower lows, indicating a downtrend. The price is near resistance at 0.9975, and the RSI is at 56.1, suggesting some overbought conditions in the short term. The daily structure also shows a bearish trend, with the price below the EMA 50, 150, and 600. The ML forecast is slightly positive, but the market news score is negative, indicating potential headwinds.",
+    "tahlil": "XRP/USDT is currently in a bearish market structure with lower highs and lower lows, indicating a downtrend. The price is near resistance at 0.9975, and the RSI is at 55.8, suggesting moderate buying pressure but not overbought. The daily structure is also bearish, with the price below the EMA 50 and 150. The ML forecast is slightly positive, but the market news score is negative, indicating potential downside risks.",
     "qaror": "kutish",
     "ishonch": 30,
     "sabablar": [
      "trend_past",
      "kunlik_salbiy"
     ],
-    "narx": 0.9532
+    "narx": 0.9524
    }
   }
  },
- "ai_vaqt": "2026-11-26 08:17",
+ "ai_vaqt": "2026-11-26 12:18",
  "yangilik": {
   "vaqt": "2026-11-26 11:24",
   "soni": 50,
