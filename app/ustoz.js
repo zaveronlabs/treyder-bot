@@ -824,6 +824,8 @@ function qUsul() {
   if (q.pend && Date.now() >= q.pend.at) { q.uy = q.pend.uy; delete q.pend; save(); }
   return q.uy || "wifi";
 }
+// uyga kelgach yuvinish va ovqat uchun daqiqalar (qulf shundan keyin)
+const qOdat = () => { const v = S.ust.qulf && S.ust.qulf.odat; return v == null ? 60 : v; };
 function qReady(h, usul = qUsul()) { return !!(h && h.xizmat && (usul === "har" || (usul === "wifi" && h.uyBor) || (usul === "joy" && h.uyJoy))); }
 function qWake(t) { const c = ucfg(t); return Math.max(0, hm(c.morn) - 10); }
 // qulf oynalari: dars (bugungi asosiy dars, kechki takror, dam olishda hafta yakuni) va uyqu
@@ -847,11 +849,12 @@ function qWins() {
 }
 function qPayload() {
   if (!qOn()) return { on: false };
-  return Object.assign({ on: true, uy: qUsul() }, qWins());
+  return Object.assign({ on: true, uy: qUsul(), odat: qOdat() }, qWins());
 }
 function qHolatMatn(h = qHolat()) {
   if (!h) return "";
   if (h.favq > 0) return `Favqulodda ochilgan: yana ${dur(h.favq)}.`;
+  if (h.dam > Date.now()) return `Uydasan: avval yuvin, keyin ovqatlan. Telefon ${hhmm(h.dam)} da qulflanadi.`;
   if (h.rejim === "dars") return "Hozir telefon qulf: avval dars.";
   if (h.rejim === "uyqu") return `Hozir uxlash vaqti: telefon ${hhmm(h.gacha)} da ochiladi.`;
   if (h.rejim === "sinov") return "Sinov qulfi ishlayapti.";
@@ -869,6 +872,7 @@ function qHomeCard() {
   if (!h.xizmat) return `<section class="card uphone"><b>📵 Telefon qulfi ishlamayapti</b><span class="muted">Telefon sozlamalarida "Yodla qulfi" o'chib qolgan. Qayta yoq.</span><button class="btn main" id="qset" type="button">Tuzatish</button></section>`;
   if (qUsul() === "joy" && !h.uyJoy) return `<section class="card uphone"><b>📵 Uy belgilanmagan</b><span class="muted">Uyda turib uyni xaritada belgila, aks holda qulf qachon uydaligingni bilmaydi.</span><button class="btn main" id="qset" type="button">Belgilash</button></section>`;
   if (qUsul() === "joy" && !h.joyYoniq) return `<section class="card uphone"><b>📍 Joylashuv o'chiq</b><span class="muted">Qulf uyga kelganingni bila olmaydi, shuning uchun ${esc(ucfg().main)} da baribir qulflanadi. Yoqib qo'y.</span><button class="btn main" id="qset" type="button">Ochish</button></section>`;
+  if (h.dam > Date.now()) return `<section class="card uphone"><b>🚿 Uydasan! Avval yuvin, keyin ovqatlan</b><span class="muted">${hhmm(h.dam)} da dars boshlanadi, o'shanda telefon qulflanadi. Xohlasang, hozir ham boshlashing mumkin.</span></section>`;
   if (qUsul() === "wifi" && !h.uyBor) return `<section class="card uphone"><b>📵 Uy Wi-Fi belgilanmagan</b><span class="muted">Uyda turib uy Wi-Fi'ni belgila, aks holda qulf qachon uydaligingni bilmaydi.</span><button class="btn main" id="qset" type="button">Belgilash</button></section>`;
   return "";
 }
@@ -892,7 +896,8 @@ function qulfView() {
     steps.push(r("uy", h.uyBor, `${n++}. Uy Wi-Fi'ni belgilash${h.uyBor && h.uyNom ? `: ${esc(h.uyNom)}` : ""}`, h.wifi ? `Uyda turib bos. Hozir ulangan: ${esc(h.wifiNom || "Wi-Fi")}` : "Avval uydagi Wi-Fi'ga ulan, keyin bos."));
   }
   if (h.xiaomi) steps.push(r("popup", !!q.pop, `${n++}. Xiaomi: «Fonda oynalarni ochish» ruxsati`, "«Darsga o'tish» tugmasi Yodla'ni ocha olishi uchun."));
-  const first = joy ? "Uyga kelishing bilan (telefon joylashuvi bo'yicha)" : har ? `Ish kunlari ${esc(c.main)} da` : "Uyga kelib, uy Wi-Fi'ga ulanishing bilan";
+  const od = qOdat(), odTxt = od ? `uyga kelganingdan ${od} daqiqa keyin (yuvinish va ovqatdan so'ng)` : "uyga kelishing bilan";
+  const first = joy ? `Ish kunlari ${odTxt}` : har ? `Ish kunlari ${esc(c.main)} da` : `Ish kunlari ${odTxt} (uy Wi-Fi bo'yicha)`;
   html(`<div class="bar" id="qulfv"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>📵 Telefon qulfi</h2></div>
     <section class="card"><b>Qanday ishlaydi</b><ol class="urules">
       <li>${first} telefon dars rejimiga o'tadi: bugungi asosiy dars tugamaguncha faqat <b>Yodla va qo'ng'iroq</b> ishlaydi.</li>
@@ -907,6 +912,8 @@ function qulfView() {
     <section class="card"><b>Uyda ekaningni qanday bilsin</b>
       <div class="grid3">${Object.keys(QUSUL).map((k) => `<button class="opt ${k === (q.pend ? q.pend.uy : usul) ? "sel" : ""}" data-qu="${k}" type="button">${QUSUL[k]}</button>`).join("")}</div>
       ${q.pend ? `<span class="muted small">${esc(QUSUL[q.pend.uy])} ${hhmm(q.pend.at)} da (${esc(dateUz(q.pend.at))}) kuchga kiradi.</span>` : ""}</section>
+    ${har ? "" : `<section class="card"><b>🚿 Uyga kelgach: yuvinish va ovqat uchun</b><span class="muted small">Shu vaqt o'tgach telefon qulflanadi. Kelishing bilan telefon eslatadi.</span>
+      <div class="grid3" style="grid-template-columns:repeat(4,minmax(0,1fr))">${[30, 45, 60, 90].map((m) => `<button class="opt ${m === od ? "sel" : ""}" data-qo="${m}" type="button">${m} daq</button>`).join("")}</div></section>`}
     <section class="card"><b>Sozlash (bir marta)</b>${steps.join("")}</section>
     ${h.xizmat ? `<button class="btn ghost" id="qtest" type="button">Sinab ko'rish: 1 daqiqa qulf</button>` : ""}
     ${qon ? (q.offAt ? `<section class="card"><span class="muted">Qulf ${hhmm(q.offAt)} da (${dateUz(q.offAt)}) o'chadi.</span><button class="btn main" id="qon" type="button">Bekor qilish, qulf qolsin</button></section>`
@@ -939,6 +946,7 @@ function qulfView() {
     else q.pend = { uy: k, at: Date.now() + DAY };   // qulf yoniq bo'lsa, usulni almashtirish 24 soatdan keyin
     save(); uSync(); qulfView();
   });
+  on("[data-qo]", (e) => { q.odat = +e.currentTarget.dataset.qo; save(); uSync(); qulfView(); });
   $("qapp").onclick = () => { try { NATIVE.qulfRuxsat("ilova"); } catch {} };
   if ($("qtest")) $("qtest").onclick = () => { try { NATIVE.qulfSinov(); lateToast("Telefon 1 daqiqaga qulf. Boshqa ilovani ochib ko'r."); } catch {} };
   if ($("qon")) $("qon").onclick = () => { if (!qon && !ready) return; q.on = true; delete q.offAt; save(); uSync(); lateToast("📵 Telefon qulfi yoqildi"); qulfView(); };

@@ -221,6 +221,7 @@ public class Qulf extends AccessibilityService {
         String rejim = "", k = "", t = "";
         long gacha = 0;
         boolean uy = false, oyna = false, joyRejim = false;
+        long dam = 0;   // uyga keldi: shu vaqtgacha yuvinish va ovqat, keyin qulf
     }
 
     static Holat hisobla(Context c, boolean yoz) {
@@ -238,7 +239,7 @@ public class Qulf extends AccessibilityService {
             x.joyRejim = "joy".equals(usul);
             int joy = x.joyRejim ? joyda(c) : 0;
             String rej = "", k = "", t = "";
-            long gacha = 0, s = 0;
+            long gacha = 0, s = 0, aD = 0;
             JSONArray uq = q.optJSONArray("uyqu");
             if (uq != null) for (int i = 0; i < uq.length(); i++) {
                 JSONObject w = uq.getJSONObject(i);
@@ -249,7 +250,7 @@ public class Qulf extends AccessibilityService {
                 if (dr != null) for (int i = 0; i < dr.length(); i++) {
                     JSONObject w = dr.getJSONObject(i);
                     String wk = w.optString("k");
-                    if (w.optLong("a") <= now && now < w.optLong("b") && !bajarilgan(j, wk)) { rej = "dars"; k = wk; t = w.optString("t"); gacha = w.optLong("b"); s = w.optLong("s", w.optLong("a")); break; }
+                    if (w.optLong("a") <= now && now < w.optLong("b") && !bajarilgan(j, wk)) { rej = "dars"; k = wk; t = w.optString("t"); gacha = w.optLong("b"); s = w.optLong("s", w.optLong("a")); aD = w.optLong("a"); break; }
                 }
             }
             // GPS: uyda ekani aniq bo'lsa qulf; joy noma'lum bo'lsa (joylashuv o'chiq) dars vaqtidan boshlab baribir qulf;
@@ -260,6 +261,23 @@ public class Qulf extends AccessibilityService {
             x.oyna = !rej.isEmpty();
             String latch = p.getString("latch", "");
             if (rej.isEmpty()) { if (yoz && !latch.isEmpty()) p.edit().remove("latch").remove("uzoq").apply(); return x; }
+            // uyga kelgach odat vaqti (yuvinish, ovqat): qulf kelgan paytdan "odat" daqiqa keyin boshlanadi
+            int odat = q.optInt("odat", 0);
+            if ("dars".equals(rej) && aD < s && odat > 0 && !k.equals(latch)) {
+                boolean aniq = x.joyRejim ? joy == 1 : (!har && x.uy);
+                long kt = k.equals(p.getString("keldiK", "")) ? p.getLong("keldiT", 0) : 0;
+                if (kt == 0 && aniq) {
+                    kt = now;
+                    if (yoz) {
+                        p.edit().putString("keldiK", k).putLong("keldiT", now).apply();
+                        Calendar kal = Calendar.getInstance();
+                        kal.setTimeInMillis(now + odat * 60000L);
+                        Ustoz.korsat(c, "🚿 Uydasan! Avval yuvin, keyin ovqatlan",
+                                String.format(Locale.ROOT, "%02d:%02d da dars boshlanadi, o'shanda telefon qulflanadi.", kal.get(Calendar.HOUR_OF_DAY), kal.get(Calendar.MINUTE)), "");
+                    }
+                }
+                if (kt > 0 && now < kt + odat * 60000L) { x.dam = kt + odat * 60000L; return x; }
+            }
             if (x.uy) {
                 if (yoz && (!k.equals(latch) || p.getLong("uzoq", 0) != 0)) p.edit().putString("latch", k).putLong("uzoq", 0).apply();
             } else if (k.equals(latch) && !uzoqda) {
@@ -491,6 +509,7 @@ public class Qulf extends AccessibilityService {
             o.put("joyYoniq", joyYoniq(c));
             o.put("uyJoy", !p.getString("uyLat", "").isEmpty());
             o.put("joyda", joyda(c));
+            o.put("dam", x.dam);
             o.put("rejim", x.rejim);
             o.put("k", x.k);
             o.put("gacha", x.gacha);
