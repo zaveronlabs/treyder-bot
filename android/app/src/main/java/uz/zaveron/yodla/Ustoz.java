@@ -55,6 +55,7 @@ public class Ustoz extends BroadcastReceiver {
     static void saqla(Context c, String json) {
         prefs(c).edit().putString("j", json).apply();
         rejala(c);
+        Qulf.yangila();
     }
 
     static void tugadi(Context c, String key) {
@@ -66,6 +67,7 @@ public class Ustoz extends BroadcastReceiver {
             d.put(key);
             p.edit().putString("j", j.toString()).apply();
         } catch (Exception e) { }
+        Qulf.yangila();
         if (key.equals(p.getString("korsatildi", "-"))) {
             ((NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(ID);
         }

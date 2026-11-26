@@ -295,6 +295,11 @@ function uGate(now = Date.now()) {
   if (!uOn()) return null;
   const a = uActive(now);
   if (a) { const plan = uEnsure(a, true); const ctx = { b: a }; uAutoMark(ctx); if (!uDay(a.dk).fin[a.id]) return { b: a, plan }; }
+  const qk = qKey();
+  if (qk) {
+    const b = uBlocks(now).find((x) => x.key === qk), rec = b && uDay(b.dk);
+    if (b && !rec.fin[b.id] && !rec.exc[b.id]) { const plan = uEnsure(b, true); uAutoMark({ b }); if (!rec.fin[b.id]) return { b, plan, q: 1 }; }
+  }
   if (S.ust.debt.length && uStudyTime(now)) return { debt: S.ust.debt[0] };
   return null;
 }
@@ -366,7 +371,7 @@ function uSync() {
       const busy = on && S.ust.busy && S.ust.busy.until > Date.now() ? S.ust.busy : null;
       const mn = on ? hm(ucfg().main) : 20 * 60;
       // fb: jadval tugab qolsa (ilova uzoq ochilmasa) telefon har kuni shu vaqtda eslatadi
-      NATIVE.ustozJadval(JSON.stringify({ on, ev: on ? uEvents() : [], done: on ? uDoneKeys() : [], busy, fb: { h: Math.floor(mn / 60), m: mn % 60 } }));
+      NATIVE.ustozJadval(JSON.stringify({ on, ev: on ? uEvents() : [], done: on ? uDoneKeys() : [], busy, fb: { h: Math.floor(mn / 60), m: mn % 60 }, qulf: qPayload() }));
     } catch (e) { console.error(e); }
   }, 250);
 }
@@ -435,7 +440,7 @@ function ustozHome() {
   let big;
   if (g && g.b) {
     const steps = g.plan || [], done = rec.done[g.b.id] || {}, n = steps.filter((s) => done[s.id]).length;
-    big = `<div class="ubig now"><span class="tag pink">Hozir · ${hhmm(g.b.start)}–${hhmm(g.b.end)}</span><h2>${KIND[g.b.kind].ic} ${esc(uTitle(g.b))}</h2>
+    big = `<div class="ubig now"><span class="tag pink">${g.q && now < g.b.start ? "📵 Uydasan: dars tugaguncha telefon qulf" : `Hozir · ${hhmm(g.b.start)}–${hhmm(g.b.end)}`}</span><h2>${KIND[g.b.kind].ic} ${esc(uTitle(g.b))}</h2>
       <p>${n}/${steps.length} qadam · tugatish muddati ${hhmm(g.b.dead)}</p><div class="meter"><i style="width:${steps.length ? (n / steps.length) * 100 : 0}%"></i></div>
       <button class="btn main" id="ugo" type="button">${n ? "Davom etish" : "Boshlash"}</button></div>`;
   } else if (g && g.debt) {
@@ -468,6 +473,7 @@ function ustozHome() {
       ${big}
       <p class="usay">“${esc(uMsg(g, disc))}”</p>
     </section>
+    ${qHomeCard()}
     ${uPhoneCard()}
     ${yHomeCard()}
     <div class="sec">Bugungi jadval</div>
@@ -485,6 +491,7 @@ function ustozHome() {
   $("uset").onclick = () => ustozSettings();
   $("uhub").onclick = () => { if (uGate()) return ustozLock("hub"); IEFROM = "ustoz"; ieHub(); };
   uBindPhone(); yBindHome();
+  if ($("qset")) $("qset").onclick = () => qulfView();
   uSync();
 }
 function uRefresh() {
@@ -503,7 +510,7 @@ function uBlockView(c, fresh) {
   } else {
     K = KIND[b.kind]; isToday = b.dk === todayStr(now);
     if (now < b.start - 30 * 60000 && !uDay(b.dk).plan[b.id]) {
-      const early = b.kind === "yol" && isToday;
+      const early = isToday && (b.kind === "yol" || qKey() === b.key);
       html(`<div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>${K.ic} ${esc(uTitle(b))}</h2></div>
         <div class="card"><span class="tag pink">${hhmm(b.start)} da boshlanadi</span><b>${esc(K.d)}</b><span class="muted">${esc(K.why)}</span><span class="muted">${early ? "Vaqting bo'lsa, hozir ham boshlashing mumkin. Boshlasang, shu dars tugaguncha boshqa bo'limlar yopiladi." : "Qadamlar dars boshlanishiga 30 daqiqa qolganda tuziladi: o'sha paytgi takrorlash va xatolaringga qarab."}</span></div>
         ${early ? `<div class="grow"></div><button class="btn main" id="early" type="button">Hozir boshlash</button>` : ""}`);
@@ -657,6 +664,7 @@ function ustozSettings() {
       <div class="grid3">${[6, 6.5, 7].map((b) => `<button class="opt ${b === u.target ? "sel" : ""}" data-tg="${b}" type="button">Band ${b.toFixed(1)}</button>`).join("")}</div>
       <div class="grid3">${["2027-05", "2027-06", "2027-07"].map((m) => `<button class="opt ${m === u.exam ? "sel" : ""}" data-ex="${m}" type="button">${UZ_OY[+m.slice(5) - 1]} ${m.slice(0, 4)}</button>`).join("")}</div></section>
     ${p ? `<section class="card"><b>Telefon sozlamalari</b>${uPhoneBtns(p)}<button class="btn ghost" id="utest" type="button">Sinov eslatmasi (5 soniyada)</button></section>` : ""}
+    <section class="card"><b>📵 Telefon qulfi</b><span class="muted">${qOn() ? "Yoqilgan. " + esc(qHolatMatn()) : "Uyda dars tugaguncha va kechasi telefonni qulflaydi."}</span><button class="btn ghost" id="uqulf" type="button">${qOn() ? "Ochish" : "Sozlash"}</button></section>
     <section class="card"><b>Ustozni to'xtatish</b>
       ${u.offAt ? `<span class="muted">Ustoz ${hhmm(u.offAt)} da (${dateUz(u.offAt)}) o'chadi. Fikringdan qaytsang, bekor qil.</span><button class="btn main" id="uon" type="button">Bekor qilish, davom etamiz</button>`
         : `<span class="muted">O'chirish 24 soatdan keyin kuchga kiradi. Bu vaqtda hamma qoidalar ishlayveradi.</span><button class="btn ghost" id="uoff" type="button">O'chirish so'rovi</button>`}</section>
@@ -671,6 +679,7 @@ function ustozSettings() {
   if ($("uoff")) $("uoff").onclick = () => { u.offAt = Date.now() + DAY; save(); ustozSettings(); };
   if ($("uon")) $("uon").onclick = () => { delete u.offAt; save(); ustozSettings(); };
   $("uold").onclick = () => { if (uGate()) return ustozLock("plan"); planTabRaw(); };
+  $("uqulf").onclick = () => qulfView();
 }
 
 // ---------- natijalar: hafta hisoboti, sinov natijasi, ballar ----------
@@ -782,6 +791,7 @@ const planTabRaw = planTab;
 });
 function uResume() {
   if (!uOn()) return;
+  if ($("qulfv")) return qulfView();
   yInit();
   uProcess();
   const onTab = !!document.querySelector(".tabs"), onUst = !!document.querySelector(".tab.on[data-t=ustoz]");
@@ -798,3 +808,106 @@ setInterval(() => {
   if (key !== uLastGate) { uLastGate = key; if (!UCTX && onTab && !document.querySelector(".sheet") && (onUst || g)) return ustozHome(); }
   if (onUst) uRefresh();
 }, 30000);
+
+// ---------- telefon qulfi: uyda dars tugaguncha va uxlash vaqtida ----------
+// Vaqtlarni ilova hisoblab telefonga yuboradi; uyda ekanini (uy Wi-Fi) va qulfni telefon o'zi boshqaradi (Qulf.java).
+function qHolat() { try { return NATIVE && NATIVE.qulfHolat ? JSON.parse(NATIVE.qulfHolat()) : null; } catch { return null; } }
+function qOn() {
+  const q = S.ust && S.ust.qulf;
+  if (!q || !q.on || !S.ust.on) return false;
+  if (q.offAt && Date.now() >= q.offAt) { q.on = false; delete q.offAt; save(); uSync(); return false; }
+  return true;
+}
+function qKey() { if (!qOn()) return ""; const h = qHolat(); return h && h.rejim === "dars" ? h.k || "" : ""; }
+function qWake(t) { const c = ucfg(t); return Math.max(0, hm(c.morn) - 10); }
+// qulf oynalari: dars (bugungi asosiy dars, kechki takror, dam olishda hafta yakuni) va uyqu
+function qWins() {
+  const now = Date.now(), dars = [], uyqu = [], wifi = (S.ust.qulf.uy || "wifi") === "wifi";
+  for (let k = -1; k < 14; k++) {
+    const mid = addDays(now, k) + 12 * 3600000, d0 = startOfDay(mid), c = ucfg(mid), dow = new Date(mid).getDay();
+    const rec = S.ust.days[todayStr(mid)] || { fin: {}, exc: {} };
+    let sl = hm(c.sleep) || 23 * 60;
+    if (sl < 12 * 60) sl += 24 * 60;
+    const a = d0 + sl * 60000, b = addDays(mid, 1) + qWake(addDays(mid, 1) + 12 * 3600000) * 60000;
+    if (b > now && b > a) uyqu.push({ a, b });
+    for (const x of uBlocks(mid)) {
+      if (!x.core || x.passive || x.id === "ert" || rec.fin[x.id] || rec.exc[x.id] || x.dead <= now) continue;
+      // ish kunlari asosiy dars uyga kelgan zahoti (17:00 dan keyin uy Wi-Fi'ga ulanganda) boshlanadi
+      const from = x.main && wifi && c.work.includes(dow) ? Math.min(x.start, d0 + 17 * 3600000) : x.start;
+      dars.push({ a: from, b: x.dead, k: x.key, t: `${KIND[x.kind].ic} ${uTitle(x)}` });
+    }
+  }
+  return { dars, uyqu };
+}
+function qPayload() {
+  if (!qOn()) return { on: false };
+  return Object.assign({ on: true, uy: S.ust.qulf.uy || "wifi" }, qWins());
+}
+function qHolatMatn(h = qHolat()) {
+  if (!h) return "";
+  if (h.favq > 0) return `Favqulodda ochilgan: yana ${dur(h.favq)}.`;
+  if (h.rejim === "dars") return "Hozir telefon qulf: avval dars.";
+  if (h.rejim === "uyqu") return `Hozir uxlash vaqti: telefon ${hhmm(h.gacha)} da ochiladi.`;
+  if (h.rejim === "sinov") return "Sinov qulfi ishlayapti.";
+  return S.ust.qulf.uy === "har" ? "Hozir qulf yo'q." : h.uyda ? "Uydasan. Hozir qulf yo'q." : "Uyda emassan: qulf yo'q.";
+}
+function qHomeCard() {
+  if (!NATIVE || !NATIVE.qulfHolat) return "";
+  const q = S.ust.qulf;
+  if (!q || !q.on) return q && q.seen ? "" : `<section class="card uphone"><b>📵 Telefon qulfi</b><span class="muted">Uyga kelganingda bugungi dars tugaguncha telefonda faqat Yodla va qo'ng'iroq ishlaydi. Kechasi esa faqat qo'ng'iroq va budilnik.</span><button class="btn main" id="qset" type="button">Sozlash</button></section>`;
+  if (!qOn()) return "";
+  const h = qHolat() || {};
+  if (!h.xizmat) return `<section class="card uphone"><b>📵 Telefon qulfi ishlamayapti</b><span class="muted">Telefon sozlamalarida "Yodla qulfi" o'chib qolgan. Qayta yoq.</span><button class="btn main" id="qset" type="button">Tuzatish</button></section>`;
+  if (q.uy !== "har" && !h.uyBor) return `<section class="card uphone"><b>📵 Uy Wi-Fi belgilanmagan</b><span class="muted">Uyda turib uy Wi-Fi'ni belgila, aks holda qulf qachon uydaligingni bilmaydi.</span><button class="btn main" id="qset" type="button">Belgilash</button></section>`;
+  return "";
+}
+function qulfView() {
+  const u = S.ust, q = (u.qulf = u.qulf || { on: false, uy: "wifi" }), h = qHolat() || {}, qon = qOn(), c = ucfg();
+  if (!q.seen) { q.seen = 1; save(); }
+  const har = q.uy === "har";
+  const r = (k, ok, t, d) => `<button class="mrow ${ok ? "on" : ""}" data-qx="${k}" type="button"><span class="mchk">${ok ? CHECK : ""}</span><span>${t}${d ? `<br><small class="muted">${d}</small>` : ""}</span></button>`;
+  const wake = hhmm(startOfDay() + qWake(Date.now()) * 60000);
+  const ready = h.xizmat && (har || h.uyBor);
+  html(`<div class="bar" id="qulfv"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>📵 Telefon qulfi</h2></div>
+    <section class="card"><b>Qanday ishlaydi</b><ol class="urules">
+      <li>${har ? `Ish kunlari ${esc(c.main)} da` : "Uyga kelib, uy Wi-Fi'ga ulanishing bilan"} telefon dars rejimiga o'tadi: bugungi asosiy dars tugamaguncha faqat <b>Yodla va qo'ng'iroq</b> ishlaydi.</li>
+      <li>${esc(c.eve)} dagi qisqa takror ham shunday: tugatsang, telefon ochiladi.</li>
+      <li>Dam olish kunlari dars ${esc(c.wk)} dan boshlanadi.</li>
+      <li><b>${esc(c.sleep)} dan ${wake} gacha</b> telefon uxlaydi: faqat qo'ng'iroq va budilnik.</li>
+      <li>Qo'ng'iroq har doim mumkin. Juda zarur bo'lsa, haftasiga 2 marta 10 daqiqaga favqulodda ochsa bo'ladi.</li>
+      <li>Qulfni o'chirish 24 soatdan keyin kuchga kiradi.</li>
+    </ol></section>
+    ${qon ? `<section class="card"><b>Holat</b><span class="muted">${esc(qHolatMatn(h))}</span></section>` : ""}
+    <section class="card"><b>Sozlash (bir marta)</b>
+      ${r("xizmat", h.xizmat, "1. Yodla qulfini yoqish", "Ochilgan ro'yxatdan «Yodla qulfi»ni top (ba'zan «Yuklab olingan ilovalar» ichida) va yoq.")}
+      <span class="muted small">Agar «Cheklangan sozlama» desa: Yodla sozlamalari → yuqoridagi ⋮ → «Cheklangan sozlamalarga ruxsat berish», keyin 1-tugmani qayta bos.</span>
+      <button class="btn ghost" id="qapp" type="button">Yodla sozlamalari</button>
+      ${har ? "" : r("joy", h.joy && h.fon, "2. Joylashuvga ruxsat: «Doim ruxsat berish»", "Faqat uy Wi-Fi nomini bilish uchun. Ikki marta so'rashi mumkin.")}
+      ${har ? "" : r("uy", h.uyBor, `3. Uy Wi-Fi'ni belgilash${h.uyBor && h.uyNom ? `: ${esc(h.uyNom)}` : ""}`, h.wifi ? `Uyda turib bos. Hozir ulangan: ${esc(h.wifiNom || "Wi-Fi")}` : "Avval uydagi Wi-Fi'ga ulan, keyin bos.")}
+      ${h.xiaomi ? r("popup", !!q.pop, `${har ? 2 : 4}. Xiaomi: «Fonda oynalarni ochish» ruxsati`, "«Darsga o'tish» tugmasi Yodla'ni ocha olishi uchun.") : ""}
+      <button class="mrow ${har ? "on" : ""}" id="qhar" type="button"><span class="mchk">${har ? CHECK : ""}</span><span>Uyda Wi-Fi yo'q: faqat vaqt bo'yicha qulfla</span></button>
+    </section>
+    ${h.xizmat ? `<button class="btn ghost" id="qtest" type="button">Sinab ko'rish: 1 daqiqa qulf</button>` : ""}
+    ${qon ? (q.offAt ? `<section class="card"><span class="muted">Qulf ${hhmm(q.offAt)} da (${dateUz(q.offAt)}) o'chadi.</span><button class="btn main" id="qon" type="button">Bekor qilish, qulf qolsin</button></section>`
+        : `<button class="btn ghost" id="qoff" type="button">O'chirish so'rovi (24 soatdan keyin)</button>`)
+      : `<button class="btn main" id="qon" type="button" ${ready ? "" : "disabled"}>Qulfni yoqish</button>${ready ? "" : `<p class="center muted small">Avval yuqoridagi qadamlarni bajar.</p>`}`}
+  `);
+  $("quit").onclick = ustozSettings;
+  on("[data-qx]", (e) => {
+    const k = e.currentTarget.dataset.qx;
+    if (k === "uy") {
+      let res = {};
+      try { res = JSON.parse(NATIVE.qulfUy()); } catch {}
+      lateToast(res.ok ? `Uy Wi-Fi saqlandi${res.ssid ? `: ${esc(res.ssid)}` : ""} ✓` : "Wi-Fi topilmadi: avval uydagi Wi-Fi'ga ulan");
+      uSync(); return qulfView();
+    }
+    if (k === "popup") { q.pop = 1; save(); }
+    try { NATIVE.qulfRuxsat(k); } catch {}
+    if (k === "popup") qulfView();
+  });
+  $("qapp").onclick = () => { try { NATIVE.qulfRuxsat("ilova"); } catch {} };
+  $("qhar").onclick = () => { q.uy = har ? "wifi" : "har"; save(); uSync(); qulfView(); };
+  if ($("qtest")) $("qtest").onclick = () => { try { NATIVE.qulfSinov(); lateToast("Telefon 1 daqiqaga qulf. Boshqa ilovani ochib ko'r."); } catch {} };
+  if ($("qon")) $("qon").onclick = () => { if (!qon && !ready) return; q.on = true; delete q.offAt; save(); uSync(); lateToast("📵 Telefon qulfi yoqildi"); qulfView(); };
+  if ($("qoff")) $("qoff").onclick = () => { q.offAt = Date.now() + DAY; save(); uSync(); qulfView(); };
+}

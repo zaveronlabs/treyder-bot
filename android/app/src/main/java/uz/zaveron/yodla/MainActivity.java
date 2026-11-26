@@ -47,6 +47,7 @@ import java.util.Locale;
 public class MainActivity extends Activity {
     private static final String HOST = "appassets.androidplatform.net";
     private static final int MIK = 7;
+    private static final int JOY = 31;
     // orqaga tugmasi: ochiq mashqdan chiqish, boshqa bo'limdan So'zlarga qaytish, keyin ilovadan chiqish
     private static final String ORQAGA = "(function(){var q=document.getElementById('quit');if(q){q.click();return 1}"
             + "var t=document.querySelector('.tab.on'),f=document.querySelector('.tab');if(t&&f&&t!==f){f.click();return 1}return 0})()";
@@ -97,6 +98,7 @@ public class MainActivity extends Activity {
         });
         setContentView(web);
         if (saved == null || web.restoreState(saved) == null) web.loadUrl("https://" + HOST + "/assets/index.html");
+        if (getIntent() != null && getIntent().getBooleanExtra("qulfSinov", false)) Qulf.sinov(this);
     }
 
     // kunduzgi / tungi mavzu: holat va pastki panel ranglari, ikonkalar rangi
@@ -259,6 +261,46 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void ustozRuxsat(String k) { runOnUiThread(() -> ruxsatOch(k)); }
+
+        // --- Telefon qulfi ---
+        @JavascriptInterface
+        public String qulfHolat() { return Qulf.holat(MainActivity.this); }
+
+        @JavascriptInterface
+        public String qulfUy() { return Qulf.uyBelgila(MainActivity.this); }
+
+        @JavascriptInterface
+        public void qulfSinov() { Qulf.sinov(MainActivity.this); }
+
+        @JavascriptInterface
+        public void qulfRuxsat(String k) { runOnUiThread(() -> qulfRuxsatOch(k)); }
+    }
+
+    private void qulfRuxsatOch(String k) {
+        String pkg = getPackageName();
+        try {
+            if ("xizmat".equals(k)) {
+                startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+            } else if ("joy".equals(k)) {
+                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, JOY);
+                else if (Build.VERSION.SDK_INT >= 29 && checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, JOY);
+                else startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+            } else if ("popup".equals(k)) {
+                try {
+                    startActivity(new Intent("miui.intent.action.APP_PERM_EDITOR")
+                            .setClassName("com.miui.securitycenter", "com.miui.permcenter.permissions.PermissionsEditorActivity")
+                            .putExtra("extra_pkgname", pkg));
+                } catch (Exception e) {
+                    startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + pkg)));
+                }
+            } else if ("ilova".equals(k)) {
+                startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + pkg)));
+            }
+        } catch (Exception e) {
+            try { startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + pkg))); } catch (Exception e2) { }
+        }
     }
 
     // eslatmalar ishonchli kelishi uchun telefon sozlamalari
@@ -439,6 +481,7 @@ public class MainActivity extends Activity {
 
     @Override
     public void onRequestPermissionsResult(int kod, String[] p, int[] natija) {
+        if (kod == JOY) { Qulf.yangila(); if (web != null) js("window.yodlaQaytdi&&window.yodlaQaytdi()"); return; }
         if (kod != MIK) return;
         String til = kutilganTil;
         kutilganTil = null;
@@ -450,6 +493,7 @@ public class MainActivity extends Activity {
     protected void onNewIntent(Intent i) {
         super.onNewIntent(i);
         setIntent(i);
+        if (i != null && i.getBooleanExtra("qulfSinov", false)) Qulf.sinov(this);
         if (web != null && i != null && i.getBooleanExtra("ustoz", false)) js("window.yodlaUstoz&&window.yodlaUstoz()");
     }
 
