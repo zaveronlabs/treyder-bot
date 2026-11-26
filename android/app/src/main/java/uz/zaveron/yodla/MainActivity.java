@@ -272,8 +272,58 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void qulfSinov() { Qulf.sinov(MainActivity.this); }
 
+        // uy joyini GPS bilan belgilash; javob window.yodlaQulfUy({ok, aniq}) ga keladi
+        @JavascriptInterface
+        public void qulfUyJoy() { runOnUiThread(() -> uyJoyOl()); }
+
         @JavascriptInterface
         public void qulfRuxsat(String k) { runOnUiThread(() -> qulfRuxsatOch(k)); }
+    }
+
+    private android.location.Location eng;
+    private android.location.LocationListener uyL;
+
+    private void uyJoyOl() {
+        if (!Qulf.joyRuxsat(this)) { uyJoyJavob(null, "ruxsat"); return; }
+        if (!Qulf.joyYoniq(this)) { uyJoyJavob(null, "ochiq"); return; }
+        android.location.LocationManager lm = (android.location.LocationManager) getSystemService(LOCATION_SERVICE);
+        eng = null;
+        if (uyL != null) try { lm.removeUpdates(uyL); } catch (Exception e) { }
+        uyL = new android.location.LocationListener() {
+            @Override public void onLocationChanged(android.location.Location l) {
+                if (l != null && l.hasAccuracy() && (eng == null || l.getAccuracy() < eng.getAccuracy())) eng = l;
+                if (eng != null && eng.getAccuracy() <= 40) uyJoyTugat(lm);
+            }
+            @Override public void onStatusChanged(String pr, int st, Bundle b) { }
+            @Override public void onProviderEnabled(String pr) { }
+            @Override public void onProviderDisabled(String pr) { }
+        };
+        try {
+            for (String pr : lm.getProviders(true)) {
+                if ("passive".equals(pr)) continue;
+                lm.requestLocationUpdates(pr, 1000, 0, uyL, getMainLooper());
+            }
+        } catch (SecurityException e) { uyJoyJavob(null, "ruxsat"); return; }
+        final android.location.LocationListener bu = uyL;
+        web.postDelayed(() -> { if (uyL == bu) uyJoyTugat(lm); }, 40000);
+    }
+
+    private void uyJoyTugat(android.location.LocationManager lm) {
+        if (uyL == null) return;
+        try { lm.removeUpdates(uyL); } catch (Exception e) { }
+        uyL = null;
+        if (eng != null && eng.getAccuracy() <= 150) { Qulf.uyJoyBelgila(this, eng); uyJoyJavob(eng, ""); }
+        else uyJoyJavob(eng, "aniqmas");
+    }
+
+    private void uyJoyJavob(android.location.Location l, String xato) {
+        try {
+            JSONObject o = new JSONObject();
+            o.put("ok", xato.isEmpty());
+            o.put("xato", xato);
+            if (l != null) o.put("aniq", Math.round(l.getAccuracy()));
+            js("window.yodlaQulfUy&&window.yodlaQulfUy(" + o + ")");
+        } catch (Exception e) { }
     }
 
     private void qulfRuxsatOch(String k) {
@@ -287,6 +337,8 @@ public class MainActivity extends Activity {
                 else if (Build.VERSION.SDK_INT >= 29 && checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)
                     requestPermissions(new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION}, JOY);
                 else startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+            } else if ("gps".equals(k)) {
+                startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
             } else if ("popup".equals(k)) {
                 try {
                     startActivity(new Intent("miui.intent.action.APP_PERM_EDITOR")

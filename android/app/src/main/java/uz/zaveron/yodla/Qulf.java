@@ -109,6 +109,7 @@ public class Qulf extends AccessibilityService {
         men = null;
         h.removeCallbacksAndMessages(null);
         yashir();
+        joyKuzat(false);
         try { if (ekranR != null) unregisterReceiver(ekranR); } catch (Exception e) { }
         try { if (tarmoqCb != null) ((ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE)).unregisterNetworkCallback(tarmoqCb); } catch (Exception e) { }
         super.onDestroy();
@@ -164,6 +165,7 @@ public class Qulf extends AccessibilityService {
             favqOch(this);
         }
         Holat x = hisobla(this, true);
+        joyKuzat(x.joyRejim && x.oyna);
         if (oldPaket.isEmpty()) {
             try { AccessibilityNodeInfo n = getRootInActiveWindow(); if (n != null && n.getPackageName() != null) oldPaket = n.getPackageName().toString(); } catch (Exception e) { }
         }
@@ -218,7 +220,7 @@ public class Qulf extends AccessibilityService {
     static class Holat {
         String rejim = "", k = "", t = "";
         long gacha = 0;
-        boolean uy = false;
+        boolean uy = false, oyna = false, joyRejim = false;
     }
 
     static Holat hisobla(Context c, boolean yoz) {
@@ -231,27 +233,37 @@ public class Qulf extends AccessibilityService {
             if (p.getLong("sinov", 0) > now) { x.rejim = "sinov"; x.k = "sinov"; x.gacha = p.getLong("sinov", 0); x.uy = true; return x; }
             if (q == null || !q.optBoolean("on", false)) return x;
             if (p.getLong("favq", 0) > now) return x;
-            boolean har = "har".equals(q.optString("uy", "wifi"));
-            x.uy = har || uydami(c);
+            String usul = q.optString("uy", "wifi");
+            boolean har = "har".equals(usul);
+            x.joyRejim = "joy".equals(usul);
+            int joy = x.joyRejim ? joyda(c) : 0;
             String rej = "", k = "", t = "";
-            long gacha = 0;
+            long gacha = 0, s = 0;
             JSONArray uq = q.optJSONArray("uyqu");
             if (uq != null) for (int i = 0; i < uq.length(); i++) {
                 JSONObject w = uq.getJSONObject(i);
-                if (w.optLong("a") <= now && now < w.optLong("b")) { rej = "uyqu"; k = "uyqu|" + w.optLong("a"); gacha = w.optLong("b"); break; }
+                if (w.optLong("a") <= now && now < w.optLong("b")) { rej = "uyqu"; k = "uyqu|" + w.optLong("a"); gacha = w.optLong("b"); s = w.optLong("a"); break; }
             }
             if (rej.isEmpty()) {
                 JSONArray dr = q.optJSONArray("dars");
                 if (dr != null) for (int i = 0; i < dr.length(); i++) {
                     JSONObject w = dr.getJSONObject(i);
                     String wk = w.optString("k");
-                    if (w.optLong("a") <= now && now < w.optLong("b") && !bajarilgan(j, wk)) { rej = "dars"; k = wk; t = w.optString("t"); gacha = w.optLong("b"); break; }
+                    if (w.optLong("a") <= now && now < w.optLong("b") && !bajarilgan(j, wk)) { rej = "dars"; k = wk; t = w.optString("t"); gacha = w.optLong("b"); s = w.optLong("s", w.optLong("a")); break; }
                 }
             }
+            // GPS: uyda ekani aniq bo'lsa qulf; joy noma'lum bo'lsa (joylashuv o'chiq) dars vaqtidan boshlab baribir qulf;
+            // faqat uzoqda ekani aniq bo'lsa qulf yo'q
+            boolean uzoqda;
+            if (x.joyRejim) { x.uy = joy == 1 || (joy == 0 && s > 0 && now >= s); uzoqda = joy == -1; }
+            else { x.uy = har || uydami(c); uzoqda = !x.uy; }
+            x.oyna = !rej.isEmpty();
             String latch = p.getString("latch", "");
             if (rej.isEmpty()) { if (yoz && !latch.isEmpty()) p.edit().remove("latch").remove("uzoq").apply(); return x; }
             if (x.uy) {
                 if (yoz && (!k.equals(latch) || p.getLong("uzoq", 0) != 0)) p.edit().putString("latch", k).putLong("uzoq", 0).apply();
+            } else if (k.equals(latch) && !uzoqda) {
+                // aniq uzoqda emas (masalan GPS hali javob bermadi): qulf turadi
             } else if (k.equals(latch)) {
                 // uyda boshlangan qulf Wi-Fi uzilsa ham turadi; ekran yoniq holda 30 daqiqa uydan tashqarida bo'lsa yechiladi
                 boolean yoniq = true;
@@ -326,6 +338,87 @@ public class Qulf extends AccessibilityService {
         return !iz.isEmpty() && iz.equals(w[1]);
     }
 
+    // ---------- uy joylashuvi (GPS) ----------
+    static final long JOY_YANGI = 12 * 60000L;
+
+    static void joySaqla(Context c, android.location.Location l) {
+        if (l == null || !l.hasAccuracy() || l.getAccuracy() > 2000) return;
+        SharedPreferences p = prefs(c);
+        long t = l.getTime() > 0 ? Math.min(l.getTime(), System.currentTimeMillis()) : System.currentTimeMillis();
+        if (t < p.getLong("joyT", 0)) return;
+        p.edit().putString("joyLat", String.valueOf(l.getLatitude())).putString("joyLon", String.valueOf(l.getLongitude()))
+                .putFloat("joyA", l.getAccuracy()).putLong("joyT", t).apply();
+    }
+
+    // 1 = uyda, -1 = aniq uzoqda, 0 = bilmaymiz (joylashuv o'chiq yoki eski)
+    static int joyda(Context c) {
+        SharedPreferences p = prefs(c);
+        String ulat = p.getString("uyLat", ""), ulon = p.getString("uyLon", "");
+        if (ulat.isEmpty()) return 0;
+        long t = p.getLong("joyT", 0);
+        if (System.currentTimeMillis() - t > JOY_YANGI) return 0;
+        try {
+            float[] d = new float[1];
+            android.location.Location.distanceBetween(Double.parseDouble(ulat), Double.parseDouble(ulon),
+                    Double.parseDouble(p.getString("joyLat", "0")), Double.parseDouble(p.getString("joyLon", "0")), d);
+            float a = p.getFloat("joyA", 1000);
+            if (d[0] <= 200 + Math.min(a, 300)) return 1;
+            if (d[0] > 500 + a) return -1;
+        } catch (Exception e) { }
+        return 0;
+    }
+
+    static boolean joyYoniq(Context c) {
+        try {
+            android.location.LocationManager lm = (android.location.LocationManager) c.getSystemService(Context.LOCATION_SERVICE);
+            return Build.VERSION.SDK_INT < 28 || lm.isLocationEnabled();
+        } catch (Exception e) { return false; }
+    }
+
+    static boolean joyRuxsat(Context c) {
+        return c.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || c.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    static void uyJoyBelgila(Context c, android.location.Location l) {
+        prefs(c).edit().putString("uyLat", String.valueOf(l.getLatitude())).putString("uyLon", String.valueOf(l.getLongitude())).putFloat("uyA", l.getAccuracy()).apply();
+        joySaqla(c, l);
+        yangila();
+    }
+
+    // qulf vaqtida joylashuvni kuzatish (faqat kerak bo'lganda, batareya uchun)
+    private android.location.LocationListener joyL;
+    private boolean joyFaol = false;
+
+    private void joyKuzat(boolean kerak) {
+        if (kerak && !joyRuxsat(this)) kerak = false;
+        if (kerak == joyFaol) return;
+        android.location.LocationManager lm = (android.location.LocationManager) getSystemService(LOCATION_SERVICE);
+        try {
+            if (!kerak) { if (joyL != null) lm.removeUpdates(joyL); joyFaol = false; return; }
+            if (joyL == null) joyL = new android.location.LocationListener() {
+                @Override public void onLocationChanged(android.location.Location l) { joySaqla(Qulf.this, l); h.post(Qulf.this::tekshir); }
+                @Override public void onStatusChanged(String pr, int st, android.os.Bundle b) { }
+                @Override public void onProviderEnabled(String pr) { h.post(Qulf.this::tekshir); }
+                @Override public void onProviderDisabled(String pr) { h.post(Qulf.this::tekshir); }
+            };
+            boolean bor = false;
+            for (String pr : lm.getProviders(true)) {
+                if ("passive".equals(pr)) continue;
+                try { joySaqla(this, lm.getLastKnownLocation(pr)); } catch (Exception e) { }
+            }
+            if (Build.VERSION.SDK_INT >= 31 && lm.hasProvider("fused") && lm.isProviderEnabled("fused")) {
+                lm.requestLocationUpdates("fused", 60000, 0, joyL, Looper.getMainLooper());
+                bor = true;
+            } else {
+                if (lm.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER)) { lm.requestLocationUpdates(android.location.LocationManager.NETWORK_PROVIDER, 60000, 0, joyL, Looper.getMainLooper()); bor = true; }
+                if (lm.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER)) { lm.requestLocationUpdates(android.location.LocationManager.GPS_PROVIDER, 120000, 0, joyL, Looper.getMainLooper()); bor = true; }
+            }
+            try { lm.requestLocationUpdates(android.location.LocationManager.PASSIVE_PROVIDER, 30000, 0, joyL, Looper.getMainLooper()); bor = true; } catch (Exception e) { }
+            joyFaol = bor;
+        } catch (SecurityException e) { joyFaol = false; }
+    }
+
     // ilovadan: "Hozirgi Wi-Fi - uyim"
     static String uyBelgila(Context c) {
         try {
@@ -394,6 +487,10 @@ public class Qulf extends AccessibilityService {
             o.put("wifi", w != null);
             o.put("wifiNom", w == null ? "" : w[0]);
             o.put("uyda", uydami(c));
+            o.put("joyRux", joyRuxsat(c));
+            o.put("joyYoniq", joyYoniq(c));
+            o.put("uyJoy", !p.getString("uyLat", "").isEmpty());
+            o.put("joyda", joyda(c));
             o.put("rejim", x.rejim);
             o.put("k", x.k);
             o.put("gacha", x.gacha);
