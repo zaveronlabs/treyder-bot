@@ -1,0 +1,6 @@
+  Window #6 Window{e15c046 u0 com.android.settings/com.android.settings.homepage.SettingsHomepageActivity}:
+  Window #10 Window{9d52ddf u0 uz.zaveron.yodla/uz.zaveron.yodla.MainActivity}:
+  #0 Window{e15c046 u0 com.android.settings/com.android.settings.homepage.SettingsHomepageActivity}:
+  imeLayeringTarget in display# 0 Window{e15c046 u0 com.android.settings/com.android.settings.homepage.SettingsHomepageActivity}
+  imeInputTarget in display# 0 Window{e15c046 u0 com.android.settings/com.android.settings.homepage.SettingsHomepageActivity}
+  imeControlTarget in display# 0 Window{e15c046 u0 com.android.settings/com.android.settings.homepage.SettingsHomepageActivity}

@@ -1,0 +1,3 @@
+     Bound services:{Service[label=Yodla qulfi, feedbackType[FEEDBACK_GENERIC], capabilities=1, eventTypes=TYPE_WINDOW_STATE_CHANGED, notificationTimeout=100, requestA11yBtn=false]}
+     Enabled services:{{uz.zaveron.yodla/uz.zaveron.yodla.Qulf}}
+[com.google.android.apps.nexuslauncher][uz.zaveron.yodla][com.google.android.apps.wellbeing][com.google.android.apps.youtube.music][com.google.android.apps.nexuslauncher][com.google.android.youtube][com.google.android.as][com.google.android.googlequicksearchbox][com.android.systemui][com.google.android.inputmethod.latin][com.google.android.contacts]}]
