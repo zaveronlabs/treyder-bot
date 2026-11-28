@@ -144,14 +144,21 @@ public class Qulf extends AccessibilityService {
         h.postDelayed(tikR, qoshilgan && favqKut > 0 ? 1000 : 20000);
     }
 
-    // oyna haqiqiy ilova sahifasimi (dialog, menyu yoki o'zimizning qulf oynamiz emas)
+    // oyna haqiqiy ilova sahifasimi (klaviatura, dialog, menyu yoki o'zimizning qulf oynamiz emas)
     private boolean faoliyat(AccessibilityEvent e, String pk, String cl) {
+        if (cl.startsWith("android.inputmethodservice.") || klaviatura(pk)) return false;
         try { return getPackageManager().getActivityInfo(new ComponentName(pk, cl), 0) != null; }
-        catch (Exception x) {
-            // Android ba'zi ilovalarni ko'rsatmasligi mumkin: unda butun ekranli oyna bo'lsa, sahifa deb olinadi
-            if (pk.equals(getPackageName()) || soya(pk)) return false;
-            return e.isFullScreen() && !cl.startsWith("android.widget.") && !cl.startsWith("android.view.") && !cl.startsWith("android.app.");
-        }
+        catch (Exception x) { return false; }
+    }
+
+    private boolean klaviatura(String pk) {
+        try {
+            String d = Settings.Secure.getString(getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD);
+            if (d != null && d.startsWith(pk + "/")) return true;
+            android.view.inputmethod.InputMethodManager im = (android.view.inputmethod.InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            for (android.view.inputmethod.InputMethodInfo i : im.getEnabledInputMethodList()) if (pk.equals(i.getPackageName())) return true;
+        } catch (Exception x) { }
+        return false;
     }
 
     private boolean soya(String pk) {
@@ -181,7 +188,7 @@ public class Qulf extends AccessibilityService {
         boolean dars = !"uyqu".equals(rejim);
         if (dars && (pk.equals(getPackageName()) || pk.equals("com.anthropic.claude"))) return true;
         if (now < imtiyoz && pk.equals(uyPaket)) return true;
-        if (telefon(pk)) return true;
+        if (telefon(pk) || klaviatura(pk)) return true;
         String p = pk.toLowerCase(Locale.ROOT);
         return pk.equals("android") || pk.equals("com.android.systemui") || p.contains("permissioncontroller")
                 || p.contains("deskclock") || p.endsWith(".clock") || p.contains("alarm");

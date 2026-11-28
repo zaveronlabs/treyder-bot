@@ -656,6 +656,7 @@ mark { background: rgba(20, 184, 166, .18); color: var(--cyan); border-radius: 5
 .ydict { gap: 10px; }
 .ydict .btn svg { width: 20px; height: 20px; vertical-align: -4px; margin-right: 6px; }
 .ypart { border-color: rgba(20, 184, 166, .5); }
+.yod .tr small { display: block; opacity: .72; font-size: 13px; margin-top: 2px; }
 .gtx { min-height: 170px; }
 .gchk:empty { display: none; }
 .gline { padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 15px; line-height: 1.45; }
@@ -775,6 +776,7 @@ mark { background: rgba(20, 184, 166, .18); color: var(--cyan); border-radius: 5
 <script src="lessons.js"></script>
 <script src="chuqur.js"></script>
 <script src="chuqur2.js"></script>
+<script src="yod.js"></script>
 <script src="gapirish.js"></script>
 <script src="audio.js"></script>
 <script src="ielts.js"></script>
@@ -2757,6 +2759,7 @@ function deepLesson(li) {
     <div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>${esc(L.title)}</h2></div>
     ${stepper(0)}
     <div class="card goal"><span class="tag pink">Bu darsdan keyin</span><div class="rule">${D.goal}</div></div>
+    ${yodCard(L)}
     <div class="sec">${esc(D.story.title || "Kichik hikoya")}</div>
     <div class="tbl dialog story" id="story">${lines.map((r, j) => `<button class="tr sl" data-j="${j}" type="button"><span class="who">${esc(r[0] || "")}</span><div><b>${hl(r[1])}</b><span class="uz">${esc(r[2])}</span></div><span class="say">${SPK}</span></button>`).join("")}</div>
     <span class="muted small">Qatorni bos, eshitasan. Ajratilgan so'zlarga e'tibor ber: bugungi mavzu shular. Avval tarjimasiz tushunishga harakat qil.</span>
@@ -2774,6 +2777,17 @@ function deepLesson(li) {
   };
   $("go").onclick = () => deepNotice(li);
 }
+
+// yodlab olinadigan so'zlar: so'z, ma'nosi, farqi
+function yodCard(L) {
+  const Y = typeof YOD !== "undefined" && YOD[L.id];
+  if (!Y) return "";
+  return `<div class="card yod"><span class="tag pink">📌 Yodlab ol</span><div class="tbl">${Y.map((r) => {
+    const t = yodSay(r[0]);
+    return `<div class="tr"><b>${esc(r[0])}</b><span>${esc(r[1])}${r[2] ? `<small>${esc(r[2])}</small>` : ""}</span>${t ? `<button class="say" data-yod="${esc(t)}" type="button" aria-label="Tinglash">${SPK}</button>` : "<span></span>"}</div>`;
+  }).join("")}</div></div>`;
+}
+document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-yod]"); if (b) { e.stopPropagation(); speak(b.dataset.yod); } });
 
 // 2) payqash: shaklni o'zi topadi
 function deepNotice(li) {
@@ -2796,6 +2810,7 @@ function deepRule(li, then) {
   html(`
     <div class="bar"><button class="x" id="quit" type="button" aria-label="Orqaga">←</button><h2>${esc(L.title)}</h2></div>
     ${stepper(2)}
+    ${yodCard(L)}
     ${D.parts.map(part).join("")}
     <div class="grow"></div>
     <button class="btn main" id="go" type="button">${then ? "Tushundim, davom" : "Tushundim, tekshirib ko'ramiz"}</button>

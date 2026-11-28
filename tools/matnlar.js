@@ -3,7 +3,7 @@ const fs = require("fs"), vm = require("vm");
 const dir = process.argv[2], mode = process.argv[3] || "asosiy";
 const ctx = { window: {} };
 vm.createContext(ctx);
-for (const f of ["words.js", "lessons.js", "chuqur.js", "chuqur2.js", "gapirish.js", "ielts.js", "yol_data.js", "yol_data2.js", "yol_gram.js"]) if (fs.existsSync(dir + "/" + f)) vm.runInContext(fs.readFileSync(dir + "/" + f, "utf8").replace(/^const (PACKS|LESSONS|TEST|SAVOLLAR|HIKOYALAR|DEEP|IELTS|YOL|GYOZ|GWEEKS|GT|GLV)\b/gm, "var $1"), ctx);
+for (const f of ["words.js", "lessons.js", "chuqur.js", "chuqur2.js", "gapirish.js", "ielts.js", "yol_data.js", "yol_data2.js", "yol_gram.js", "yod.js"]) if (fs.existsSync(dir + "/" + f)) vm.runInContext(fs.readFileSync(dir + "/" + f, "utf8").replace(/^const (PACKS|LESSONS|TEST|SAVOLLAR|HIKOYALAR|DEEP|IELTS|YOL|GYOZ|GWEEKS|GT|GLV|YOD|yodSay)\b/gm, "var $1"), ctx);
 // IELTS ovozlari alohida paketda (ielts.mp3): kalit "§ovoz§matn", har xil aksentlar
 if (mode === "ielts") {
   const EXAM_V = /const EXAM_V = "([^"]+)"/.exec(fs.readFileSync(dir + "/imtihon.js", "utf8"))[1];
@@ -61,4 +61,5 @@ for (const U of ctx.YOL || []) {
 }
 // grammatika yo'li: "o'zing gap tuz" namunalari
 for (const g in ctx.GYOZ || {}) (ctx.GYOZ[g].ex || []).forEach((e) => add(e));
+for (const g in ctx.YOD || {}) ctx.YOD[g].forEach((r) => { const t = ctx.yodSay(r[0]); if (t) add(t); });
 console.log(JSON.stringify([...S]));
